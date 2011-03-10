@@ -1,0 +1,233 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+	<title>Session Timeout Plugin</title>
+	<script type="text/javascript" type="JavaScript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.5.1/jquery.min.js"></script>
+	<script type="text/javascript" src="../externals/jquery.timeago.js"></script>
+	<script type="text/javascript" src="../src/jquery.sessionTimeout.js"></script>
+	<script type="text/javascript">
+	$('document').ready(function(){
+
+		// use timeago to display how long ago the page was loaded
+		var loadTime = new Date(),
+		    sessiondurration = 10000,
+		    promptdurration = 5000,
+		    countDown,
+		    $status = $('#status');
+		
+		
+			setInterval(function(){
+					// use the wonderful timeago plugin to display when the page was originaly opened.
+					var timepassed = $.timeago(loadTime);
+					$('#idletime').text(timepassed);
+
+			}, 1000);
+
+		
+
+
+
+					
+		
+		// Methods
+		$('#btnInit').click(function(){
+		
+			sessiondurration = ($('#opt-timeout').val() || sessiondurration);
+		    promptdurration = ($('#opt-prompt').val() || promptdurration);
+		   	optAutoPing = ($('#opt-autoping').val() || false);
+		
+			$.fn.sessionTimeout({
+			
+				// automaticaly keep the connection alive
+				autoping : optAutoPing,
+				
+				// this session will expire in xxxx miliseconds  
+				timeout : sessiondurration,
+				
+				// how long to display session timeout mesage
+				promptfor :  promptdurration
+
+			    
+
+				
+			});
+		});
+		$('#btnPing').click(function(){
+			$.fn.sessionTimeout('ping');
+		});
+		$('#btnDestroy').click(function(){
+			$.fn.sessionTimeout('destroy');
+		});		
+		
+
+
+	
+	
+
+		
+		
+		
+		$(document).bind('ping.sessionTimeout', function() {	
+		
+			$("#opt-timeout").val(sessiondurration);
+			$("#opt-prompt").val(promptdurration);	
+			
+			// log the ping event
+			var t = new Date();
+			
+			// reset the countdown
+			clearTimeout(countDown);
+			
+			// Countdown to session timeout 
+			countDown = window.setInterval(function(){
+				(timeRemaining -= 1000);
+				if (timeRemaining >= 0){
+				
+					// update the display with the time remaining
+					$('#counter , #remaining').text(timeRemaining/1000 + " sec.");
+				
+				} 
+				
+			}, 1000);
+			
+			$('#status').append("Session Restarted @ " + t.toTimeString()+'\n' );
+		});
+
+	
+		$(document).bind('create.sessionTimeout', function(event, args) {
+			console.log('create session');
+		
+			// the plugin cannot be destroyed until it has first
+			// been initialized
+			$('#btnInit').attr('disabled', true);
+			$('#btnDestroy').removeAttr('disabled');
+
+
+	  		$('#durration').text( sessiondurration/1000 + ' sec.' );
+	  		
+	  		// log the create event
+	  		$('#status').append('Plugin initialized\n');
+			
+			// reset the countdown
+			clearTimeout(countDown);
+			
+			// get the current session durration
+			// you could also use $.fn.sessionTimeout('durration');
+			// but you'd get an extra console.log entry in the demo 
+			timeRemaining = sessiondurration;
+					
+			
+			// Countdown to session timeout 
+			countDown = window.setInterval(function(){
+				(timeRemaining -= 1000);
+				if (timeRemaining >= 0){
+				
+					// update the display with the time remaining
+					$('#counter , #remaining').text(timeRemaining/1000 + " sec.");
+				
+				} 
+				
+			}, 1000);
+					
+		});
+
+		
+		$(document).bind('prompt.sessionTimeout', function() {
+		
+			$status.append('Prompt user to continue\n');
+			
+		});
+		
+		
+		
+		$(document).bind('expired.sessionTimeout', function() {
+			
+			// allow user to change plugin options
+			$('#options > input').removeAttr('disabled');
+					
+			// the plugin cannot be created if its already initialized
+			$('#btnDestroy').attr('disabled', true);
+			$('#btnInit').removeAttr('disabled');
+			
+	  		$status.append('Session expired\n');
+		});
+		
+		
+		
+
+		$(document).bind('destroy.sessionTimeout', function() {
+			
+			// allow user to change plugin options
+			$('#options > input').removeAttr('disabled');
+			
+			// the plugin must be initialized before
+			// it can be desroyed
+			$('#btnDestroy').attr('disabled', true);
+			$('#btnInit').removeAttr('disabled');
+
+					
+			window.clearTimeout(countDown);
+			delete countDown;
+	  		$status.append('Plugin destroyed\n');
+		});	
+		
+	
+
+		// use sessionTimeout to prompt the user when time has expired
+		$.fn.sessionTimeout({
+			
+			// automaticaly keep the connection alive
+			autoping : true,
+			
+			// this session will expire in xxxx miliseconds  
+			timeout : sessiondurration,
+			
+			// how long to display session timeout mesage
+			promptfor :  promptdurration,
+		    
+		    // when it expires load the resource from the current server to keep the session alive
+		    img: "../src/spacer.gif"
+				
+		});
+
+
+	});
+	</script>
+</head>
+<body>
+	
+	<div>
+	<h1>Session Timeout Plugin</h1>
+	
+
+	
+	<ul>
+		<li>This page was loaded: <strong><span id="idletime"></span></strong></li>
+		<li>Session durration: <strong><span id="durration">0</span></strong></li>
+		<li>Session Time Remaining: <strong><span id="counter">0</span></strong></li>
+	</ul>
+	</div>
+	
+	<div id="options">
+		<input type="checkbox" name="opt-autoping" id="opt-autoping" disabled="disabled" /><label for="opt-autoping" >Automatically renew session</label><br />
+		<input type="text" name="opt-timeout" id="opt-timeout" value="10000" disabled="disabled" /><label for="opt-timeout">Session durration (ms)</label><br />
+		<input type="text" name="opt-prompt" id="opt-prompt" value="4000" disabled="disabled" /><label for="opt-prompt">Prompt durration (ms)</label><br />
+	</div>
+	
+	<div>
+		<button id="btnInit">Init</button>
+		<button id="btnPing">Ping</button>
+		<button id="btnDestroy">Destroy</button><br><br>
+	</div>
+	
+	
+	<h2>Events</h2>
+	<div id="log">
+		<label for="status">sessionTimeout status:</label><br>
+		<textarea id="status" title="log events" rows="16" cols="80" >
+loading...
+</textarea>
+	</div>
+
+</body>
+</html>
