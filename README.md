@@ -6,7 +6,8 @@ Copyright (c) 2011 Asa Baylus. Licensed under the MIT license.
 Overview
 --------
 
-A jQuery plugin which prevents the users sessions from being abandoned by the server 
+A jQuery plugin which prevents the users sessions from being abandoned by the server.
+Note that this plugin will not persist the users data after the session has expired. In fact, the script simply fetches a new image from the server, in effect it "pings" the server to keep the users session alive. However once the session has expired all user entered data will be lost. The plugin is intended to present users with some clues as to whats happened and why everything they've been working on is about to be lost.
 
 Features include:
 	- jQuery-style instantiation
