@@ -1,6 +1,6 @@
 /**
- * ACS Session Keep Alive Plugin
- * Prevents session from timeing-out
+ * jQuery Session Timeout Plugin
+ * Prevents sessions from timeing-out
  * @author Asa Baylus
  * @version 0.0.1
  */ 
@@ -25,7 +25,7 @@
 			img: "spacer.img", // set the asset to load from the server
 			promptfor: 10000, // triggers beforetimeout x seconds before session timeout
 			beforetimeout: function() {}, // callback which occurs prior to session timeout
-			ontimeout : function() {}
+			ontimeout : function() {} // callback which occurs upon session timeout
 	   	};
 		
 		methods = {
@@ -35,7 +35,7 @@
 				var d = new Date(),
 					tstamp = d.getTime();
 				
-				
+					
 				// if the resource dosnt exist
 				if (!$("#"+_imgId).length){
 					// get an image with a unique id
@@ -43,6 +43,9 @@
 					// it's important that the file has a defined
 					// filesize ex no includes or scripts
 					$("body").append("<img id='"+ _imgId +"' src='"+ options.img+ "?tstamp=" + tstamp  +"' style='position: \"absolute\", height: \"1px\", width: \"1px\"' alt='spacer'>");
+				} else {
+					// reinit the image
+					$("#"+_imgId).attr("src", options.img + "?timestamp=" + tstamp );
 				}
 				
 
@@ -63,6 +66,9 @@
 				else {
 					$.error( 'The jQuery.sessionTimeout beforetimeout parameter is expecting a function' );
 				}
+
+				// reset the session timer
+				window.clearTimeout(_sessionTimeout);
 
 				// start counting down to session timeout
 				_sessionTimeout = window.setTimeout(function(){
