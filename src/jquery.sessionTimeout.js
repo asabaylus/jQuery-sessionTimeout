@@ -22,7 +22,7 @@
 	    defaults = {
 	    	autoping : true,
 			timeout : 300000, // set the servers session timeout
-			resource: "spacer.img", // set the asset to load from the server
+			resource: "spacer.jpg", // set the asset to load from the server
 			promptfor: 10000, // triggers beforetimeout x seconds before session timeout
 			beforetimeout: function() {}, // callback which occurs prior to session timeout
 			ontimeout : function() {} // callback which occurs upon session timeout
@@ -102,23 +102,65 @@
 			},
 			
 			_fetch: function( ) {
-			
-			
-				var d = new Date(),
-					tstamp = d.getTime();
-			
+				
 				// loads the resource used to ping target server
-			
 				// if the resource dosnt exist
 				if (!$("#"+_resourceId).length){
-					// get an image with a unique id
-					// fetching the image will keep the server from timeing out
-					// it's important that the file has a defined
-					// filesize ex no includes or scripts
-					$("body").append("<img id='"+ _resourceId +"' src='"+ options.resource + "?tstamp=" + tstamp  +"' style='position: \"absolute\", height: \"1px\", width: \"1px\"' alt='spacer'>");
-				} else {
-					// reinit the image
-					$("#"+_resourceId).attr("src", options.resource + "?timestamp=" + tstamp );
+					var d = new Date(),
+						tstamp = d.getTime(),
+						reFileName = /^(.+)\.([^\.]*)?$/,
+						reImageExt = /^jpg|jpeg|png|gif|bmp$/,
+						file = options.resource.match(reFileName),
+						extension = file[2],
+						isImage = reImageExt.test(extension);
+							
+						console.log(file[2], isImage);
+						
+						// handle loading the resource the first time
+						if (isImage) {
+							// get an image with a unique id
+							// fetching the image will keep the server from timeing out
+							// it's important that the file has a defined
+							// filesize ex no includes or scripts
+							$("body").append("<img id='"+ _resourceId +"' src='"+ options.resource + "?tstamp=" + tstamp  +"' style='position: \"absolute\", height: \"1px\", width: \"1px\"' alt='spacer'>");
+						} else {
+						
+							$.ajax({
+							  type: 'POST',
+							  url: options.resource,
+							  data: {tstamp: tstamp},
+							  success: function(){ 
+							  	// resources loaded 
+							  	}
+							});
+
+						}
+					
+				
+	
+
+					} else {
+
+						
+						
+						// handle loading the resource the first time
+						if (isImage) {
+							// if the resource has already been loaded
+							// reinit the image
+							$("#"+_resourceId).attr("src", options.resource + "?timestamp=" + tstamp );
+						} else {
+						
+							$.ajax({
+							  type: 'POST',
+							  url: options.resource,
+							  data: {tstamp: tstamp},
+							  success: function(){ 
+							  	// resources loaded 
+							  	}
+							});
+
+						}
+						
 				}
 			
 			},
