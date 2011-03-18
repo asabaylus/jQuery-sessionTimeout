@@ -6,15 +6,16 @@ Copyright (c) 2011 Asa Baylus. Licensed under the MIT license.
 Overview
 --------
 
-A jQuery plugin which prevents the users sessions from being abandoned by the server.
-Note that this plugin will not persist the users data after the session has expired. In fact, the script simply fetches a new image from the server, in effect it "pings" the server to keep the users session alive. However once the session has expired all user entered data will be lost. The plugin is intended to present users with some clues as to whats happened and why everything they've been working on is about to be lost.
+Session Timeout is a jQuery plugin which provides an interface for preventing users sessions from being abandoned by the server. The plugin works by fetching a resource from the target server which host the user sessions. Session timeout can  retrieve and inject an image (typically a 1x1 px clear gif) into the current web page, in effect loading a resource from a server should renew the session. Alternatively, some servers (IIS, Apache) do not renew users sessions based on the requests for static assets. So optionally, the session timeout can be configured to download a file (php, aspx, cfm, fsp, etc.) into an invisible iframe. The file loaded into the iframe may then force the target server to renew the user's session. The session timeout plugin is strictly javascript and does not provide backend session reset scripts. 
+   
+Note that this plugin will not persist the users data after the session has expired. In fact, the script simply fetches a resource from the target application server, in effect it "pings" the server to keep the users session alive. However once the session has expired all user entered data will be lost. The plugin is intended to present users with some visual clues as to whats happened; and why everything they (the user) has been entering in a form is about to be lost.
 
 Features include:
-	- jQuery-style instantiation
-	- jQuery-style event handling
-	- automatic session renewal
-	- on-demand session renewal
-	- logging of plugin events
+* jQuery-style instantiation
+* jQuery-style event handling
+* automatic session renewal
+* on-demand session renewal
+* logging of plugin events
 	
 
 Usage
