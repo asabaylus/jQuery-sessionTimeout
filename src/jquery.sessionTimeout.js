@@ -36,17 +36,7 @@
 					tstamp = d.getTime();
 				
 					
-				// if the resource dosnt exist
-				if (!$("#"+_resourceId).length){
-					// get an image with a unique id
-					// fetching the image will keep the server from timeing out
-					// it's important that the file has a defined
-					// filesize ex no includes or scripts
-					$("body").append("<img id='"+ _resourceId +"' src='"+ options.resource + "?tstamp=" + tstamp  +"' style='position: \"absolute\", height: \"1px\", width: \"1px\"' alt='spacer'>");
-				} else {
-					// reinit the image
-					$("#"+_resourceId).attr("src", options.resource + "?timestamp=" + tstamp );
-				}
+				_fetch();
 				
 
 				// if beforeTimeout is a function then start countdown to user prompt
@@ -113,6 +103,24 @@
 				
 				
 			},
+			
+			_fetch ( ) {
+			
+				// loads the resource used to ping target server
+			
+				// if the resource dosnt exist
+				if (!$("#"+_resourceId).length){
+					// get an image with a unique id
+					// fetching the image will keep the server from timeing out
+					// it's important that the file has a defined
+					// filesize ex no includes or scripts
+					$("body").append("<img id='"+ _resourceId +"' src='"+ options.resource + "?tstamp=" + tstamp  +"' style='position: \"absolute\", height: \"1px\", width: \"1px\"' alt='spacer'>");
+				} else {
+					// reinit the image
+					$("#"+_resourceId).attr("src", options.resource + "?timestamp=" + tstamp );
+				}
+			
+			},
 				
 			ping: function( ) {
 				
@@ -131,7 +139,7 @@
 					return;
 				}
 				
-				$("#"+_resourceId).attr("src", options.resource + "?timestamp=" + tstamp );
+				_fetch();
 				
 				// if autoping is true, re-initialize the sessionTimeout
 				// when autoping is true 
