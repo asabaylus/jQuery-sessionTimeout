@@ -30,7 +30,7 @@ Options
 
 autoping: true (boolean) : automaticaly continues the users session
 timeout:  when the session will timeout
-img: url to an image URL
+resource: url to an image URL
 promptfor: number of ms to prompt user
 beforetimeout: function callback when the prompt begins 
 ontimeout: function callback when the session expires
