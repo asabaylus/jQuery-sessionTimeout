@@ -31,12 +31,9 @@
 		methods = {
 		
 			_init: function() {
-	
-				var d = new Date(),
-					tstamp = d.getTime();
-				
 					
-				_fetch();
+				
+				methods._fetch.apply();
 				
 
 				// if beforeTimeout is a function then start countdown to user prompt
@@ -104,7 +101,11 @@
 				
 			},
 			
-			_fetch ( ) {
+			_fetch: function( ) {
+			
+			
+				var d = new Date(),
+					tstamp = d.getTime();
 			
 				// loads the resource used to ping target server
 			
@@ -139,7 +140,7 @@
 					return;
 				}
 				
-				_fetch();
+				methods._fetch.apply();
 				
 				// if autoping is true, re-initialize the sessionTimeout
 				// when autoping is true 
