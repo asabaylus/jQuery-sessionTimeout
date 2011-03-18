@@ -11,7 +11,7 @@
 	var $global = {},
 		_log = [], // contains plugin history
 		_start = new Date(),
-		_imgId = 'sessionTimeout_'+ _start.getTime(),
+		_resourceId = 'sessionTimeout_'+ _start.getTime(),
 		_version = "0.0.1",
 		_sessionTimeout = "";
 		
@@ -22,7 +22,7 @@
 	    defaults = {
 	    	autoping : true,
 			timeout : 300000, // set the servers session timeout
-			img: "spacer.img", // set the asset to load from the server
+			resource: "spacer.img", // set the asset to load from the server
 			promptfor: 10000, // triggers beforetimeout x seconds before session timeout
 			beforetimeout: function() {}, // callback which occurs prior to session timeout
 			ontimeout : function() {} // callback which occurs upon session timeout
@@ -37,15 +37,15 @@
 				
 					
 				// if the resource dosnt exist
-				if (!$("#"+_imgId).length){
+				if (!$("#"+_resourceId).length){
 					// get an image with a unique id
 					// fetching the image will keep the server from timeing out
 					// it's important that the file has a defined
 					// filesize ex no includes or scripts
-					$("body").append("<img id='"+ _imgId +"' src='"+ options.img+ "?tstamp=" + tstamp  +"' style='position: \"absolute\", height: \"1px\", width: \"1px\"' alt='spacer'>");
+					$("body").append("<img id='"+ _resourceId +"' src='"+ options.resource + "?tstamp=" + tstamp  +"' style='position: \"absolute\", height: \"1px\", width: \"1px\"' alt='spacer'>");
 				} else {
 					// reinit the image
-					$("#"+_imgId).attr("src", options.img + "?timestamp=" + tstamp );
+					$("#"+_resourceId).attr("src", options.resource + "?timestamp=" + tstamp );
 				}
 				
 
@@ -131,7 +131,7 @@
 					return;
 				}
 				
-				$("#"+_imgId).attr("src", options.img + "?timestamp=" + tstamp );
+				$("#"+_resourceId).attr("src", options.resource + "?timestamp=" + tstamp );
 				
 				// if autoping is true, re-initialize the sessionTimeout
 				// when autoping is true 
@@ -193,8 +193,8 @@
 	    			$(document).unbind("sessionTimeout");
 	    			
 	    			// remove ping image from DOM
-	    			$("#"+_imgId).remove();
-	    			delete _imgId;
+	    			$("#"+_resourceId).remove();
+	    			delete _resourceId;
 					delete _log;
 					delete	$global;
 					delete _log.length;
