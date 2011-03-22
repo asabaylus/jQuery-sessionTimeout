@@ -113,8 +113,6 @@
 						file = options.resource.match(reFileName),
 						extension = file[2],
 						isImage = reImageExt.test(extension);
-							
-						console.log(file[2], isImage);
 						
 						// handle loading the resource the first time
 						if (isImage) {
