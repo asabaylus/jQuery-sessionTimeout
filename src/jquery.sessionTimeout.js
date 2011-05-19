@@ -264,8 +264,6 @@
 	    
 	    
 	    // log event records events into an array
-	    // it also prints events to the console if it
-	    // is available
 	    // *note log event must occur before triggering the bindings
 	 	function logEvent ( str ) {
 	 		_log.push(str);
