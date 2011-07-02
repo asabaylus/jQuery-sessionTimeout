@@ -22,7 +22,7 @@
 	    defaults = {
 	    	autoping : true,
 			timeout : 300000, // set the servers session timeout
-			resource: "spacer.jpg", // set the asset to load from the server
+			resource: "spacer.gif", // set the asset to load from the server
 			promptfor: 10000, // triggers beforetimeout x seconds before session timeout
 			beforetimeout: function() {}, // callback which occurs prior to session timeout
 			ontimeout : function() {} // callback which occurs upon session timeout
