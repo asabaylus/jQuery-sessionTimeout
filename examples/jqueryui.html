@@ -29,7 +29,7 @@
 
 		
 		// print the log of plugin events
-		function pl(){
+		$(document).bind("eventLogged.sessionTimeout", function(){
 			// the plugin event log is returned as an array
 			// break it out to multiple lines then update the status field
 			if (console && console.log){
@@ -38,8 +38,7 @@
 			}
 			// write the log into the status text area				
 			$("#status").val($.fn.sessionTimeout("printLog").join("\n"));	
-		}
-		
+		});
 
 
 		
@@ -62,9 +61,6 @@
 				} 
 				
 			}, 1000);
-			
-			pl(); // print the log
-
 		});
 		
 		
@@ -98,29 +94,14 @@
 				
 				} 
 				
-			}, 1000);
-			
-			pl(); // print the log
-			
+			}, 1000);			
 		});
-		
-		$(document).bind('expired.sessionTimeout', function() {
-			
-			pl(); // print the log
-		});
-		
-		$(document).bind('prompt.sessionTimeout', function() {
-			
-			pl(); // print the log
-		});	
 
 		$(document).bind('destroy.sessionTimeout', function() {
 			
 			// delete the coundown timer when we destroy the plugin
 			clearTimeout(countDown);
-			delete countDown;
 
-			pl(); // print the log
 
 		});	
 
@@ -163,7 +144,9 @@
 			}	
 		});
 					
-			
+		$('#btnInit').click(function(){
+			$.fn.sessionTimeout('init');
+		});			
 		$('#btnPing').click(function(){
 			$.fn.sessionTimeout('ping');
 		});
@@ -194,6 +177,7 @@
 	</div>
 	
 	<div>
+		<button id="btnInit">Initialize</button>
 		<button id="btnPing">Ping</button>
 		<button id="btnDestroy">Destroy</button><br><br>
 	</div>

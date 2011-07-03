@@ -10,8 +10,8 @@
 
 		// use timeago to display how long ago the page was loaded
 		var loadTime = new Date(),
-		    sessiondurration = 10000,
-		    promptdurration = 5000,
+		    sessionduration = 5000,
+		    promptduration = 2500,
 		    countDown,
 		    $status = $('#status');
 		
@@ -23,54 +23,78 @@
 
 			}, 1000);
 
+		// Log Events 
+		$(document).bind('eventLogged.sessionTimeout', function() {
+			
+			// print the log
+			// the plugin event log is returned as an array
+			// break it out to multiple lines then update the status field
+			if (console && console.log){
+				var m = $.fn.sessionTimeout("printLog").length-1;
+				console.log($.fn.sessionTimeout("printLog")[m]);
+			}
+			// write the log into the status text area				
+			$status.val($.fn.sessionTimeout("printLog").join("\n"));	
 		
-
-
-
+		});
 					
 		
 		// Methods
 		$('#btnInit').click(function(){
 		
-			sessiondurration = ($('#opt-timeout').val() || sessiondurration);
-		    promptdurration = ($('#opt-prompt').val() || promptdurration);
-		   	optAutoPing = ($('#opt-autoping').val() || false);
+			// re-enable the destroy button
+			$('#btnDestroy').attr('enabled', 'enabled');
 		
+			sessionduration = ($('#opt-timeout').val() || sessionduration);
+		    promptduration = ($('#opt-prompt').val() || promptduration);		   	
+		   	optautoping = $('#opt-autoping').is(':checked'); // use is instead of prop for backward compat
+		   	
+			
 			$.fn.sessionTimeout({
 			
 				// automaticaly keep the connection alive
-				autoping : optAutoPing,
+				autoping : optautoping,
 				
 				// this session will expire in xxxx miliseconds  
-				timeout : sessiondurration,
+				timeout : sessionduration,
 				
 				// how long to display session timeout mesage
-				promptfor :  promptdurration
-
-			    
-
+				promptfor :  promptduration
 				
 			});
 		});
+		
+		
 		$('#btnPing').click(function(){
 			$.fn.sessionTimeout('ping');
 		});
+		
+		
 		$('#btnDestroy').click(function(){
 			$.fn.sessionTimeout('destroy');
 		});		
 		
-
-
-	
-	
-
 		
+		$('#btnDuration').click(function(){
+			$.fn.sessionTimeout('duration');
+		});		
+		
+		
+		$('#btnElapsed').click(function(){
+			$.fn.sessionTimeout('elapsed');
+		});		
+		
+		
+		$('#btnRemaining').click(function(){
+			$.fn.sessionTimeout('remaining');
+		});		
 		
 		
 		$(document).bind('ping.sessionTimeout', function() {	
 		
-			$("#opt-timeout").val(sessiondurration);
-			$("#opt-prompt").val(promptdurration);	
+		
+			$("#opt-timeout").val(sessionduration);
+			$("#opt-prompt").val(promptduration);	
 			
 			// log the ping event
 			var t = new Date();
@@ -78,6 +102,11 @@
 			// reset the countdown
 			clearTimeout(countDown);
 			
+			// get the current session duration
+			// you could also use $.fn.sessionTimeout('duration');
+			// but you'd get an extra console.log entry in the demo 
+			timeRemaining = sessionduration;
+			
 			// Countdown to session timeout 
 			countDown = window.setInterval(function(){
 				(timeRemaining -= 1000);
@@ -90,12 +119,11 @@
 				
 			}, 1000);
 			
-			$('#status').append("Session Restarted @ " + t.toTimeString()+'\n' );
 		});
 
 	
 		$(document).bind('create.sessionTimeout', function(event, args) {
-			console.log('create session');
+
 		
 			// the plugin cannot be destroyed until it has first
 			// been initialized
@@ -103,18 +131,16 @@
 			$('#btnDestroy').removeAttr('disabled');
 
 
-	  		$('#durration').text( sessiondurration/1000 + ' sec.' );
+	  		$('#duration').text( sessionduration/1000 + ' sec.' );
 	  		
-	  		// log the create event
-	  		$('#status').append('Plugin initialized\n');
 			
 			// reset the countdown
 			clearTimeout(countDown);
 			
-			// get the current session durration
-			// you could also use $.fn.sessionTimeout('durration');
+			// get the current session duration
+			// you could also use $.fn.sessionTimeout('duration');
 			// but you'd get an extra console.log entry in the demo 
-			timeRemaining = sessiondurration;
+			timeRemaining = sessionduration;
 					
 			
 			// Countdown to session timeout 
@@ -129,13 +155,6 @@
 				
 			}, 1000);
 					
-		});
-
-		
-		$(document).bind('prompt.sessionTimeout', function() {
-		
-			$status.append('Prompt user to continue\n');
-			
 		});
 		
 		
@@ -149,7 +168,6 @@
 			$('#btnDestroy').attr('disabled', true);
 			$('#btnInit').removeAttr('disabled');
 			
-	  		$status.append('Session expired\n');
 		});
 		
 		
@@ -168,11 +186,12 @@
 					
 			window.clearTimeout(countDown);
 			delete countDown;
-	  		$status.append('Plugin destroyed\n');
+			
 		});	
 		
-	
-
+		// set autoping cb to checked
+		$('#opt-autoping').attr('checked', 'checked');
+		
 		// use sessionTimeout to prompt the user when time has expired
 		$.fn.sessionTimeout({
 			
@@ -180,16 +199,15 @@
 			autoping : true,
 			
 			// this session will expire in xxxx miliseconds  
-			timeout : sessiondurration,
+			timeout : sessionduration,
 			
 			// how long to display session timeout mesage
-			promptfor :  promptdurration,
+			promptfor :  promptduration,
 		    
 		    // when it expires load the resource from the current server to keep the session alive
-		    img: "../src/spacer.gif"
+		    resource: "../src/spacer.gif"
 				
-		});
-
+		});	
 
 	});
 	</script>
@@ -203,23 +221,29 @@
 	
 	<ul>
 		<li>This page was loaded: <strong><span id="idletime"></span></strong></li>
-		<li>Session durration: <strong><span id="durration">0</span></strong></li>
+		<li>Session duration: <strong><span id="duration">0</span></strong></li>
 		<li>Session Time Remaining: <strong><span id="counter">0</span></strong></li>
 	</ul>
 	</div>
 	
 	<div id="options">
 		<input type="checkbox" name="opt-autoping" id="opt-autoping" disabled="disabled" /><label for="opt-autoping" >Automatically renew session</label><br />
-		<input type="text" name="opt-timeout" id="opt-timeout" value="10000" disabled="disabled" /><label for="opt-timeout">Session durration (ms)</label><br />
-		<input type="text" name="opt-prompt" id="opt-prompt" value="4000" disabled="disabled" /><label for="opt-prompt">Prompt durration (ms)</label><br />
+		<input type="text" name="opt-timeout" id="opt-timeout" value="10000" disabled="disabled" /><label for="opt-timeout">Session duration (ms)</label><br />
+		<input type="text" name="opt-prompt" id="opt-prompt" value="4000" disabled="disabled" /><label for="opt-prompt">Prompt duration (ms)</label><br />
 	</div>
 	
 	<div>
 		<button id="btnInit">Init</button>
-		<button id="btnPing">Ping</button>
+		<button id="btnPing">Ping</button>				
 		<button id="btnDestroy">Destroy</button><br><br>
 	</div>
 	
+	
+	<div>
+		<button id="btnDuration">Duration</button>
+		<button id="btnElapsed">Elapsed</button>
+		<button id="btnRemaining">Remaining</button>
+	</div>
 	
 	<h2>Events</h2>
 	<div id="log">
