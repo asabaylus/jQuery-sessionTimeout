@@ -260,24 +260,21 @@
 			 * @public
 			 */
 			destroy : function () {
-				try {				
+				// before running cleanup check for plugin init
+				if (typeof _ready !== "undefined") {
 					// remove ping image from DOM
 					$("#" + _resourceId).remove();
 					window.clearInterval(_sessionTimeout);
 					window.clearTimeout(_beforeTimeout);
-				}
-				catch (error) {
-					$.error("Could not destroy, initialize the plugin before calling destroy.");
-				}
-				finally {
-					
+					_ready = undefined;			
 					logEvent("$.fn.sessionTimeout status: destroy");
 					$(document).trigger("destroy.sessionTimeout");			
 					// unbind all sessionTimeout events
 					$(document).unbind("sessionTimeout");
 					// delete the log
 					_log.length = 0;
-					
+				} else {
+					$.error("Could not destroy, initialize the plugin before calling destroy.");	
 				}
 			},
 			

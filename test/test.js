@@ -24,7 +24,7 @@ $(document).ready(function(){
 	
 	
 	module('jQuery.fn.sessionTimeout Events');
-	
+
 	test('Test create event',function(){
 		ok(createEvent, "create.sessionTimeout was triggered");
 		ok(version, 'session Timeout version = ' + version);
@@ -33,19 +33,20 @@ $(document).ready(function(){
 	test('Test ping event', function(){
 		$.fn.sessionTimeout('ping');
 		ok(strPing, 'ping.sessionTimeout was triggered @' + strPing);
-	});
-	
-	test('Test destroy event raises error if plugin not initialized', function(){
-		$.fn.sessionTimeout('destroy');
-		raises(function(){
-			$.fn.sessionTimeout('destroy');
-		}, 'Could not destroy, initialize the plugin before calling destroy.');
-	});
+	});	
 	
 	test('Test destroy event', function(){
 		$.fn.sessionTimeout();
 		$.fn.sessionTimeout('destroy');
 		ok(strDestroy, 'destroy.sessionTimeout event was triggered @' + strDestroy);
+	});
+
+	test('Test destroy event raises error if plugin not initialized', function(){
+		$.fn.sessionTimeout('destroy');
+		raises(function(){
+			$.fn.sessionTimeout('destroy');
+		}, 'Could not destroy, initialize the plugin before calling destroy.'
+		);
 	});
 	
 });

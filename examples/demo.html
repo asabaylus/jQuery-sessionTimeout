@@ -8,6 +8,7 @@
 	<script type="text/javascript">
 	$('document').ready(function(){
 
+		
 		// use timeago to display how long ago the page was loaded
 		var loadTime = new Date(),
 		    sessionduration = 5000,
@@ -36,8 +37,7 @@
 			// write the log into the status text area				
 			$status.val($.fn.sessionTimeout("printLog").join("\n"));	
 		
-		});
-					
+		});		
 		
 		// Methods
 		$('#btnInit').click(function(){
@@ -191,6 +191,8 @@
 		
 		// set autoping cb to checked
 		$('#opt-autoping').attr('checked', 'checked');
+		
+		
 		
 		// use sessionTimeout to prompt the user when time has expired
 		$.fn.sessionTimeout({
