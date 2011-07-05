@@ -252,7 +252,6 @@
 		
 					//if not using idletimer or user is inactive or this is the initial load (hence user is active) then do countdown
 					if (!_idleTimerExists || timesRestarted == 0 || $.data(document,'idleTimer') === 'idle') {
-							console.log("idleTimer === " + $.data(document,'idleTimer') );
 							methods._beforeTimeoutTimer.apply();
 					}					
 					
