@@ -1,9 +1,10 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html>
 <head>
-	<title>Session Timeout Plugin</title>
+	<title>Session Timeout Plugin: jquery.idleTimer integration</title>
 	<script type="text/javascript" src="../externals/jquery-1.6.1.js"></script>
 	<script type="text/javascript" src="../externals/jquery.timeago.js"></script>
+	<script type="text/javascript" src="../externals/jquery.idle-timer.js"></script>
 	<script type="text/javascript" src="../src/jquery.sessionTimeout.js"></script>
 	<script type="text/javascript">
 	$('document').ready(function(){
@@ -41,7 +42,9 @@
 		
 		// Methods
 		$('#btnInit').click(function(){
-		
+			
+			$(this).attr('disabled', 'disabled');
+			
 			// re-enable the destroy button
 			$('#btnDestroy').attr('enabled', 'enabled');
 		
@@ -189,8 +192,7 @@
 			
 		});	
 		
-		// set autoping cb to checked
-		$('#opt-autoping').attr('checked', 'checked');
+
 		
 		
 		
@@ -198,7 +200,7 @@
 		$.fn.sessionTimeout({
 			
 			// automaticaly keep the connection alive
-			autoping : true,
+			autoping : false,
 			
 			// this session will expire in xxxx miliseconds  
 			timeout : sessionduration,

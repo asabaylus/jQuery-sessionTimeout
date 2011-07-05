@@ -37,7 +37,9 @@
 		_version = "0.0.1",
 		_ready,
 		_sessionTimeout,
-		_beforeTimeout;
+		_beforeTimeoutTimer,
+		_idleTimerExists = false
+		timesRestarted = 0;
 
 	$.fn.sessionTimeout = function (options, method) {
 
@@ -61,57 +63,64 @@
 			 * @private
 			 */
 			_init: function () {
-
-				// reset the session timer
-				window.clearInterval(_sessionTimeout);
-
-				// start counting down to session timeout
-				_sessionTimeout = window.setInterval(function () {
-
-					// if autoping is not true session will eventualy timeout
-					if (options.autoping === false) { 
-
-						// handle the ontimeout callback
-						// first check that a function was passed in
-						if ($.isFunction(options.ontimeout)) {
-							options.ontimeout.call(this);
-							// stop the session timer
-							window.clearInterval(_sessionTimeout);
-							var d = new Date();
-							logEvent("$.fn.sessionTimeout status: session expired @" + d.toTimeString());
-							$(document).trigger('expired.sessionTimeout');
-
-						}
-						else {
-							$.error('The jQuery.sessionTimeout ontimeout parameter is expecting a function');
-						}
-
-					}
-					// if autoping is true,
-					// when countdown is complete ping the sever
-					else {
-						methods.ping.apply(this, arguments);
-					}				
-
-				}, options.timeout); 
+			
 				
-				// only run before time if autoping is not true
-				if (!options.autoping) {
-					_beforeTimeout = window.setTimeout(function () {
-						var d = new Date();
-						logEvent("$.fn.sessionTimeout status: beforeTimeout triggered @" + d.toTimeString());
-						if ($.isFunction(options.beforetimeout)) {
-							options.beforetimeout.call(this);
-						} else {
-							$.error("The jQuery.sessionTimeout beforetimeout parameter is expecting a function");
-						}
-						$(document).trigger("prompt.sessionTimeout");	
-					}, options.timeout - options.promptfor);
+
+				// test for Paul Irishes idleTimer plugin
+				_idleTimerExists = function () {
+					return $.isFunction($.fn.idleTimer);
+				};
+				
+
+				
+				// if idleTimer is installed and autoping is not enabled
+				// if autoping is enabled we dont need the idleTimer since
+				// the session will always be renewed
+				if (_idleTimerExists && options.autoping === false) {
+				
+					// set idleTimer() equal to the session durration 
+					$.idleTimer(options.timeout);
+					
+					// begin countdown to session expires
+					methods._startCountdown.apply();
+					
+					//if the user is active then stop the countdown
+					$(document).bind("active.idleTimer", function(){
+						window.clearInterval(_sessionTimeout);
+						window.clearTimeout(_beforeTimeoutTimer);	
+					});					
+					
+					// when the user goes idle restart countdown
+					$(document).bind("idle.idleTimer", function(){
+						
+						// stop polling the server
+						window.clearInterval(_keepAliveTimer);
+						
+						if (timesRestarted > 0) {
+							// begin countdown to session expires
+							methods._startCountdown.apply();	
+						} 
+						
+						// only expire the session once
+						$(document).unbind("idle.idleTimer");					
+						
+					});
+					
+					// renew the session automaticlay until the user has been inactive
+					// for the duration on the timeout property
+					_keepAliveTimer = window.setInterval(function(){
+						methods.ping.apply(this);
+					}, options.timeout);					
+										
+				} else {
+				
+					// start countdown
+					methods._startCountdown.apply();
 				}
-				
+								
 				// get the load time for plugin ready
 				_ready = new Date();				
-				logEvent("$.fn.sessionTimeout status: initialized");
+				logEvent("$.fn.sessionTimeout status: initialized @ " + _ready.toTimeString());
 				$(document).trigger("create.sessionTimeout", [_version, _start, (_ready - _start)]);
 
 
@@ -133,14 +142,18 @@
 				// http://www.atalasoft.com/cs/blogs/jake/archive/2008/12/19/creating-a-simple-ajax-sessionTimeout.aspx	
 				// see http://docs.jquery.com/Release:jQuery_1.2/Internals for unique ids
 
-				// if plugin was not initialized throw an error
-				if (typeof _sessionTimeout === "undefined") {
+				// if plugin was not initialized throw an error, unless...
+				// idleTimer is running in whic case we should allow ping to run
+				if (typeof _sessionTimeout === "undefined" && _idleTimerExists !== false) {
 					$.error('Initialize $.fn.sessionTimeout before invoking method "ping".');
 					return;
 				}
 
 				// renew the session
 				methods._fetch.apply();				
+				
+				timesRestarted ++;
+				
 				logEvent("$.fn.sessionTimeout status: session restarted @ " + t.toTimeString());
 				$(document).trigger("ping.sessionTimeout");
 				
@@ -192,23 +205,105 @@
 			 * @return {void}
 			 * @private
 			 */
-			_beforeTimeout: function () {
-
-				// if beforeTimeout is a function then start countdown to user prompt
-				if ($.isFunction(options.beforetimeout)) {
-					_beforeTimeout = window.setTimeout(function () {
-						var d = new Date();
-						logEvent("$.fn.sessionTimeout status: beforeTimeout triggered @" + d.toTimeString());
+			_beforeTimeoutTimer: function () {
 				
-						options.beforetimeout.call(this);
-						$(document).trigger("prompt.sessionTimeout");	
+				//if using idletimer and user inactive then do countdown
+				if (_idleTimerExists) {
+								
+						// if beforeTimeout is a function then start countdown to user prompt
+						if ($.isFunction(options.beforetimeout)) {
+							_beforeTimeout = window.setTimeout(function () {
+								// if this is not the initial load of the page which assume an active user
+								// trigger beforeTimeout
+								if ($.data(document,'idleTimer') && timesRestarted > 0) {
+									var d = new Date();
+									logEvent("$.fn.sessionTimeout status: beforeTimeout triggered @" + d.toTimeString());
+									options.beforetimeout.call(this);
+									$(document).trigger("prompt.sessionTimeout");	
+								}
+		
+							}, options.timeout - options.promptfor);
+						}
+						else {
+							$.error("The jQuery.sessionTimeout beforetimeout parameter is expecting a function");
+						}
+			
+				} else {
+					
+				// if beforeTimeout is a function then start countdown to user prompt
+						if ($.isFunction(options.beforetimeout)) {
+							_beforeTimeout = window.setTimeout(function () {
+								var d = new Date();
+								logEvent("$.fn.sessionTimeout status: beforeTimeout triggered @" + d.toTimeString());
+								options.beforetimeout.call(this);
+								$(document).trigger("prompt.sessionTimeout");	
+		
+							}, options.timeout - options.promptfor);
+						}
+						else {
+							$.error("The jQuery.sessionTimeout beforetimeout parameter is expecting a function");
+						}
 
-					}, options.timeout - options.promptfor);
-				}
-				else {
-					$.error("The jQuery.sessionTimeout beforetimeout parameter is expecting a function");
 				}
 
+			},
+			
+			/**
+			 * Starts countdown to session exiration
+			 * @return {void}
+			 * @private
+			 */
+			_startCountdown: function () {
+
+			
+					function countDown(){
+						// handle the ontimeout callback
+						// first check that a function was passed in
+						if ($.isFunction(options.ontimeout)) {
+							options.ontimeout.call(this);
+							// stop the session timer
+							window.clearInterval(_sessionTimeout);
+							var d = new Date();
+							logEvent("$.fn.sessionTimeout status: session expired @" + d.toTimeString());
+							$(document).trigger('expired.sessionTimeout');
+						}
+						else {
+							$.error('The jQuery.sessionTimeout ontimeout parameter is expecting a function');
+						}
+					}
+				
+					methods._beforeTimeoutTimer.apply();					
+					
+					// reset the session timer
+					window.clearInterval(_sessionTimeout);
+						
+					// start counting down to session timeout
+					_sessionTimeout = window.setInterval(function () {
+	
+						// if autoping is not true session will eventualy timeout
+						if (options.autoping === false) { 
+							//if using idletimer and user inactive then do countdown
+							if (_idleTimerExists) {
+								
+
+								if ($.data(document,'idleTimer') === 'idle') {
+									countDown();
+								}
+							}
+							// if not using idleTimer do countdown
+							else {							
+								countDown();
+							}
+							// if using idleTimer and the user is active do nothing					
+								
+						}
+						// if autoping is true,
+						// when countdown is complete ping the sever
+						else {
+							methods.ping.apply(this);
+						}				
+	
+					}, options.timeout); 
 			},
 
 
@@ -265,7 +360,8 @@
 					// remove ping image from DOM
 					$("#" + _resourceId).remove();
 					window.clearInterval(_sessionTimeout);
-					window.clearTimeout(_beforeTimeout);
+					window.clearTimeout(_beforeTimeoutTimer);
+					window.clearTimeout(_keepAliveTimer);
 					_ready = undefined;			
 					logEvent("$.fn.sessionTimeout status: destroy");
 					$(document).trigger("destroy.sessionTimeout");			
@@ -312,7 +408,7 @@
 		if (methods[method]) {
 			return methods[method].apply(this, Array.prototype.slice.call(arguments, 1));
 		} else if (typeof method === 'object' || ! method) {
-			return methods._init.apply(this, arguments);
+			return methods._init.apply(this);
 		} else {
 			$.error('Method ' +  method + ' does not exist on jQuery.sessionTimeout');
 		}
