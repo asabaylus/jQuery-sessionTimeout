@@ -55,11 +55,11 @@ jQuery(document).ready(function(){
 
 ## Options
 
-* autoping: true (boolean) : automaticaly continues the users session
+* autoping: true (boolean) : automatically continues the users session
 * timeout:  when the session will timeout
 * resource: "spacer.jpg" : url to an image or webpage (aspx, php, cfm, jsp, etc.) URL
 * promptfor: number of ms to prompt user
-* beforetimeout: function callback when the prompt begins 
+* beforetimeout: function callback when the prompt begins. Once beforeTimeout has triggered the session expiration will occur unless the countdown is restarted by calling the ping method ex: $.fn.sessionTimeout('ping') 
 * ontimeout: function callback when the session expires
 
 
@@ -67,11 +67,11 @@ jQuery(document).ready(function(){
 
 ```js
 $.fn.sessionTimeout("printLog"); // returns an array of logged plugin events
-$.fn.sessionTimeout("ping"); // loads the uncahcable image specified in the Options img from the server 
+$.fn.sessionTimeout("ping"); // loads the uncachable image specified in the Options img from the server 
 $.fn.sessionTimeout("durration"); // returns servers durration in ms 
 $.fn.sessionTimeout("elapsed"); // returns time session has been open in ms 
 $.fn.sessionTimeout("remaining"); // returns time left until session expires in ms
-$.fn.sessionTimeout("destroy"); // removes the plugin from the page and cleans up referneces
+$.fn.sessionTimeout("destroy"); // removes the plugin from the page and cleans up references
 ```
 
 
@@ -89,3 +89,7 @@ $(document).bind("logEvent.sessionTimeout");
 
 For example usage view examples/demo.html
 For unit tests view test/index.html
+
+
+
+

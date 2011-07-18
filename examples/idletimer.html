@@ -105,10 +105,8 @@
 			// reset the countdown
 			clearTimeout(countDown);
 			
-			// get the current session duration
-			// you could also use $.fn.sessionTimeout('duration');
-			// but you'd get an extra console.log entry in the demo 
-			timeRemaining = sessionduration;
+			// get the current time remaining for this session
+			timeRemaining = $.fn.sessionTimeout('remaining');
 			
 			// Countdown to session timeout 
 			countDown = window.setInterval(function(){

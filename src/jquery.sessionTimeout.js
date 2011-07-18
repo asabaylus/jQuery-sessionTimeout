@@ -73,9 +73,9 @@
 				
 
 				
-				// if idleTimer is installed and autoping is not enabled
-				// if autoping is enabled we dont need the idleTimer since
-				// the session will always be renewed
+				// if idleTimer is installed and autoping is not enabled (when autoping 
+				// is enabled we dont need the idleTimer since the session will 
+				// always be renewed)
 				if (_idleTimerExists && options.autoping === false) {
 				
 					// set idleTimer() equal to the session durration 
@@ -202,7 +202,36 @@
 			
 			
 			/**
+			 * Stops countdown to session exiration
+			 * @return {void}
+			 * @private
+			 */			
+			 _stopCountdown: function () {
+
+					// stop the session timer
+					window.clearInterval(_sessionTimeout);
+						
+					// handle the ontimeout callback
+					// first check that a function was passed in
+					if ($.isFunction(options.ontimeout)) {
+						options.ontimeout.call(this);
+					}
+					else {
+						$.error('The jQuery.sessionTimeout ontimeout parameter is expecting a function');
+						return false;
+					}
+					
+					var d = new Date();
+					logEvent("$.fn.sessionTimeout status: session expired @" + d.toTimeString());
+					$(document).trigger('expired.sessionTimeout');
+		
+			},			
+			
+			/**
 			 * Callback function occurs when promt begins
+			 * Once the beforeTimeout event has trigger, the session can no longer be renewed
+			 * through autoping or idleTimer user activity. It is assumed the session timeOut
+			 * must be cancled by "pinging" the server. ex: $.fn.sessionTimeout("ping");
 			 * @return {void}
 			 * @private
 			 */
@@ -226,6 +255,7 @@
 
 			},
 			
+			
 			/**
 			 * Starts countdown to session exiration
 			 * @return {void}
@@ -233,30 +263,15 @@
 			 */
 			_startCountdown: function () {
 
-			
-					function countDown(){
-						// handle the ontimeout callback
-						// first check that a function was passed in
-						if ($.isFunction(options.ontimeout)) {
-							options.ontimeout.call(this);
-							// stop the session timer
-							window.clearInterval(_sessionTimeout);
-							var d = new Date();
-							logEvent("$.fn.sessionTimeout status: session expired @" + d.toTimeString());
-							$(document).trigger('expired.sessionTimeout');
-						}
-						else {
-							$.error('The jQuery.sessionTimeout ontimeout parameter is expecting a function');
-						}
+					// we dont need to stop the countdown the before it has been started.
+					if (timesRestarted > 0) {
+						methods._stopCountdown.apply();
 					}
-		
+					
 					//if not using idletimer or user is inactive or this is the initial load (hence user is active) then do countdown
 					if (!_idleTimerExists || timesRestarted == 0 || $.data(document,'idleTimer') === 'idle') {
 							methods._beforeTimeoutTimer.apply();
 					}					
-					
-					// reset the session timer
-					window.clearInterval(_sessionTimeout);
 						
 					// start counting down to session timeout
 					_sessionTimeout = window.setInterval(function () {
@@ -265,14 +280,17 @@
 						if (options.autoping === false) { 
 							//if using idletimer and user inactive then do countdown
 							if (_idleTimerExists && $.data(document,'idleTimer') === 'idle') {
-									countDown();
+								methods._stopCountdown.apply();
+							}
+							// if using idleTimer and the user is active	
+							else if (_idleTimerExists && $.data(document,'idleTimer') === 'active' && timesRestarted > 0) {	
+								// do nothing	
 							}
 							// if not using idleTimer do countdown
-							else {							
-								countDown();
+							else {
+								methods._stopCountdown.apply();							
 							}
-							// if using idleTimer and the user is active do nothing					
-								
+										
 						}
 						// if autoping is true,
 						// when countdown is complete ping the sever
