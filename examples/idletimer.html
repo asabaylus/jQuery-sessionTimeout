@@ -106,7 +106,8 @@
 			clearTimeout(countDown);
 			
 			// get the current time remaining for this session
-			timeRemaining = $.fn.sessionTimeout('remaining');
+			// surpress logging of remaining time
+			timeRemaining = $.fn.sessionTimeout('remaining', true);
 			
 			// Countdown to session timeout 
 			countDown = window.setInterval(function(){
