@@ -170,7 +170,7 @@
 				if ($.isFunction(options.beforetimeout)) {			
 					_beforeTimeoutTimer = window.setTimeout(function () {
 					
-						console.log("bang!")
+						console.log("running beforeTimeout");
 						
 						var d = new Date();
 						logEvent("$.fn.sessionTimeout status: beforeTimeout triggered @" + d.toTimeString());
@@ -213,6 +213,10 @@
 			 */
 			_startCountdown: function () {
 					
+
+
+					
+					// In the end there can be only one - Ramirez
 					window.clearInterval(_keepAliveTimer);
 
 					// if autoping then never let sessions expire
@@ -230,12 +234,12 @@
 						
 						// poll for user activity	
 						_keepAliveTimer = window.setTimeout(function(){
-							
 							if ($.data(document,'idleTimer') === 'idle') {
+								console.log(timesRestarted + " user is idle")
 								methods._beforeTimeout.apply();
-								methods._startCountdown.apply();
 							} 
 							else {
+								console.log(timesRestarted + " user is active");
 								methods.ping.apply();
 							}						
 						}, options.pollactivity);					
@@ -245,7 +249,7 @@
 						methods._beforeTimeout.apply();
 					}
 					
-					
+								timesRestarted++;		
 			},
 
 
