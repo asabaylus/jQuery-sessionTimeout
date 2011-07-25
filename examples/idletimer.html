@@ -2,6 +2,14 @@
 <html>
 <head>
 	<title>Session Timeout Plugin: jquery.idleTimer integration</title>
+	<style type="text/css">
+		#activity {
+			padding: .1em .3em;
+			color: white;
+		}
+		#activity.idle { background-color: red; }
+		#activity.active { background-color: green; }
+	</style>
 	<script type="text/javascript" src="../externals/jquery-1.6.1.js"></script>
 	<script type="text/javascript" src="../externals/jquery.timeago.js"></script>
 	<script type="text/javascript" src="../externals/jquery.idle-timer.js"></script>
@@ -192,8 +200,15 @@
 			
 		});	
 		
-
 		
+		$(document).bind("idle.idleTimer", function(){
+			$('#activity').toggleClass('active', false).addClass('idle').text('idle');
+		});
+		 
+		 
+		$(document).bind("active.idleTimer", function(){
+			$('#activity').toggleClass('idle', false).addClass('active').text('active'); 
+		});
 		
 		
 		// use sessionTimeout to prompt the user when time has expired
@@ -227,6 +242,7 @@
 		<li>This page was loaded: <strong><span id="idletime"></span></strong></li>
 		<li>Session duration: <strong><span id="duration">0</span></strong></li>
 		<li>Session Time Remaining: <strong><span id="counter">0</span></strong></li>
+		<li>User Activity: <strong><span id="activity" class="idle">idle</span></strong></li>
 	</ul>
 	</div>
 	

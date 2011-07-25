@@ -68,7 +68,7 @@
 			_init: function () {
 
 				// test for Paul Irishes idleTimer plugin
-				_idleTimerExists = $.isFunction($.fn.idleTimer);
+				_idleTimerExists = $.isFunction($.idleTimer);
 				
 				methods._startCountdown.apply();
 												
@@ -213,9 +213,6 @@
 			 */
 			_startCountdown: function () {
 					
-
-
-					
 					// In the end there can be only one - Ramirez
 					window.clearInterval(_keepAliveTimer);
 
@@ -226,7 +223,13 @@
 							}, timeout);
 					}
 					
+					// TODO: rewrite function as follows:
 					// if idleTimer plugin exists
+					// start the countdown
+					// when user become active
+					// ping the server
+					// when user goes idle restart the countdown
+					// less the polling time used for idleTimer
 					else if (_idleTimerExists){	
 						
 						// set idleTimer() equal to the session durration 
@@ -249,7 +252,7 @@
 						methods._beforeTimeout.apply();
 					}
 					
-								timesRestarted++;		
+					timesRestarted++;		
 			},
 
 
@@ -318,7 +321,8 @@
 					// unbind all sessionTimeout events
 					$(document).unbind("sessionTimeout");
 					if (_idleTimerExists) {
-						$(document).unbind("idleTimer");
+						// destroy idletimer
+						$(document).idleTimer('destroy');
 					}
 					// delete the log
 					_log.length = 0;
