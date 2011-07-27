@@ -41,8 +41,8 @@
 		_beforeTimeoutTimer,
 		_keepAliveTimer,
 		_idleTimerExists = false,
-		timesRestarted = 0;
-
+		timesrun = 0;
+		
 	$.fn.sessionTimeout = function (options, method) {
 
 
@@ -54,7 +54,7 @@
 			promptfor : 10000, // triggers beforetimeout x seconds before session timeout
 			beforetimeout : $.noop, // callback which occurs prior to session timeout
 			ontimeout : $.noop, // callback which occurs upon session timeout
-			pollactivity : 4000 // number seconds between checking for user activity (only needed if using idletimer)
+			pollactivity : 1000 // number seconds between checking for user activity (only needed if using idletimer)
 		};
 
 		methods = {
@@ -70,12 +70,20 @@
 				// test for Paul Irishes idleTimer plugin
 				_idleTimerExists = $.isFunction($.idleTimer);
 				
+				
+				if (options.pollactivity > options.timeout - options.promptfor && _idleTimerExists === true){
+					$.error("The configuration pollactivity is too long: polling must happen prior to the beforetimeout callback.");
+					return false
+				}
+				
 				methods._startCountdown.apply();
 												
 				// get the load time for plugin ready
 				_ready = new Date();				
 				logEvent("$.fn.sessionTimeout status: initialized @ " + _ready.toTimeString());
 				$(document).trigger("create.sessionTimeout", [_version, _start, (_ready - _start)]);
+				
+				
 			},
 			
 			/**
@@ -201,8 +209,6 @@
 					logEvent("$.fn.sessionTimeout status: session expired @" + d.toTimeString());
 					$(document).trigger('expired.sessionTimeout');
 				}, options.timeout); 
-
-
 			},
 			
 			
@@ -223,36 +229,43 @@
 							}, timeout);
 					}
 					
-					// TODO: rewrite function as follows:
 					// if idleTimer plugin exists
-					// start the countdown
-					// when user become active
-					// ping the server
-					// when user goes idle restart the countdown
-					// less the polling time used for idleTimer
-					else if (_idleTimerExists){	
+					// 1. when user goes idle restart the countdown
+					//    less the polling time used for idleTimer
+					// 2. cancel the current countdown when the user is active
+					//    ping the server
+					else if (_idleTimerExists && timesrun === 0 ){	
+						
+						
 						
 						// set idleTimer() equal to the session durration 
 						$.idleTimer(options.pollactivity-1);
 						
-						// poll for user activity	
-						_keepAliveTimer = window.setTimeout(function(){
-							if ($.data(document,'idleTimer') === 'idle') {
-								console.log(timesRestarted + " user is idle")
+						$(document).bind('idle.idleTimer', function(){ 
+							_keepAliveTimer = window.setTimeout(function(){
 								methods._beforeTimeout.apply();
-							} 
-							else {
-								console.log(timesRestarted + " user is active");
-								methods.ping.apply();
-							}						
-						}, options.pollactivity);					
+							}, (options.timeout - options.pollactivity) -1);						
+						}).bind('active.idleTimer', function(){
+							console.log('bang!')
+							window.clearInterval(_keepAliveTimer);
+							methods.ping.apply();
+						}).bind('expired.sessionTimeout', function(){
+							$(document).unbind("active.idleTimer").unbind("idle.idleTimer");
+						});		
+						
+						
+
+						
+						// force the timer to execute when page loads
+						$(document).trigger('idle.idleTimer');
+						
+						timesrun++;			
 					} 				
 					
 					else {
 						methods._beforeTimeout.apply();
 					}
 					
-					timesRestarted++;		
 			},
 
 
