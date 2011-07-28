@@ -105,9 +105,11 @@
 				logEvent("$.fn.sessionTimeout status: session restarted @ " + t.toTimeString());
 				$(document).trigger("ping.sessionTimeout");
 				
+				// if idleTimer is present than the next countdown is bound to the activity of the user otherwise
 				// restart session timeout countdown
-				methods._startCountdown.apply();
-				
+				if (_idleTimerExists) {
+					methods._startCountdown.apply();
+				}			
 
 			},
 			
@@ -172,14 +174,10 @@
 			 * @private
 			 */
 			_beforeTimeout: function () {
-				
-					
+									
 				// if beforeTimeout is a function then start countdown to user prompt
 				if ($.isFunction(options.beforetimeout)) {			
-					_beforeTimeoutTimer = window.setTimeout(function () {
-					
-						console.log("running beforeTimeout");
-						
+					_beforeTimeoutTimer = window.setTimeout(function () {						
 						var d = new Date();
 						logEvent("$.fn.sessionTimeout status: beforeTimeout triggered @" + d.toTimeString());
 						options.beforetimeout.call(this);
@@ -219,6 +217,8 @@
 			 */
 			_startCountdown: function () {
 					
+
+
 					// In the end there can be only one - Ramirez
 					window.clearInterval(_keepAliveTimer);
 
@@ -235,37 +235,36 @@
 					// 2. cancel the current countdown when the user is active
 					//    ping the server
 					else if (_idleTimerExists && timesrun === 0 ){	
-						
-						
+
 						
 						// set idleTimer() equal to the session durration 
 						$.idleTimer(options.pollactivity-1);
-						
+
 						$(document).bind('idle.idleTimer', function(){ 
 							_keepAliveTimer = window.setTimeout(function(){
 								methods._beforeTimeout.apply();
 							}, (options.timeout - options.pollactivity) -1);						
-						}).bind('active.idleTimer', function(){
-							console.log('bang!')
+						})
+
+						$(document).bind('active.idleTimer', function(){
 							window.clearInterval(_keepAliveTimer);
 							methods.ping.apply();
-						}).bind('expired.sessionTimeout', function(){
+						})
+
+						$(document).bind('expired.sessionTimeout', function(){
 							$(document).unbind("active.idleTimer").unbind("idle.idleTimer");
 						});		
-						
-						
 
-						
 						// force the timer to execute when page loads
-						$(document).trigger('idle.idleTimer');
-						
-						timesrun++;			
+						$(document).trigger('idle.idleTimer');	
+								
 					} 				
 					
-					else {
+					else if (!_idleTimerExists) {
 						methods._beforeTimeout.apply();
 					}
-					
+
+					timesrun++;	
 			},
 
 

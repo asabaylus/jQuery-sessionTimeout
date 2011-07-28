@@ -22,6 +22,7 @@
 		var loadTime = new Date(),
 		    sessionduration = 5000,
 		    promptduration = 2500,
+		    pollduration = 1250,
 		    countDown,
 		    $status = $('#status');
 		
@@ -57,7 +58,8 @@
 			$('#btnDestroy').attr('enabled', 'enabled');
 		
 			sessionduration = ($('#opt-timeout').val() || sessionduration);
-		    promptduration = ($('#opt-prompt').val() || promptduration);		   	
+		    promptduration = ($('#opt-prompt').val() || promptduration);
+		    pollduration = ($('#opt-activity').val() || pollduration);		   	
 		   	optautoping = $('#opt-autoping').is(':checked'); // use is instead of prop for backward compat
 		   	
 			
@@ -70,7 +72,10 @@
 				timeout : sessionduration,
 				
 				// how long to display session timeout mesage
-				promptfor :  promptduration
+				promptfor :  promptduration,
+
+				// how frequently to check for user activity
+				pollactivity : pollduration
 				
 			});
 		});
@@ -250,6 +255,7 @@
 		<input type="checkbox" name="opt-autoping" id="opt-autoping" disabled="disabled" /><label for="opt-autoping" >Automatically renew session</label><br />
 		<input type="text" name="opt-timeout" id="opt-timeout" value="10000" disabled="disabled" /><label for="opt-timeout">Session duration (ms)</label><br />
 		<input type="text" name="opt-prompt" id="opt-prompt" value="4000" disabled="disabled" /><label for="opt-prompt">Prompt duration (ms)</label><br />
+		<input type="text" name="opt-prompt" id="opt-activity" value="2000" /><label for="opt-prompt">Poll for user activity, duration (ms)</label><br />
 	</div>
 	
 	<div>
