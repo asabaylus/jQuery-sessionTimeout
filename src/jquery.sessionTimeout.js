@@ -222,20 +222,12 @@
 					// In the end there can be only one - Ramirez
 					window.clearInterval(_keepAliveTimer);
 
-					// if autoping then never let sessions expire
-					if (options.autoping === true) {
-						_keepAliveTimer = window.setTimeout(function(){
-							methods.ping.apply();
-							}, timeout);
-					}
-					
 					// if idleTimer plugin exists
 					// 1. when user goes idle restart the countdown
 					//    less the polling time used for idleTimer
 					// 2. cancel the current countdown when the user is active
 					//    ping the server
-					else if (_idleTimerExists && timesrun === 0 ){	
-
+					if ( _idleTimerExists && timesrun === 0 ){	
 						
 						// set idleTimer() equal to the session durration 
 						$.idleTimer(options.pollactivity-1);
@@ -247,20 +239,37 @@
 						})
 
 						$(document).bind('active.idleTimer', function(){
-							window.clearInterval(_keepAliveTimer);
+							// if autoping is on then cancel the beforeTimeout event 
+							// because the session will never expire.
+							// otherwise we will promt the user for input
+
+							console.log(_beforeTimeoutTimer);
+									
+							if (options.autoping === true && typeof _beforeTimeoutTimer !== 'undefined' ) {
+								logEvent("$.fn.sessionTimeout status: beforeTime canceled @ " + options.timeout);
+								window.clearInterval(_beforeTimeoutTimer);
+								window.clearInterval(_keepAliveTimer);
+								window.clearInterval(_sessionTimeoutTimer);
+							}
 							methods.ping.apply();
 						})
 
 						$(document).bind('expired.sessionTimeout', function(){
 							$(document).unbind("active.idleTimer").unbind("idle.idleTimer");
-						});		
+						})	
 
 						// force the timer to execute when page loads
 						$(document).trigger('idle.idleTimer');	
 								
-					} 				
-					
+					} 
+					else if ( options.autoping ===  true && !_idleTimerExists) {
+						_keepAliveTimer = window.setTimeout(function(){
+							methods.ping.apply();
+						}, timeout);
+
+					}				
 					else if (!_idleTimerExists) {
+
 						methods._beforeTimeout.apply();
 					}
 
