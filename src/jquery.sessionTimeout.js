@@ -230,12 +230,8 @@
 						// set idleTimer() equal to the session durration 
 						$.idleTimer(options.pollactivity-1);
                         
-                        var timesidle = 0;
-                        
 						$(document).bind('idle.idleTimer', function(){ 
-                            timesidle++;
-                            console.log('binding keepAliveTimer run == '+timesidle);
-							if (timesidle > 1) {
+							if (typeof keepAliveTimer === 'undefined') {
                                 _keepAliveTimer = window.setTimeout(function(){
 								    methods._beforeTimeout.apply();
 							    }, (options.timeout - options.pollactivity) -1);
