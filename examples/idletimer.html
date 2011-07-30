@@ -5,10 +5,9 @@
 	<style type="text/css">
 		#activity {
 			padding: .1em .3em;
-			color: white;
 		}
-		#activity.idle { background-color: red; }
-		#activity.active { background-color: green; }
+		#activity.idle { background-color: red; color: white;}
+		#activity.active { background-color: green; color: white; }
 	</style>
 	<script type="text/javascript" src="../externals/jquery-1.6.1.js"></script>
 	<script type="text/javascript" src="../externals/jquery.timeago.js"></script>
@@ -108,8 +107,7 @@
 		
 		
 		$(document).bind('ping.sessionTimeout', function() {	
-		
-		
+
 			$("#opt-timeout").val(sessionduration);
 			$("#opt-prompt").val(promptduration);	
 			
@@ -117,24 +115,20 @@
 			var t = new Date();
 			
 			// reset the countdown
-			clearTimeout(countDown);
+	        clearInterval(countDown);
 			
 			// get the current time remaining for this session
 			// surpress logging of remaining time
-			timeRemaining = $.fn.sessionTimeout('remaining', true);
-			
+			timeRemaining = $.fn.sessionTimeout('duration', true);
+			$counter = $('#counter');
 			// Countdown to session timeout 
 			countDown = window.setInterval(function(){
-				(timeRemaining -= 1000);
+                timeRemaining -= 1000;
 				if (timeRemaining >= 0){
-				
 					// update the display with the time remaining
-					$('#counter , #remaining').text(timeRemaining/1000 + " sec.");
-				
+					$counter.text(timeRemaining/1000 + " sec.");
 				} 
-				
 			}, 1000);
-			
 		});
 
 	
@@ -183,6 +177,8 @@
 			// the plugin cannot be created if its already initialized
 			$('#btnDestroy').attr('disabled', true);
 			$('#btnInit').removeAttr('disabled');
+            
+            $('#activity').removeAttr('class').text('---');
 			
 		});
 		

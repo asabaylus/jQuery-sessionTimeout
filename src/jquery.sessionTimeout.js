@@ -282,9 +282,11 @@
 			 * @return {number}
 			 * @public
 			 */
-			duration : function () {
-				logEvent("$.fn.sessionTimeout status: duration " + options.timeout);
-				return options.timeout;
+			duration : function (surpresslog) {
+                if (!surpresslog){
+				    logEvent("$.fn.sessionTimeout status: duration " + options.timeout);
+                }
+                return options.timeout;
 			},
 
 
