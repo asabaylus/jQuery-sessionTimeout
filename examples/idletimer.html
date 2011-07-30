@@ -55,11 +55,11 @@
 			
 			// re-enable the destroy button
 			$('#btnDestroy').attr('enabled', 'enabled');
-		
+        
 			sessionduration = ($('#opt-timeout').val() || sessionduration);
 		    promptduration = ($('#opt-prompt').val() || promptduration);
 		    pollduration = ($('#opt-activity').val() || pollduration);		   	
-		   	optautoping = $('#opt-autoping').is(':checked'); // use is instead of prop for backward compat
+		   	optautoping = $('#opt-autoping').is(':checked');
 		   	
 			
 			$.fn.sessionTimeout({

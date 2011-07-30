@@ -73,7 +73,7 @@
 				
 				if (options.pollactivity > options.timeout - options.promptfor && _idleTimerExists === true){
 					$.error("The configuration pollactivity is too long: polling must happen prior to the beforetimeout callback.");
-					return false
+					return false;
 				}
 				
 				methods._startCountdown.apply();
@@ -236,7 +236,7 @@
 							_keepAliveTimer = window.setTimeout(function(){
 								methods._beforeTimeout.apply();
 							}, (options.timeout - options.pollactivity) -1);						
-						})
+						});
 
 						$(document).bind('active.idleTimer', function(){
 							// if autoping is on then cancel the beforeTimeout event 
@@ -252,11 +252,11 @@
 								window.clearInterval(_sessionTimeoutTimer);
 							}
 							methods.ping.apply();
-						})
+						});
 
 						$(document).bind('expired.sessionTimeout', function(){
 							$(document).unbind("active.idleTimer").unbind("idle.idleTimer");
-						})	
+						});	
 
 						// force the timer to execute when page loads
 						$(document).trigger('idle.idleTimer');	
