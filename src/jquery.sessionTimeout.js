@@ -177,13 +177,10 @@
 									
 				// if beforeTimeout is a function then start countdown to user prompt
 				if ($.isFunction(options.beforetimeout)) {			
-					//_beforeTimeoutTimer = window.setTimeout(function () {						
 						var d = new Date();
 						logEvent("$.fn.sessionTimeout status: beforeTimeout triggered @" + d.toTimeString());
 						options.beforetimeout.call(this);
 						$(document).trigger("prompt.sessionTimeout");	
-
-					//}, options.timeout - options.promptfor);
 				}
 				else {
 					$.error("The jQuery.sessionTimeout beforetimeout parameter is expecting a function");
@@ -206,7 +203,7 @@
 					var d = new Date();
 					logEvent("$.fn.sessionTimeout status: session expired @" + d.toTimeString());
 					$(document).trigger('expired.sessionTimeout');
-				}, options.timeout); 
+				}, options.timeout - options.promptfor); 
 			},
 			
 			
@@ -217,10 +214,8 @@
 			 */
 			_startCountdown: function () {
 					
-
-
 					// In the end there can be only one - Ramirez
-					window.clearInterval(_keepAliveTimer);
+					window.clearTimeout(_keepAliveTimer);
 
 					// if idleTimer plugin exists
 					// 1. when user goes idle restart the countdown
@@ -231,8 +226,11 @@
 						
 						// set idleTimer() equal to the session durration 
 						$.idleTimer(options.pollactivity-1);
-
+                        
+                        var timesidle = 0;
 						$(document).bind('idle.idleTimer', function(){ 
+                            timesidle++;
+                            console.log('binding keepAliveTimer run == '+timesidle);
 							_keepAliveTimer = window.setTimeout(function(){
 								methods._beforeTimeout.apply();
 							}, (options.timeout - options.pollactivity) -1);						
@@ -245,9 +243,9 @@
 									
 							if (options.autoping === true && typeof _beforeTimeoutTimer !== 'undefined' ) {
 								logEvent("$.fn.sessionTimeout status: beforeTime canceled @ " + options.timeout);
-								window.clearInterval(_beforeTimeoutTimer);
-								window.clearInterval(_keepAliveTimer);
-								window.clearInterval(_sessionTimeoutTimer);
+								window.clearTimeout(_beforeTimeoutTimer);
+								window.clearTimeout(_keepAliveTimer);
+								window.clearTimeout(_sessionTimeoutTimer);
 							}
 							methods.ping.apply();
 						});
@@ -267,7 +265,6 @@
 
 					}				
 					else if (!_idleTimerExists) {
-
 						methods._beforeTimeout.apply();
 					}
 
