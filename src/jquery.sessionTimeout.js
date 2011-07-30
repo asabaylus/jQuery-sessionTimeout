@@ -177,13 +177,13 @@
 									
 				// if beforeTimeout is a function then start countdown to user prompt
 				if ($.isFunction(options.beforetimeout)) {			
-					_beforeTimeoutTimer = window.setTimeout(function () {						
+					//_beforeTimeoutTimer = window.setTimeout(function () {						
 						var d = new Date();
 						logEvent("$.fn.sessionTimeout status: beforeTimeout triggered @" + d.toTimeString());
 						options.beforetimeout.call(this);
 						$(document).trigger("prompt.sessionTimeout");	
 
-					}, options.timeout - options.promptfor);
+					//}, options.timeout - options.promptfor);
 				}
 				else {
 					$.error("The jQuery.sessionTimeout beforetimeout parameter is expecting a function");
@@ -263,7 +263,7 @@
 					else if ( options.autoping ===  true && !_idleTimerExists) {
 						_keepAliveTimer = window.setTimeout(function(){
 							methods.ping.apply();
-						}, timeout);
+						}, options.timeout);
 
 					}				
 					else if (!_idleTimerExists) {
