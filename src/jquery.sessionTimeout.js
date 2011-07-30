@@ -202,6 +202,7 @@
 											
 					var d = new Date();
 					logEvent("$.fn.sessionTimeout status: session expired @" + d.toTimeString());
+                    timesrun = 0; // reset the times run count
 					$(document).trigger('expired.sessionTimeout');
 				}, options.timeout - options.promptfor); 
 			},
@@ -228,12 +229,15 @@
 						$.idleTimer(options.pollactivity-1);
                         
                         var timesidle = 0;
+                        
 						$(document).bind('idle.idleTimer', function(){ 
                             timesidle++;
                             console.log('binding keepAliveTimer run == '+timesidle);
-							_keepAliveTimer = window.setTimeout(function(){
-								methods._beforeTimeout.apply();
-							}, (options.timeout - options.pollactivity) -1);						
+							if (timesidle > 1) {
+                                _keepAliveTimer = window.setTimeout(function(){
+								    methods._beforeTimeout.apply();
+							    }, (options.timeout - options.pollactivity) -1);
+							}
 						});
 
 						$(document).bind('active.idleTimer', function(){
