@@ -250,7 +250,7 @@
 							// otherwise we will promt the user for input
 							// removed options.autoping === true &&
                             console.log('typepof', typeof _beforeTimeoutTimer !== "undefined");
-							if (typeof _beforeTimeoutTimer !== 'undefined' ) {
+							if (!typeof _beforeTimeoutTimer !== 'undefined' ) {
 								logEvent("$.fn.sessionTimeout status: beforeTime canceled @ " + options.timeout);
 							    methods._stopCountdown.apply();
 							}
