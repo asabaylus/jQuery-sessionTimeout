@@ -242,8 +242,6 @@
 							// if autoping is on then cancel the beforeTimeout event 
 							// because the session will never expire.
 							// otherwise we will promt the user for input
-
-							console.log(_beforeTimeoutTimer);
 									
 							if (options.autoping === true && typeof _beforeTimeoutTimer !== 'undefined' ) {
 								logEvent("$.fn.sessionTimeout status: beforeTime canceled @ " + options.timeout);
