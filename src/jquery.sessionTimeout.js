@@ -34,6 +34,7 @@
 		_log = [], // contains plugin history
 		_start = new Date(),
 		_resourceId = 'sessionTimeout_' + _start.getTime(),
+        $el,
 		_version = "0.0.1",
 		_ready,
 		_sessionTimeoutTimer,
@@ -131,7 +132,7 @@
 
 				// loads the resource used to ping target server
 				// if the resource dosnt exist
-				if (!$("#" + _resourceId).length) {
+				if (typeof $el === 'undefined') {
 
 					// handle loading the resource the first time
 					if (isImage) {
@@ -147,9 +148,10 @@
 				} 
 				else {
 
-					$("#" + _resourceId).attr("src", options.resource + "?timestamp=" + tstamp);
+					$el.attr("src", options.resource + "?timestamp=" + tstamp);
 				}
-			
+                
+			    $el = $("#" + _resourceId);
 			},
 			
 			
@@ -332,7 +334,7 @@
 				// before running cleanup check for plugin init
 				if (typeof _ready !== "undefined") {
 					// remove ping image from DOM
-					$("#" + _resourceId).remove();
+					$el.remove();
 					methods._stopCountdown.apply();
 					_sessionTimeoutTimer = null;
 					_beforeTimeout = null;
