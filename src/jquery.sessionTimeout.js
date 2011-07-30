@@ -231,9 +231,15 @@
 						$.idleTimer(options.pollactivity-1);
                         
 						$(document).bind('idle.idleTimer', function(){ 
-							if (typeof keepAliveTimer === 'undefined') {
+                            // when page loads first time idle event is always fired
+                            // we want to supress the countdown this first time
+							if (typeof keepAliveTimer === 'undefined' && timesrun > 0) {
+                                console.log('bang!');
                                 _keepAliveTimer = window.setTimeout(function(){
-								    methods._beforeTimeout.apply();
+								    // only run if user is inactive
+                                    if ($.data(document,'idleTimer') === 'idle') {
+                                        methods._beforeTimeout.apply();
+								    }
 							    }, (options.timeout - options.pollactivity) -1);
 							}
 						});
@@ -242,12 +248,11 @@
 							// if autoping is on then cancel the beforeTimeout event 
 							// because the session will never expire.
 							// otherwise we will promt the user for input
-									
-							if (options.autoping === true && typeof _beforeTimeoutTimer !== 'undefined' ) {
+							// removed options.autoping === true &&
+                            console.log('typepof', typeof _beforeTimeoutTimer !== "undefined");
+							if (typeof _beforeTimeoutTimer !== 'undefined' ) {
 								logEvent("$.fn.sessionTimeout status: beforeTime canceled @ " + options.timeout);
-								window.clearTimeout(_beforeTimeoutTimer);
-								window.clearTimeout(_keepAliveTimer);
-								window.clearTimeout(_sessionTimeoutTimer);
+							    methods._stopCountdown.apply();
 							}
 							methods.ping.apply();
 						});
