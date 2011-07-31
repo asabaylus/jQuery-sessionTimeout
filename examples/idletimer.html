@@ -20,8 +20,8 @@
 		// use timeago to display how long ago the page was loaded
 		var loadTime = new Date(),
 		    sessionduration = 5000,
-		    promptduration = 2500,
-		    pollduration = 1250,
+		    promptduration = 3000,
+		    pollduration = 2000,
 		    countDown,
 		    $status = $('#status');
 		
@@ -248,9 +248,10 @@
 	</div>
 	
 	<div id="options">
-		<input type="checkbox" name="opt-autoping" id="opt-autoping" /><label for="opt-autoping" >Automatically renew session</label><br />
-		<input type="text" name="opt-timeout" id="opt-timeout" value="10000" disabled="disabled" /><label for="opt-timeout">Session duration (ms)</label><br />
-		<input type="text" name="opt-prompt" id="opt-prompt" value="4000" disabled="disabled" /><label for="opt-prompt">Prompt duration (ms)</label><br />
+    	<input type="checkbox" name="opt-idletimer" id="opt-idletimer" checked /><label for="opt-autoping">Use idleTimer</label><br />    
+		<input type="checkbox" name="opt-autoping" id="opt-autoping" /><label for="opt-autoping">Automatically renew session</label><br />
+		<input type="text" name="opt-timeout" id="opt-timeout" value="5000" disabled="disabled" /><label for="opt-timeout">Session duration (ms)</label><br />
+		<input type="text" name="opt-prompt" id="opt-prompt" value="3000" disabled="disabled" /><label for="opt-prompt">Prompt duration (ms)</label><br />
 		<input type="text" name="opt-prompt" id="opt-activity" value="2000" /><label for="opt-prompt">Poll for user activity, duration (ms)</label><br />
 	</div>
 	

@@ -35,6 +35,8 @@
 		_start = new Date(),
 		_resourceId = 'sessionTimeout_' + _start.getTime(),
         $el,
+        _idleTimerId = 'idletimer-'+_resourceId,
+         _$idleTimerEl,
 		_version = "0.0.1",
 		_ready,
 		_sessionTimeoutTimer,
@@ -71,10 +73,14 @@
 				// test for Paul Irishes idleTimer plugin
 				_idleTimerExists = $.isFunction($.idleTimer);
 				
-				
-				if (options.pollactivity > options.timeout - options.promptfor && _idleTimerExists === true){
-					$.error("The configuration pollactivity is too long: polling must happen prior to the beforetimeout callback.");
-					return false;
+				if (_idleTimerExists){
+				    // add a div to hook instance of idle timer onto
+                    $('body').append('<div id="'+_idleTimerId+'"></div>');
+                    _$idleTimerEl = $('#'+_idleTimerId);
+                    if (options.pollactivity > options.timeout - options.promptfor){
+					    $.error("The configuration pollactivity is too long: polling must happen prior to the beforetimeout callback.");
+					    return false;
+				    }
 				}
 				
 				methods._startCountdown.apply();
@@ -232,21 +238,21 @@
 						// set idleTimer() equal to the session durration 
 						$.idleTimer(options.pollactivity-1);
                         
-						$(document).bind('idle.idleTimer', function(){ 
+						 _$idleTimerEl.bind('idle.idleTimer', function(){ 
                             // when page loads first time idle event is always fired
                             // we want to supress the countdown this first time
 							if (typeof keepAliveTimer === 'undefined' && timesrun > 0) {
                                 console.log('bang!');
                                 _keepAliveTimer = window.setTimeout(function(){
 								    // only run if user is inactive
-                                    if ($.data(document,'idleTimer') === 'idle') {
+                                    if ($.data( _$idleTimerEl,'idleTimer') === 'idle') {
                                         methods._beforeTimeout.apply();
 								    }
 							    }, (options.timeout - options.promptfor)-1);
 							}
 						});
 
-						$(document).bind('active.idleTimer', function(){
+						 _$idleTimerEl.bind('active.idleTimer', function(){
 							// if autoping is on then cancel the beforeTimeout event 
 							// because the session will never expire.
 							// otherwise we will promt the user for input
@@ -259,11 +265,11 @@
 						});
 
 						$(document).bind('expired.sessionTimeout', function(){
-							$(document).unbind("active.idleTimer").unbind("idle.idleTimer");
+							 _$idleTimerEl.unbind("active.idleTimer").unbind("idle.idleTimer");
 						});	
 
 						// force the timer to execute when page loads
-						$(document).trigger('idle.idleTimer');	
+						 _$idleTimerEl.trigger('idle.idleTimer');	
 								
 					} 
 					else if ( options.autoping ===  true && !_idleTimerExists) {
@@ -336,7 +342,9 @@
 				// before running cleanup check for plugin init
 				if (typeof _ready !== "undefined") {
 					// remove ping image from DOM
-					$el.remove();
+					if (typeof $el != 'undefined'){
+                        $el.remove();
+                    }
 					methods._stopCountdown.apply();
 					_sessionTimeoutTimer = null;
 					_beforeTimeout = null;
@@ -348,7 +356,7 @@
 					$(document).unbind("sessionTimeout");
 					if (_idleTimerExists) {
 						// destroy idletimer
-						$(document).idleTimer('destroy');
+						 _$idleTimerEl.idleTimer('destroy');
 					}
 					// delete the log
 					_log.length = 0;
