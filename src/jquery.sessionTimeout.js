@@ -227,6 +227,8 @@
 					//    ping the server
 					if ( _idleTimerExists && timesrun === 0 ){	
 						
+                        console.log('setup idletimer', options.timeout,  options.pollactivity);
+                        
 						// set idleTimer() equal to the session durration 
 						$.idleTimer(options.pollactivity-1);
                         
@@ -240,7 +242,7 @@
                                     if ($.data(document,'idleTimer') === 'idle') {
                                         methods._beforeTimeout.apply();
 								    }
-							    }, (options.timeout - options.pollactivity) -1);
+							    }, (options.timeout - options.promptfor)-1);
 							}
 						});
 
@@ -249,9 +251,8 @@
 							// because the session will never expire.
 							// otherwise we will promt the user for input
 							// removed options.autoping === true &&
-                            console.log('typepof', typeof _beforeTimeoutTimer !== "undefined");
-							if (!typeof _beforeTimeoutTimer !== 'undefined' ) {
-								logEvent("$.fn.sessionTimeout status: beforeTime canceled @ " + options.timeout);
+							if ((typeof _beforeTimeoutTimer !== 'undefined') === false ) {
+								// _beforeTimeout canceled
 							    methods._stopCountdown.apply();
 							}
 							methods.ping.apply();
