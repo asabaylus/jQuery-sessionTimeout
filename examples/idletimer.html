@@ -60,7 +60,6 @@
 		    promptduration = ($('#opt-prompt').val() || promptduration);
 		    pollduration = ($('#opt-activity').val() || pollduration);		   	
 		   	optautoping = $('#opt-autoping').is(':checked');
-		   	
 			
 			$.fn.sessionTimeout({
 			
@@ -111,6 +110,11 @@
 			$("#opt-timeout").val(sessionduration);
 			$("#opt-prompt").val(promptduration);	
 			
+
+		});
+
+		$(document).bind('startCountdown.sessionTimeout', function(event){
+			
 			// log the ping event
 			var t = new Date();
 			
@@ -128,9 +132,9 @@
 					// update the display with the time remaining
 					$counter.text(timeRemaining/1000 + " sec.");
 				} 
-			}, 1000);
+			}, 1000);		
+		
 		});
-
 	
 		$(document).bind('create.sessionTimeout', function(event, args) {
 
@@ -216,7 +220,7 @@
 		$.fn.sessionTimeout({
 			
 			// automaticaly keep the connection alive
-			autoping : true,
+			autoping : false,
 			
 			// this session will expire in xxxx miliseconds  
 			timeout : sessionduration,
