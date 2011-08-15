@@ -92,6 +92,88 @@
                 
                 
             },
+
+             /**
+             * Starts countdown to session exiration
+             * @return {void}
+             * @private
+             */
+            _startCountdown: function () {
+
+                    // In the end there can be only one - Ramirez
+                    window.clearTimeout(_keepAliveTimer);
+
+                    // if idleTimer plugin exists
+                    // 1. when user goes idle restart the countdown
+                    //    less the polling time used for idleTimer
+                    // 2. cancel the current countdown when the user is active
+                    //    ping the server
+                    console.log("Does idleTimer exist? " + _idleTimerExists);
+                    console.log("How many times has plugin run " + timesrun);
+                    console.log("Is autoping on? " + options.autoping);
+                    
+                    if ( options.autoping === true) {
+                        console.log(options.autoping);
+                        _keepAliveTimer = window.setTimeout(function(){
+                            methods.ping.apply();
+                        }, options.timeout-1);
+
+                    }   
+                    else if ( _idleTimerExists && null === timesrun || timesrun === 0 ){
+
+                        // set idleTimer() equal to the session durration 
+                        $.idleTimer(options.pollactivity-1);
+                        console.log("user idle");
+                         $(document).bind('idle.idleTimer', function(){ 
+
+                            clearTimeout(_keepAliveTimer);
+
+                            // when page loads first time idle event is always fired
+                            // we want to supress the countdown this first time
+                            //if (typeof _keepAliveTimer === 'undefined' && timesrun > 0) {
+                            //if (typeof _keepAliveTimer === 'undefined') {
+                                _keepAliveTimer = window.setTimeout(function(){
+                                    // only run if user is inactive
+                                    //if ($.data( $(document),'idleTimer') === 'idle') {
+                                        methods._beforeTimeout.apply();
+                                    //} 
+                                }, options.timeout - options.promptfor);
+                            //}
+                        });
+                        
+                         $(document).bind('active.idleTimer', function(){
+
+                            console.log("user active");
+                            // if autoping is on then cancel the beforeTimeout event 
+                            // because the session will never expire.
+                            // otherwise we will promt the user for input
+                            // removed options.autoping === true &&
+                            if ((typeof _beforeTimeoutTimer !== 'undefined') === false ) {
+                                // _beforeTimeout canceled
+                                methods._stopCountdown.apply();
+                            }
+                            
+                           // var timeRemaining = methods.remaining.apply(this, [true]);
+                           // if (timeRemaining > 0){
+                                methods.ping.apply();
+                           // }
+                            
+                        });
+
+                        $(document).bind('expired.sessionTimeout', function(){
+                             $(document).unbind("active.idleTimer").unbind("idle.idleTimer");
+                        }); 
+
+                        // force the timer to execute when page loads
+                         $(document).trigger('idle.idleTimer');   
+                                
+                    }             
+                    else if (!_idleTimerExists) {
+                        methods._beforeTimeout.apply();
+                    }
+                    $(document).trigger('startCountdown.sessionTimeout');
+                    timesrun++; 
+            },
             
             /**
              * Requests a file from target server
@@ -216,77 +298,7 @@
             },
             
             
-            /**
-             * Starts countdown to session exiration
-             * @return {void}
-             * @private
-             */
-            _startCountdown: function () {
-
-                    // In the end there can be only one - Ramirez
-                    window.clearTimeout(_keepAliveTimer);
-
-                    // if idleTimer plugin exists
-                    // 1. when user goes idle restart the countdown
-                    //    less the polling time used for idleTimer
-                    // 2. cancel the current countdown when the user is active
-                    //    ping the server
-                    if ( _idleTimerExists && null === timesrun || timesrun === 0 ){
-        
-                        // set idleTimer() equal to the session durration 
-                        $.idleTimer(options.pollactivity-1);
-                        
-                         $(document).bind('idle.idleTimer', function(){ 
-                            // when page loads first time idle event is always fired
-                            // we want to supress the countdown this first time
-                            if (typeof _keepAliveTimer === 'undefined' && timesrun > 0) {
-                                _keepAliveTimer = window.setTimeout(function(){
-                                    // only run if user is inactive
-                                    if ($.data( $(document),'idleTimer') === 'idle') {
-                                        methods._beforeTimeout.apply();
-                                    } 
-                                }, (options.timeout - options.promptfor)-1);
-                            }
-                        });
-						
-                         $(document).bind('active.idleTimer', function(){
-                            // if autoping is on then cancel the beforeTimeout event 
-                            // because the session will never expire.
-                            // otherwise we will promt the user for input
-                            // removed options.autoping === true &&
-                            if ((typeof _beforeTimeoutTimer !== 'undefined') === false ) {
-                                // _beforeTimeout canceled
-                                methods._stopCountdown.apply();
-                            }
-                            
-                            var timeRemaining = methods.remaining.apply(this, [true]);
-                            if (timeRemaining > 0){
-                            	methods.ping.apply();
-                            }
-                            
-                        });
-
-                        $(document).bind('expired.sessionTimeout', function(){
-                             $(document).unbind("active.idleTimer").unbind("idle.idleTimer");
-                        }); 
-
-                        // force the timer to execute when page loads
-                         $(document).trigger('idle.idleTimer');   
-                                
-                    } 
-                    else if ( options.autoping === true) {
-                    	console.log(options.autoping);
-                        _keepAliveTimer = window.setTimeout(function(){
-                            methods.ping.apply();
-                        }, options.timeout-1);
-
-                    }               
-                    else if (!_idleTimerExists) {
-                        methods._beforeTimeout.apply();
-                    }
-					$(document).trigger('startCountdown.sessionTimeout');
-                    timesrun++; 
-            },
+           
 
 
             /**
