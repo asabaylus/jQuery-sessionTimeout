@@ -60,6 +60,29 @@
 		    promptduration = ($('#opt-prompt').val() || promptduration);
 		    pollduration = ($('#opt-activity').val() || pollduration);		   	
 		   	optautoping = $('#opt-autoping').is(':checked');
+		   	optenableidletimer = $('#opt-idletimer').is(':checked');
+			
+	console.log(
+				{
+				
+					// automaticaly keep the connection alive
+					autoping : optautoping,
+					
+					// this session will expire in xxxx miliseconds  
+					timeout : sessionduration,
+					
+					// how long to display session timeout mesage
+					promptfor :  promptduration,
+	
+					// how frequently to check for user activity
+					pollactivity : pollduration,
+					
+					// allows idletimer to control sessions if present
+					enableidletimer : optenableidletimer
+					
+				});
+			
+			
 			
 			$.fn.sessionTimeout({
 			
@@ -73,7 +96,10 @@
 				promptfor :  promptduration,
 
 				// how frequently to check for user activity
-				pollactivity : pollduration
+				pollactivity : pollduration,
+				
+				// allows idletimer to control sessions if present
+				enableidletimer : optenableidletimer
 				
 			});
 		});
@@ -86,7 +112,6 @@
 		
 		$('#btnDestroy').click(function(){
 			$.fn.sessionTimeout('destroy');
-			$status.val('');
 		});		
 		
 		
@@ -199,10 +224,19 @@
 			$('#btnDestroy').attr('disabled', true);
 			$('#btnInit').removeAttr('disabled');
 
-					
+			// empty event log
+			$status.val('');
+			
+			// clear values from info block
+			$('#duration').text('--');
+			$('#counter').text('--');
+
+			// stop diplaying user activity
+			$('#activity').removeClass('active idle').text('--');
+
+			// stop displaying seconds countdown		
 			window.clearTimeout(countDown);
 			delete countDown;
-			
 		});	
 		
 		
