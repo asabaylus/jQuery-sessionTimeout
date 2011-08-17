@@ -83,7 +83,7 @@
 //				});
 			
 			
-			
+			// initialize sessionTimeout plugin
 			$.fn.sessionTimeout({
 			
 				// automaticaly keep the connection alive
@@ -104,7 +104,7 @@
 			});
 			
 			
-			
+			// if using idleTimer then display user activity status
 			if (optenableidletimer){
 				$(document).bind("idle.idleTimer", function(){
 					$('#activity').toggleClass('active', false).addClass('idle').text('idle');
@@ -114,12 +114,7 @@
 				$(document).bind("active.idleTimer", function(){
 					$('#activity').toggleClass('idle', false).addClass('active').text('active'); 
 				});
-			}
-			
-			
-			
-			
-			
+			}			
 			
 		});
 		
@@ -149,13 +144,6 @@
 		});		
 		
 		
-		$(document).bind('ping.sessionTimeout', function() {	
-
-			$("#opt-timeout").val(sessionduration);
-			$("#opt-prompt").val(promptduration);	
-			
-
-		});
 
 		$(document).bind('startCountdown.sessionTimeout', function(event){
 			
@@ -177,6 +165,10 @@
 					$counter.text(timeRemaining/1000 + " sec.");
 				} 
 			}, 1000);		
+			
+			// update values when countdown begins
+			$("#opt-timeout").val(sessionduration);
+			$("#opt-prompt").val(promptduration);	
 		
 		});
 	
@@ -258,25 +250,6 @@
 			delete countDown;
 		});	
 		
-
-		
-		// use sessionTimeout to prompt the user when time has expired
-//		$.fn.sessionTimeout({
-//			
-			// automaticaly keep the connection alive
-//			autoping : false,
-//			
-			// this session will expire in xxxx miliseconds  
-//			timeout : sessionduration,
-//			
-			// how long to display session timeout mesage
-//			promptfor :  promptduration,
-//		    
-		    // when it expires load the resource from the current server to keep the session alive
-//		    resource: "../src/spacer.gif"
-//				
-//		});	
-
 	});
 	</script>
 </head>
@@ -319,7 +292,7 @@
 	<h2>Events</h2>
 	<div id="log">
 		<label for="status">sessionTimeout status:</label><br>
-		<textarea id="status" title="log events" rows="16" cols="80" >
+		<textarea id="status" title="log events" rows="16" cols="80" spellcheck="false" >
 loading...
 </textarea>
 	</div>

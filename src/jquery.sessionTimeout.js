@@ -71,6 +71,8 @@
              * @private
              */
             _init: function () {
+            
+            	timesrun = 0;
 
                 // test for Paul Irishes idleTimer plugin
                 _idleTimerExists = $.isFunction($.idleTimer);
@@ -115,6 +117,7 @@
 //                    console.log("Is autoping on? " + options.autoping);
 //                    
                     if ( options.autoping === true) {
+                    	console.log('autoping on');
                         console.log(options.autoping);
                         _keepAliveTimer = window.setTimeout(function(){
                             methods.ping.apply();
@@ -122,7 +125,7 @@
 
                     }   
                     
-                    else if ( (_idleTimerExists && options.enableidletimer) && null === timesrun || timesrun === 0 ){
+                    else if ( (_idleTimerExists && options.enableidletimer) && (null === timesrun || timesrun === 0) ){
 
                         // set idleTimer() equal to the session durration 
                         $.idleTimer(options.pollactivity-1);
@@ -175,6 +178,7 @@
                                 
                     }             
                     else {
+                    	console.log('autoping off and idletimer off');
 	                    clearTimeout(_keepAliveTimer);
 	                    _keepAliveTimer = window.setTimeout(function(){
 	                            methods._beforeTimeout.apply();
