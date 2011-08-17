@@ -4,10 +4,33 @@
 	<title>Session Timeout Plugin: jquery.idleTimer integration</title>
 	<style type="text/css">
 		#activity {
-			padding: .1em .3em;
+		    padding: 0.1em 0.3em;
 		}
-		#activity.idle { background-color: red; color: white;}
-		#activity.active { background-color: green; color: white; }
+		#activity.idle {
+		    background-color: red;
+		    color: white;
+		}
+		#activity.active {
+		    background-color: green;
+		    color: white;
+		}
+		body {
+		    margin: 0;
+		    text-align: center;
+		    background: #ccc;
+		    font-family: Helevtica, Arial, sans-serif;
+		}
+		.wrapper {
+		    margin: 1em auto;
+		    text-align: left;
+		    width: 50em;
+		    background: #fff;
+		    padding: 1em 2em;
+		    -moz-border-radius: 6px;
+		}
+		input {
+		    margin: .33em;
+		}		
 	</style>
 	<script type="text/javascript" src="../externals/jquery-1.6.1.js"></script>
 	<script type="text/javascript" src="../externals/jquery.timeago.js"></script>
@@ -254,12 +277,10 @@
 	</script>
 </head>
 <body>
-	
+
+<div class="wrapper">	
 	<div>
 	<h1>Session Timeout Plugin</h1>
-	
-
-	
 	<ul>
 		<li>This page was loaded: <strong><span id="idletime"></span></strong></li>
 		<li>Session duration: <strong><span id="duration">0</span></strong></li>
@@ -296,6 +317,7 @@
 loading...
 </textarea>
 	</div>
+</div>	
 
 </body>
 </html>

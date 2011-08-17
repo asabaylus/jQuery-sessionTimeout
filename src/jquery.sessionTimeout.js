@@ -126,7 +126,7 @@
                     }   
                     
                     else if ( (_idleTimerExists && options.enableidletimer) && (null === timesrun || timesrun === 0) ){
-
+						console.log('idletimer is on and timerun is 0 or null');
                         // set idleTimer() equal to the session durration 
                         $.idleTimer(options.pollactivity-1);
                         
