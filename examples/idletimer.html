@@ -62,25 +62,25 @@
 		   	optautoping = $('#opt-autoping').is(':checked');
 		   	optenableidletimer = $('#opt-idletimer').is(':checked');
 			
-	console.log(
-				{
-				
+//	console.log(
+//				{
+//				
 					// automaticaly keep the connection alive
-					autoping : optautoping,
-					
+//					autoping : optautoping,
+//					
 					// this session will expire in xxxx miliseconds  
-					timeout : sessionduration,
-					
+//					timeout : sessionduration,
+//					
 					// how long to display session timeout mesage
-					promptfor :  promptduration,
-	
+//					promptfor :  promptduration,
+//	
 					// how frequently to check for user activity
-					pollactivity : pollduration,
-					
+//					pollactivity : pollduration,
+//					
 					// allows idletimer to control sessions if present
-					enableidletimer : optenableidletimer
-					
-				});
+//					enableidletimer : optenableidletimer
+//					
+//				});
 			
 			
 			
@@ -102,6 +102,25 @@
 				enableidletimer : optenableidletimer
 				
 			});
+			
+			
+			
+			if (optenableidletimer){
+				$(document).bind("idle.idleTimer", function(){
+					$('#activity').toggleClass('active', false).addClass('idle').text('idle');
+				});
+				 
+				 
+				$(document).bind("active.idleTimer", function(){
+					$('#activity').toggleClass('idle', false).addClass('active').text('active'); 
+				});
+			}
+			
+			
+			
+			
+			
+			
 		});
 		
 		
@@ -239,33 +258,24 @@
 			delete countDown;
 		});	
 		
-		
-		$(document).bind("idle.idleTimer", function(){
-			$('#activity').toggleClass('active', false).addClass('idle').text('idle');
-		});
-		 
-		 
-		$(document).bind("active.idleTimer", function(){
-			$('#activity').toggleClass('idle', false).addClass('active').text('active'); 
-		});
-		
+
 		
 		// use sessionTimeout to prompt the user when time has expired
-		$.fn.sessionTimeout({
-			
+//		$.fn.sessionTimeout({
+//			
 			// automaticaly keep the connection alive
-			autoping : false,
-			
+//			autoping : false,
+//			
 			// this session will expire in xxxx miliseconds  
-			timeout : sessionduration,
-			
+//			timeout : sessionduration,
+//			
 			// how long to display session timeout mesage
-			promptfor :  promptduration,
-		    
+//			promptfor :  promptduration,
+//		    
 		    // when it expires load the resource from the current server to keep the session alive
-		    resource: "../src/spacer.gif"
-				
-		});	
+//		    resource: "../src/spacer.gif"
+//				
+//		});	
 
 	});
 	</script>
@@ -281,7 +291,7 @@
 		<li>This page was loaded: <strong><span id="idletime"></span></strong></li>
 		<li>Session duration: <strong><span id="duration">0</span></strong></li>
 		<li>Session Time Remaining: <strong><span id="counter">0</span></strong></li>
-		<li>User Activity: <strong><span id="activity" class="idle">idle</span></strong></li>
+		<li>User Activity: <strong><span id="activity">--</span></strong></li>
 	</ul>
 	</div>
 	

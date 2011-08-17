@@ -37,8 +37,9 @@
         $el,
         _idleTimerId = 'idletimer-'+_resourceId,
         _$idleTimerEl,
+        enableidletimer,
         _version = "0.0.1",
-        _ready,
+        _ready, // when the plugin first initialized
         _sessionTimeoutTimer,
         _beforeTimeout,
         _beforeTimeoutTimer,
@@ -52,6 +53,7 @@
         // set plugin defaults
         defaults = {
             autoping : true,
+            enableidletimer : true, // allows session control via idletimer plugin if present
             timeout : 300000, // set the servers session timeout
             resource : "spacer.gif", // set the asset to load from the server
             promptfor : 10000, // triggers beforetimeout x seconds before session timeout
@@ -99,7 +101,7 @@
              * @private
              */
             _startCountdown: function () {
-
+					
                     // In the end there can be only one - Ramirez
                     window.clearTimeout(_keepAliveTimer);
 
@@ -108,10 +110,10 @@
                     //    less the polling time used for idleTimer
                     // 2. cancel the current countdown when the user is active
                     //    ping the server
-                    console.log("Does idleTimer exist? " + _idleTimerExists);
-                    console.log("How many times has plugin run " + timesrun);
-                    console.log("Is autoping on? " + options.autoping);
-                    
+//                    console.log("Does idleTimer exist? " + _idleTimerExists);
+//                    console.log("How many times has plugin run " + timesrun);
+//                    console.log("Is autoping on? " + options.autoping);
+//                    
                     if ( options.autoping === true) {
                         console.log(options.autoping);
                         _keepAliveTimer = window.setTimeout(function(){
@@ -119,31 +121,17 @@
                         }, options.timeout-1);
 
                     }   
-                    else if ( _idleTimerExists && null === timesrun || timesrun === 0 ){
+                    
+                    else if ( (_idleTimerExists && options.enableidletimer) && null === timesrun || timesrun === 0 ){
 
                         // set idleTimer() equal to the session durration 
                         $.idleTimer(options.pollactivity-1);
-                        console.log("user idle");
-                         $(document).bind('idle.idleTimer', function(){ 
+                        
 
-                            clearTimeout(_keepAliveTimer);
-
-                            // when page loads first time idle event is always fired
-                            // we want to supress the countdown this first time
-                            //if (typeof _keepAliveTimer === 'undefined' && timesrun > 0) {
-                            //if (typeof _keepAliveTimer === 'undefined') {
-                                _keepAliveTimer = window.setTimeout(function(){
-                                    // only run if user is inactive
-                                    //if ($.data( $(document),'idleTimer') === 'idle') {
-                                        methods._beforeTimeout.apply();
-                                    //} 
-                                }, options.timeout - options.promptfor);
-                            //}
-                        });
                         
                          $(document).bind('active.idleTimer', function(){
 
-                            console.log("user active");
+                           // console.log("user active");
                             // if autoping is on then cancel the beforeTimeout event 
                             // because the session will never expire.
                             // otherwise we will promt the user for input
@@ -160,20 +148,84 @@
                             
                         });
 
+                         $(document).bind('idle.idleTimer', function(){ 
+							//console.log("user idle");
+                            clearTimeout(_keepAliveTimer);
+
+                            // when page loads first time idle event is always fired
+                            // we want to supress the countdown this first time
+                            //if (typeof _keepAliveTimer === 'undefined' && timesrun > 0) {
+                            //if (typeof _keepAliveTimer === 'undefined') {
+                                _keepAliveTimer = window.setTimeout(function(){
+                                    // only run if user is inactive
+                                    //if ($.data( $(document),'idleTimer') === 'idle') {
+                                        methods._beforeTimeout.apply();
+                                    //} 
+                                }, options.timeout - options.promptfor);
+                            //}
+                        });
+
                         $(document).bind('expired.sessionTimeout', function(){
-                             $(document).unbind("active.idleTimer").unbind("idle.idleTimer");
+                             $(document).unbind("active.idleTimer");
+                             $(document).unbind("idle.idleTimer");
                         }); 
 
                         // force the timer to execute when page loads
                          $(document).trigger('idle.idleTimer');   
                                 
                     }             
-                    else if (!_idleTimerExists) {
-                        methods._beforeTimeout.apply();
+                    else {
+	                    clearTimeout(_keepAliveTimer);
+	                    _keepAliveTimer = window.setTimeout(function(){
+	                            methods._beforeTimeout.apply();
+	                    }, options.timeout - options.promptfor);
                     }
                     $(document).trigger('startCountdown.sessionTimeout');
                     timesrun++; 
             },
+            
+  
+            /**
+             * Callback function occurs when promt begins
+             * Once the beforeTimeout event has trigger, the session can no longer be renewed
+             * through autoping or idleTimer user activity. It is assumed the session timeOut
+             * must be cancled by "pinging" the server. ex: $.fn.sessionTimeout("ping");
+             * @return {void}
+             * @private
+             */
+            _beforeTimeout: function () {
+                                                    
+                // if beforeTimeout is a function then start countdown to user prompt
+                if ($.isFunction(options.beforetimeout)) {          
+                        var d = new Date();
+                        logEvent("$.fn.sessionTimeout status: beforeTimeout triggered @" + d.toTimeString());
+                        options.beforetimeout.call(this);
+                        $(document).trigger("prompt.sessionTimeout");   
+                }
+                else {
+                    $.error("The jQuery.sessionTimeout beforetimeout parameter is expecting a function");
+                }
+                
+                // start counting down to session timeout
+                _sessionTimeoutTimer = window.setTimeout(function () {                  
+                    // handle the ontimeout callback
+                    // first check that a function was passed in
+                    if ($.isFunction(options.ontimeout)) {
+                        options.ontimeout.call(this);
+                    }
+                    else {
+                        $.error('The jQuery.sessionTimeout ontimeout parameter is expecting a function');
+                        return false;
+                    }
+                    
+                    methods._stopCountdown.apply();
+                                            
+                    var d = new Date();
+                    logEvent("$.fn.sessionTimeout status: session expired @" + d.toTimeString());
+                    timesrun = 0; // reset the times run count
+                    $(document).trigger('expired.sessionTimeout');
+                }, options.promptfor);
+            },            
             
             /**
              * Requests a file from target server
@@ -254,53 +306,8 @@
                     window.clearTimeout(_beforeTimeoutTimer);
                     window.clearTimeout(_keepAliveTimer);
             },          
-            
-            /**
-             * Callback function occurs when promt begins
-             * Once the beforeTimeout event has trigger, the session can no longer be renewed
-             * through autoping or idleTimer user activity. It is assumed the session timeOut
-             * must be cancled by "pinging" the server. ex: $.fn.sessionTimeout("ping");
-             * @return {void}
-             * @private
-             */
-            _beforeTimeout: function () {
-                                                    
-                // if beforeTimeout is a function then start countdown to user prompt
-                if ($.isFunction(options.beforetimeout)) {          
-                        var d = new Date();
-                        logEvent("$.fn.sessionTimeout status: beforeTimeout triggered @" + d.toTimeString());
-                        options.beforetimeout.call(this);
-                        $(document).trigger("prompt.sessionTimeout");   
-                }
-                else {
-                    $.error("The jQuery.sessionTimeout beforetimeout parameter is expecting a function");
-                }
-                
-                // start counting down to session timeout
-                _sessionTimeoutTimer = window.setTimeout(function () {                  
-                    // handle the ontimeout callback
-                    // first check that a function was passed in
-                    if ($.isFunction(options.ontimeout)) {
-                        options.ontimeout.call(this);
-                    }
-                    else {
-                        $.error('The jQuery.sessionTimeout ontimeout parameter is expecting a function');
-                        return false;
-                    }
-                    
-                    methods._stopCountdown.apply();
-                                            
-                    var d = new Date();
-                    logEvent("$.fn.sessionTimeout status: session expired @" + d.toTimeString());
-                    timesrun = 0; // reset the times run count
-                    $(document).trigger('expired.sessionTimeout');
-                }, options.timeout - options.promptfor); 
-            },
-            
-            
-           
-
-
+          
+          
             /**
              * Returns session duration (ms)
              * @return {number}
@@ -310,7 +317,7 @@
                 if (!surpresslog){
                     logEvent("$.fn.sessionTimeout status: duration " + options.timeout);
                 }
-                return options.timeout;
+                return Number(options.timeout);
             },
 
 
@@ -330,7 +337,7 @@
 
             /**
              * Returns time remaining before session expires
-             * @return {date}
+             * @return {number}
              * @public
              */         
             remaining : function (surpresslog) {
@@ -339,11 +346,12 @@
                     // time until session expires in ms
                     // use 0 if no time session has already expired
                     remainingTime = (expiresTime - currentTime) > 0 ? expiresTime - currentTime : 0;
+                     
                 
                 if (!surpresslog){
                     logEvent("$.fn.sessionTimeout status: remaining " + remainingTime + " ms");
                 }
-                return remainingTime;
+                return Number(remainingTime);
 
             },
 
@@ -362,6 +370,8 @@
                     }
                     timesrun = null;
                     methods._stopCountdown.apply();
+                    $(document).unbind("active.idleTimer");
+                    $(document).unbind("idle.idleTimer");
                     _sessionTimeoutTimer = null;
                     _beforeTimeout = null;
                     _keepAliveTimer = null;
