@@ -44,8 +44,7 @@
         _beforeTimeout,
         _beforeTimeoutTimer,
         _keepAliveTimer,
-        _idleTimerExists = false,
-        timesrun = 0;
+        _idleTimerExists = false;
         
     $.fn.sessionTimeout = function (options, method) {
 
@@ -72,7 +71,6 @@
              */
             _init: function () {
             
-            	timesrun = 0;
 
                 // test for Paul Irishes idleTimer plugin
                 _idleTimerExists = $.isFunction($.idleTimer);
@@ -125,7 +123,7 @@
 
                     }   
                     
-                    else if ( (_idleTimerExists && options.enableidletimer) && (null === timesrun || timesrun === 0) ){
+                    else if (_idleTimerExists && options.enableidletimer){
 						console.log('idletimer is on and timerun is 0 or null');
                         // set idleTimer() equal to the session durration 
                         $.idleTimer(options.pollactivity-1);
@@ -179,13 +177,14 @@
                     }             
                     else {
                     	console.log('autoping off and idletimer off');
+                    	console.log(_idleTimerExists, options.enableidletimer);
 	                    clearTimeout(_keepAliveTimer);
 	                    _keepAliveTimer = window.setTimeout(function(){
 	                            methods._beforeTimeout.apply();
 	                    }, options.timeout - options.promptfor);
                     }
                     $(document).trigger('startCountdown.sessionTimeout');
-                    timesrun++; 
+    
             },
             
   
@@ -226,7 +225,7 @@
                                             
                     var d = new Date();
                     logEvent("$.fn.sessionTimeout status: session expired @" + d.toTimeString());
-                    timesrun = 0; // reset the times run count
+     
                     $(document).trigger('expired.sessionTimeout');
                 }, options.promptfor);
             },            
@@ -372,7 +371,6 @@
                     if (typeof $el != 'undefined'){
                         $el.remove();
                     }
-                    timesrun = null;
                     methods._stopCountdown.apply();
                     $(document).unbind("active.idleTimer");
                     $(document).unbind("idle.idleTimer");
