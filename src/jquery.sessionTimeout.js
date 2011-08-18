@@ -159,8 +159,6 @@ console.log('options.autoping', options.autoping);
                             clearTimeout(_keepAliveTimer);
                             clearTimeout(_activityPoller);
 
-                            // when page loads first time idle event is always fired
-                            // we want to supress the countdown this first time
                             _keepAliveTimer = window.setTimeout(function(){
                                 // only run if user is inactive
                                     methods._beforeTimeout.apply();
@@ -172,10 +170,12 @@ console.log('options.autoping', options.autoping);
                              $idleTimerEl.unbind("idle.idleTimer");
                         }); 
 
-                        // force the timer to execute when page loads
-                        console.log('triggering idle');
-                        $(document.documentElement).trigger('idle.idleTimer');   
-                                
+	
+						// When page first loads begin the countdown immediately
+						if(typeof $.data(document, 'idleTimer') === "undefined"){
+							$idleTimerEl.trigger('idle.idleTimer');
+						}
+
                     }             
                     else {
 	                    clearTimeout(_keepAliveTimer);

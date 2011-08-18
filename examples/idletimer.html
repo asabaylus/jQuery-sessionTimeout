@@ -82,32 +82,9 @@
 			// re-enable the destroy button
 			$('#btnDestroy').attr('enabled', 'enabled');
         
-			sessionduration = ($('#opt-timeout').val() || sessionduration);
-		    promptduration = ($('#opt-prompt').val() || promptduration);
-		    pollduration = ($('#opt-activity').val() || pollduration);		   	
-		   	optautoping = $('#opt-autoping').is(':checked');
-		   	optenableidletimer = $('#opt-idletimer').is(':checked');
-			
-			
-			// initialize sessionTimeout plugin
-			$.fn.sessionTimeout({
-			
-				// automaticaly keep the connection alive
-				autoping : optautoping,
-				
-				// this session will expire in xxxx miliseconds  
-				timeout : sessionduration,
-				
-				// how long to display session timeout mesage
-				promptfor :  promptduration,
 
-				// how frequently to check for user activity
-				pollactivity : pollduration,
-				
-				// allows idletimer to control sessions if present
-				enableidletimer : optenableidletimer
-				
-			});
+			
+			init();
 			
 			
 
@@ -258,6 +235,38 @@
 			window.clearTimeout(countDown);
 			delete countDown;
 		});	
+		
+		
+		function init(){
+			sessionduration = ($('#opt-timeout').val() || sessionduration);
+		    promptduration = ($('#opt-prompt').val() || promptduration);
+		    pollduration = ($('#opt-activity').val() || pollduration);		   	
+		   	optautoping = $('#opt-autoping').is(':checked');
+		   	optenableidletimer = $('#opt-idletimer').is(':checked');
+			
+		
+			// initialize sessionTimeout plugin
+			$.fn.sessionTimeout({
+			
+				// automaticaly keep the connection alive
+				autoping : optautoping,
+				
+				// this session will expire in xxxx miliseconds  
+				timeout : sessionduration,
+				
+				// how long to display session timeout mesage
+				promptfor :  promptduration,
+
+				// how frequently to check for user activity
+				pollactivity : pollduration,
+				
+				// allows idletimer to control sessions if present
+				enableidletimer : optenableidletimer
+				
+			});
+		}
+		
+		init();
 		
 	});
 	</script>
