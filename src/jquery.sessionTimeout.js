@@ -77,10 +77,14 @@
                 if (_idleTimerExists){
                 	
                 	$idleTimerEl = $(document.documentElement);
-                	
+                	console.log($idleTimerEl);
                     // set idleTimer() equal to the session durration 
-					$(document.documentElement).idleTimer(options.pollactivity);
-                	
+					$idleTimerEl.idleTimer(2000);
+					//$.idleTimer(Number(options.pollactivity));
+					console.log(options.pollactivity);
+                	$idleTimerEl.bind('active.idleTimer', function(){
+                		console.log('ahoy!');
+                	});
                     // add a div to hook instance of idle timer onto
                     if (options.pollactivity > options.timeout - options.promptfor){
                         $.error("The configuration pollactivity is too long: polling must happen prior to the beforetimeout callback.");
