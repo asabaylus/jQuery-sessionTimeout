@@ -37,7 +37,7 @@
 	<script type="text/javascript" src="../externals/jquery.idle-timer.js"></script>
 	<script type="text/javascript" src="../src/jquery.sessionTimeout.js"></script>
 	<script type="text/javascript">
-	$('document').ready(function(){
+	$(document).ready(function(){
 
 		
 		// use timeago to display how long ago the page was loaded
@@ -59,6 +59,7 @@
 		// Log Events 
 		$(document).bind('eventLogged.sessionTimeout', function() {
 			
+/*
 			// print the log
 			// the plugin event log is returned as an array
 			// break it out to multiple lines then update the status field
@@ -66,8 +67,10 @@
 				var m = $.fn.sessionTimeout("printLog").length-1;
 				console.log($.fn.sessionTimeout("printLog")[m]);
 			}
+*/	
 			// write the log into the status text area				
-			$status.val($.fn.sessionTimeout("printLog").join("\n"));	
+			$status.val($.fn.sessionTimeout("printLog").join("\n"));
+
 		
 		});		
 		
@@ -84,26 +87,6 @@
 		    pollduration = ($('#opt-activity').val() || pollduration);		   	
 		   	optautoping = $('#opt-autoping').is(':checked');
 		   	optenableidletimer = $('#opt-idletimer').is(':checked');
-			
-//	console.log(
-//				{
-//				
-					// automaticaly keep the connection alive
-//					autoping : optautoping,
-//					
-					// this session will expire in xxxx miliseconds  
-//					timeout : sessionduration,
-//					
-					// how long to display session timeout mesage
-//					promptfor :  promptduration,
-//	
-					// how frequently to check for user activity
-//					pollactivity : pollduration,
-//					
-					// allows idletimer to control sessions if present
-//					enableidletimer : optenableidletimer
-//					
-//				});
 			
 			
 			// initialize sessionTimeout plugin
@@ -127,14 +110,17 @@
 			});
 			
 			
+
 			// if using idleTimer then display user activity status
 			if (optenableidletimer){
 				$(document).bind("idle.idleTimer", function(){
+					//console.log('idleTimer event: active');
 					$('#activity').toggleClass('active', false).addClass('idle').text('idle');
 				});
 				 
 				 
 				$(document).bind("active.idleTimer", function(){
+					//console.log('idleTimer event: inactive');
 					$('#activity').toggleClass('idle', false).addClass('active').text('active'); 
 				});
 			}			
@@ -241,7 +227,7 @@
 			$('#btnDestroy').attr('disabled', true);
 			$('#btnInit').removeAttr('disabled');
             
-            $('#activity').removeAttr('class').text('---');
+            $('#activity').removeAttr('class').text('--');
 			
 		});
 		
