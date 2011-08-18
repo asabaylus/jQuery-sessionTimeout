@@ -42,7 +42,6 @@
         _ready, // when the plugin first initialized
         _sessionTimeoutTimer,
         _beforeTimeout,
-        _beforeTimeoutTimer,
         _keepAliveTimer,
         _idleTimerExists = false;
         
@@ -76,15 +75,11 @@
                 
                 if (_idleTimerExists){
                 	
-                	$idleTimerEl = $(document.documentElement);
-                	console.log($idleTimerEl);
+                	$idleTimerEl = $(document);
+
                     // set idleTimer() equal to the session durration 
-					$idleTimerEl.idleTimer(2000);
-					//$.idleTimer(Number(options.pollactivity));
-					console.log(options.pollactivity);
-                	$idleTimerEl.bind('active.idleTimer', function(){
-                		console.log('ahoy!');
-                	});
+					$.idleTimer(Number(options.pollactivity));
+
                     // add a div to hook instance of idle timer onto
                     if (options.pollactivity > options.timeout - options.promptfor){
                         $.error("The configuration pollactivity is too long: polling must happen prior to the beforetimeout callback.");
@@ -111,16 +106,6 @@
 
 					_countdownDate = new Date();
 					_countdownTime = _countdownDate.getTime();
-					
-                    // In the end there can be only one - Ramirez
-                    window.clearTimeout(_keepAliveTimer);
-
-/*
-console.log('options.enableidletimer', options.enableidletimer);
-console.log('_idleTimerExists', _idleTimerExists);
-console.log('options.autoping', options.autoping);
-*/
-
 
                     // if idleTimer plugin exists
                     // 1. when user goes idle restart the countdown
@@ -134,19 +119,27 @@ console.log('options.autoping', options.autoping);
 
                     }   
                     else if (_idleTimerExists && options.enableidletimer){
-                        
+					
+					
+						clearTimeout(_keepAliveTimer);
+					    clearTimeout(_activityPoller);
+					    _keepAliveTimer = window.setTimeout(function(){
+					          methods._beforeTimeout.apply();
+					    }, options.timeout - options.promptfor);					
+					
+					
+						 
                          $idleTimerEl.bind('active.idleTimer', function(){
 							
-							console.log('active : bound');
-							
-                            // if autoping is on then cancel the beforeTimeout event 
-                            // because the session will never expire.
-                            // otherwise we will promt the user for input
-                            // removed options.autoping === true &&
-                            if ((typeof _beforeTimeoutTimer !== 'undefined') === false ) {
-                                // _beforeTimeout canceled
-                                methods._stopCountdown.apply();
-                            }
+                           // if autoping is on then cancel the beforeTimeout event 
+                           // because the session will never expire.
+                           // otherwise we will promt the user for input
+                           // removed options.autoping === true &&
+                         
+                           // _beforeTimeout canceled
+                           methods._stopCountdown.apply();
+                           clearTimeout(_sessionTimeoutTimer);
+                            
                             
                            methods.ping.apply();
  
@@ -158,15 +151,11 @@ console.log('options.autoping', options.autoping);
                            
                          });
 
-                         $idleTimerEl.bind('idle.idleTimer', function(){ 
+                        $idleTimerEl.bind('idle.idleTimer', function(){ 
+							// on idle prevent activity poller
+							// from restarting sessions.
+						    clearTimeout(_activityPoller);
 
-                            clearTimeout(_keepAliveTimer);
-                            clearTimeout(_activityPoller);
-
-                            _keepAliveTimer = window.setTimeout(function(){
-                                // only run if user is inactive
-                                    methods._beforeTimeout.apply();
-                            }, options.timeout - options.promptfor);
                         });
 
                         $(document).bind('expired.sessionTimeout', function(){
@@ -179,6 +168,9 @@ console.log('options.autoping', options.autoping);
 						if(typeof $.data(document, 'idleTimer') === "undefined"){
 							$idleTimerEl.trigger('idle.idleTimer');
 						}
+						
+
+                    
 
                     }             
                     else {
@@ -187,6 +179,7 @@ console.log('options.autoping', options.autoping);
 	                            methods._beforeTimeout.apply();
 	                    }, options.timeout - options.promptfor);
                     }
+                    
                     $(document).trigger('startCountdown.sessionTimeout');
     
             },
@@ -240,15 +233,12 @@ console.log('options.autoping', options.autoping);
              * @public
              */
             ping: function () {
-
-				clearTimeout(_activityPoller);
-
                 var t = new Date(),
                     tstamp = t.getTime();
                     
                 // stop session timeout countdown
                 methods._stopCountdown.apply();
-                
+                               
                 // renew the session
                 methods._fetch.apply();             
                 
@@ -312,8 +302,8 @@ console.log('options.autoping', options.autoping);
              _stopCountdown: function () {
                     // stop the session timer
                     window.clearTimeout(_sessionTimeoutTimer);
-                    window.clearTimeout(_beforeTimeoutTimer);
                     window.clearTimeout(_keepAliveTimer);
+                    window.clearTimeout(_activityPoller);
             },          
           
           
