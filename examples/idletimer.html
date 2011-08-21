@@ -82,14 +82,8 @@
 			// re-enable the destroy button
 			$('#btnDestroy').attr('enabled', 'enabled');
         
-
-			
-			init();
-			
-			
-
 			// if using idleTimer then display user activity status
-			if (optenableidletimer){
+			if ($('#opt-idletimer').is(':checked')){
 				$(document).bind("idle.idleTimer", function(){
 					//console.log('idleTimer event: active');
 					$('#activity').toggleClass('active', false).addClass('idle').text('idle');
@@ -100,7 +94,13 @@
 					//console.log('idleTimer event: inactive');
 					$('#activity').toggleClass('idle', false).addClass('active').text('active'); 
 				});
-			}			
+			}
+			
+			init();
+			
+			
+
+			
 			
 		});
 		

@@ -80,7 +80,6 @@
                     // set idleTimer() equal to the session durration 
 					$.idleTimer(Number(options.pollactivity));
 
-                    // add a div to hook instance of idle timer onto
                     if (options.pollactivity > options.timeout - options.promptfor){
                         $.error("The configuration pollactivity is too long: polling must happen prior to the beforetimeout callback.");
                         return false;
@@ -93,9 +92,9 @@
                 _ready = new Date();                
                 logEvent("$.fn.sessionTimeout status: initialized @ " + _ready.toTimeString());
                 $(document).trigger("create.sessionTimeout", [_version, _start, (_ready - _start)]);
-                
-                
             },
+
+
 
              /**
              * Starts countdown to session exiration
@@ -116,10 +115,12 @@
                         _keepAliveTimer = window.setTimeout(function(){
                             methods.ping.apply();
                         }, options.timeout);
+                        console.log("autoping is true");
 
                     }   
                     else if (_idleTimerExists && options.enableidletimer){
-					
+					   
+                       console.log("use idletimer");
 					
 						clearTimeout(_keepAliveTimer);
 					    clearTimeout(_activityPoller);
@@ -174,6 +175,7 @@
 
                     }             
                     else {
+                        console.log("no idletimer, no autoping");
 	                    clearTimeout(_keepAliveTimer);
 	                    _keepAliveTimer = window.setTimeout(function(){
 	                            methods._beforeTimeout.apply();
