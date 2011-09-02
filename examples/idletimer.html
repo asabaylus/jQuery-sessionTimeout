@@ -82,15 +82,17 @@
 			// re-enable the destroy button
 			$('#btnDestroy').attr('enabled', 'enabled');
         
+			$('body').idleTimer(pollduration);        
+        
 			// if using idleTimer then display user activity status
 			if ($('#opt-idletimer').is(':checked')){
-				$(document).bind("idle.idleTimer", function(){
+				$('body').bind("idle.idleTimer", function(){
 					//console.log('idleTimer event: active');
 					$('#activity').toggleClass('active', false).addClass('idle').text('idle');
 				});
 				 
 				 
-				$(document).bind("active.idleTimer", function(){
+				$('body').bind("active.idleTimer", function(){
 					//console.log('idleTimer event: inactive');
 					$('#activity').toggleClass('idle', false).addClass('active').text('active'); 
 				});
@@ -234,6 +236,10 @@
 			// stop displaying seconds countdown		
 			window.clearTimeout(countDown);
 			delete countDown;
+			
+			// stop showing user activity
+			$('body').idleTimer('destroy');  
+			
 		});	
 		
 		
