@@ -128,10 +128,11 @@
 					          methods._beforeTimeout.apply();
 					    }, options.timeout - options.promptfor);					
 					
-					
+						
 						 
-                         $idleTimerEl.bind('active.idleTimer', function(){
+                         $idleTimerEl.one('active.idleTimer', function(){
 							
+							console.log('active again!');	
                            // if autoping is on then cancel the beforeTimeout event 
                            // because the session will never expire.
                            // otherwise we will promt the user for input
@@ -152,7 +153,7 @@
                            
                          });
 
-                        $idleTimerEl.bind('idle.idleTimer', function(){ 
+                        $idleTimerEl.one('idle.idleTimer', function(){ 
 							// on idle prevent activity poller
 							// from restarting sessions.
 						    clearTimeout(_activityPoller);
@@ -374,8 +375,7 @@
                         $el.remove();
                     }
                     methods._stopCountdown.apply();
-                    $idleTimerEl.unbind("active.idleTimer");
-                    $idleTimerEl.unbind("idle.idleTimer");
+                    $idleTimerEl.unbind('.idleTimer');
                     _sessionTimeoutTimer = null;
                     _beforeTimeout = null;
                     _keepAliveTimer = null;
@@ -383,7 +383,7 @@
                     logEvent("$.fn.sessionTimeout status: destroy");
                     $(document).trigger("destroy.sessionTimeout");          
                     // unbind all sessionTimeout events
-                    $(document).unbind("sessionTimeout");
+                    $(document).unbind(".sessionTimeout");
                     if (_idleTimerExists) {
                         // destroy idletimer
                          $idleTimerEl.idleTimer('destroy');
