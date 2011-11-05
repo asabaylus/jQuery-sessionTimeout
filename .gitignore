@@ -1,1 +1,2 @@
-jquery-sessiontimeout.esproj/
+*.esproj
+*.sublime-workspace
