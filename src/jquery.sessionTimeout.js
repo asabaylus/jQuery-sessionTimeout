@@ -68,14 +68,14 @@
              * @return {void}
              * @private
              */
-            _init: function () {         
+            _init: function () {
 
                 // test for Paul Irishes idleTimer plugin
                 _idleTimerExists = $.isFunction($.idleTimer);
                 
                 if (_idleTimerExists){
                 	
-                	$idleTimerEl = $(document);
+                	$idleTimerEl = $(document.documentElement);
 
                     // set idleTimer() equal to the session durration 
 					$.idleTimer(Number(options.pollactivity));
@@ -95,7 +95,6 @@
             },
 
 
-
              /**
              * Starts countdown to session exiration
              * @return {void}
@@ -103,6 +102,7 @@
              */
             _startCountdown: function () {
 
+                    
 					_countdownDate = new Date();
 					_countdownTime = _countdownDate.getTime();
 
@@ -119,39 +119,36 @@
 
                     }   
                     else if (_idleTimerExists && options.enableidletimer){
-					   
-                       console.log("use idletimer");
-					
+					                    
 						clearTimeout(_keepAliveTimer);
 					    clearTimeout(_activityPoller);
 					    _keepAliveTimer = window.setTimeout(function(){
 					          methods._beforeTimeout.apply();
 					    }, options.timeout - options.promptfor);					
 					
-						
 						 
-                         $idleTimerEl.one('active.idleTimer', function(){
-							
-							console.log('active again!');	
-                           // if autoping is on then cancel the beforeTimeout event 
-                           // because the session will never expire.
-                           // otherwise we will promt the user for input
-                           // removed options.autoping === true &&
-                         
-                           // _beforeTimeout canceled
-                           methods._stopCountdown.apply();
-                           clearTimeout(_sessionTimeoutTimer);
-                            
-                            
-                           methods.ping.apply();
- 
-                           // user may be active for length of the session.
-                           // if so prevent the session  from timing out
-                           _activityPoller = setTimeout(function(){
-                           		methods.ping.apply();
-                           }, options.timeout)
-                           
-                         });
+                        $idleTimerEl.one('active.idleTimer', function(){
+
+                            console.log('active again!');	
+                            // if autoping is on then cancel the beforeTimeout event 
+                            // because the session will never expire.
+                            // otherwise we will promt the user for input
+                            // removed options.autoping === true &&
+
+                            // _beforeTimeout canceled
+                            methods._stopCountdown.apply();
+                            clearTimeout(_sessionTimeoutTimer);
+
+
+                            methods.ping.apply();
+
+                            // user may be active for length of the session.
+                            // if so prevent the session  from timing out
+                            _activityPoller = setTimeout(function(){
+                            		methods.ping.apply();
+                            }, options.timeout)
+
+                        });
 
                         $idleTimerEl.one('idle.idleTimer', function(){ 
 							// on idle prevent activity poller
@@ -161,8 +158,8 @@
                         });
 
                         $(document).bind('expired.sessionTimeout', function(){
-                             $idleTimerEl.unbind("active.idleTimer");
-                             $idleTimerEl.unbind("idle.idleTimer");
+                             $idleTimerEl.unbind('active.idleTimer');
+                             $idleTimerEl.unbind('idle.idleTimer');
                         }); 
 
 	
@@ -170,10 +167,6 @@
 						if(typeof $.data(document, 'idleTimer') === "undefined"){
 							$idleTimerEl.trigger('idle.idleTimer');
 						}
-						
-
-                    
-
                     }             
                     else {
                         console.log("no idletimer, no autoping");
@@ -183,11 +176,23 @@
 	                    }, options.timeout - options.promptfor);
                     }
                     
-                    $(document).trigger('startCountdown.sessionTimeout');
-    
+                    $(document).trigger('startCountdown.sessionTimeout');   
             },
+ 
             
-  
+            /**
+             * Stops countdown to session exiration
+             * @return {void}
+             * @private
+             */         
+            _stopCountdown: function () {
+                    // stop the session timer
+                    window.clearTimeout(_sessionTimeoutTimer);
+                    window.clearTimeout(_keepAliveTimer);
+                    window.clearTimeout(_activityPoller);
+            },             
+
+
             /**
              * Callback function occurs when promt begins
              * Once the beforeTimeout event has trigger, the session can no longer be renewed
@@ -220,6 +225,10 @@
                         $.error('The jQuery.sessionTimeout ontimeout parameter is expecting a function');
                         return false;
                     }
+                
+                // TODO: if idletimer is enable && user is active 
+                // restart the session timeout countdown.
+                console.log("method apply: _beforeTimeout", _idleTimerExists, options.enableidletimer);
                     
                     methods._stopCountdown.apply();
                                             
@@ -228,34 +237,8 @@
      
                     $(document).trigger('expired.sessionTimeout');
                 }, options.promptfor);
-            },            
-            
-            /**
-             * Requests a file from target server
-             * @return {void}
-             * @public
-             */
-            ping: function () {
-                var t = new Date(),
-                    tstamp = t.getTime();
-                    
-                // stop session timeout countdown
-                methods._stopCountdown.apply();
-                               
-                // renew the session
-                methods._fetch.apply();             
-                
-                logEvent("$.fn.sessionTimeout status: session restarted @ " + t.toTimeString());
-                $(document).trigger("ping.sessionTimeout");
-                
-                // if idleTimer is present than the next countdown is bound to the activity of the user otherwise
-                // restart session timeout countdown
-                if (_idleTimerExists) {
-                    methods._startCountdown.apply();
-                }           
-
             },
-            
+                       
             
             /**
              * Loads resource, PHP, ASPX, CFM, JSP or Image file etc
@@ -296,19 +279,32 @@
                 $el = $("#" + _resourceId);
             },
             
-            
+                          
             /**
-             * Stops countdown to session exiration
+             * Requests a file from target server
              * @return {void}
-             * @private
-             */         
-             _stopCountdown: function () {
-                    // stop the session timer
-                    window.clearTimeout(_sessionTimeoutTimer);
-                    window.clearTimeout(_keepAliveTimer);
-                    window.clearTimeout(_activityPoller);
-            },          
-          
+             * @public
+             */
+            ping: function () {
+                var t = new Date(),
+                    tstamp = t.getTime();
+                    
+                // stop session timeout countdown
+                methods._stopCountdown.apply();
+                               
+                // renew the session
+                methods._fetch.apply();             
+                
+                logEvent("$.fn.sessionTimeout status: session restarted @ " + t.toTimeString());
+                $(document).trigger("ping.sessionTimeout");
+                
+                // if idleTimer is present than the next countdown is bound to the activity of the user otherwise
+                // restart session timeout countdown
+                if (_idleTimerExists) {
+                    methods._startCountdown.apply();
+                }           
+            },
+                  
           
             /**
              * Returns session duration (ms)
@@ -323,7 +319,6 @@
             },
 
 
-
             /**
              * Returns time elapsed since session began
              * @return {date}
@@ -334,7 +329,6 @@
                 logEvent("$.fn.sessionTimeout status: elapsed " + d + " ms");
                 return d;
             },
-            
             
 
             /**
@@ -358,7 +352,6 @@
                     logEvent("$.fn.sessionTimeout status: remaining " + remainingTime + " ms");
                 }
                 return remainingTime;
-
             },
 
 

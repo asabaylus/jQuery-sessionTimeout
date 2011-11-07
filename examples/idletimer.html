@@ -59,7 +59,7 @@
 		// Log Events 
 		$(document).bind('eventLogged.sessionTimeout', function() {
 			
-/*
+
 			// print the log
 			// the plugin event log is returned as an array
 			// break it out to multiple lines then update the status field
@@ -67,7 +67,7 @@
 				var m = $.fn.sessionTimeout("printLog").length-1;
 				console.log($.fn.sessionTimeout("printLog")[m]);
 			}
-*/	
+	
 			// write the log into the status text area				
 			$status.val($.fn.sessionTimeout("printLog").join("\n"));
 
@@ -82,27 +82,9 @@
 			// re-enable the destroy button
 			$('#btnDestroy').attr('enabled', 'enabled');
         
-			$('body').idleTimer(pollduration);        
-        
-			// if using idleTimer then display user activity status
-			if ($('#opt-idletimer').is(':checked')){
-				$('body').bind("idle.idleTimer", function(){
-					//console.log('idleTimer event: active');
-					$('#activity').toggleClass('active', false).addClass('idle').text('idle');
-				});
-				 
-				 
-				$('body').bind("active.idleTimer", function(){
-					//console.log('idleTimer event: inactive');
-					$('#activity').toggleClass('idle', false).addClass('active').text('active'); 
-				});
-			}
+			$(document).idleTimer(pollduration); 
 			
-			init();
-			
-			
-
-			
+			init();       
 			
 		});
 		
@@ -162,6 +144,9 @@
 	
 		$(document).bind('create.sessionTimeout', function(event, args) {
 
+			// show user activity status
+			initIdleTimer();
+
 		
 			// the plugin cannot be destroyed until it has first
 			// been initialized
@@ -192,6 +177,8 @@
 				} 
 				
 			}, 1000);
+
+
 					
 		});
 		
@@ -207,6 +194,9 @@
 			$('#btnInit').removeAttr('disabled');
             
             $('#activity').removeAttr('class').text('--');
+
+            // stop showing user activity
+			destroyIdleTimer(); 
 			
 		});
 		
@@ -238,8 +228,8 @@
 			delete countDown;
 			
 			// stop showing user activity
-			$('body').idleTimer('destroy');  
-			
+			destroyIdleTimer();
+
 		});	
 		
 		
@@ -277,7 +267,30 @@
 
 		}
 		
-		// init();
+		function initIdleTimer(){
+			// if using idleTimer then display user activity status
+			if ($('#opt-idletimer').is(':checked')){
+				
+				$(document).bind("idle.idleTimer", function(){
+					//console.log('idleTimer event: active');
+					$('#activity').toggleClass('active', false).addClass('idle').text('idle');
+				});
+				 
+				 
+				$(document).bind("active.idleTimer", function(){
+					//console.log('idleTimer event: inactive');
+					$('#activity').toggleClass('idle', false).addClass('active').text('active'); 
+				});
+
+			}
+
+			// assume user is active on page when plugin is initialized.
+			$('#activity').toggleClass('idle', false).addClass('active').text('active'); 
+		}
+
+		function destroyIdleTimer(){
+			$(document).idleTimer('destroy');  
+		}
 		
 	});
 	</script>

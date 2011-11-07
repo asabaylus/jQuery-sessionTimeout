@@ -88,8 +88,7 @@ $.idleTimer = function(newTimeout, elem){
         enabled = true,        //indicates if the idle timer is enabled
         timeout = 30000,        //the amount of time (ms) before the user is considered idle
         events  = 'mousemove keydown DOMMouseScroll mousewheel mousedown touchstart touchmove'; // activity is one of these events
-
-
+    
     elem = elem || document;
 
 
@@ -106,7 +105,11 @@ $.idleTimer = function(newTimeout, elem){
         }
 
         var obj = $.data(myelem || elem,'idleTimerObj');
-
+        
+        // if (typeof obj === 'undefined'){
+        //   obj = { 'idle' : true };
+        // }
+          
         //toggle the state
         obj.idle = !obj.idle;
 
@@ -228,7 +231,7 @@ $.idleTimer = function(newTimeout, elem){
     // store our instance on the object
     $.data(elem,'idleTimerObj',obj);
 
-
+    // toggleIdleState(elem);
 
 }; // end of $.idleTimer()
 
