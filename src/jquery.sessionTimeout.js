@@ -75,7 +75,7 @@
                 
                 if (_idleTimerExists){
                 	
-                	$idleTimerEl = $(document.documentElement);
+                	$idleTimerEl = $(document);
 
                     // set idleTimer() equal to the session durration 
 					$.idleTimer(Number(options.pollactivity));
@@ -137,7 +137,6 @@
 
                             // _beforeTimeout canceled
                             methods._stopCountdown.apply();
-                            clearTimeout(_sessionTimeoutTimer);
 
 
                             methods.ping.apply();
@@ -288,7 +287,12 @@
             ping: function () {
                 var t = new Date(),
                     tstamp = t.getTime();
-                    
+                
+                // dont ping nothin of the user is idle
+                if (_idleTimerExists && $.data(document,'idleTimer') === 'idle' ){
+                    return false;
+                }   
+                 
                 // stop session timeout countdown
                 methods._stopCountdown.apply();
                                
