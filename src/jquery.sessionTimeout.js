@@ -115,8 +115,6 @@
                         _keepAliveTimer = window.setTimeout(function(){
                             methods.ping.apply();
                         }, options.timeout);
-                        console.log("autoping is true");
-
                     }   
                     else if (_idleTimerExists && options.enableidletimer){
 					                    
@@ -129,7 +127,7 @@
 						 
                         $idleTimerEl.one('active.idleTimer', function(){
 
-                            console.log('active again!');	
+                            //console.log('active again!');	
                             // if autoping is on then cancel the beforeTimeout event 
                             // because the session will never expire.
                             // otherwise we will promt the user for input
@@ -365,18 +363,23 @@
              * @public
              */
             destroy : function () {
+
                 // before running cleanup check for plugin init
                 if (typeof _ready !== "undefined") {
+
                     // remove ping image from DOM
                     if (typeof $el != 'undefined'){
                         $el.remove();
                     }
                     methods._stopCountdown.apply();
-                    $idleTimerEl.unbind('.idleTimer');
+                    if (_idleTimerExists){
+                        $idleTimerEl.unbind('.idleTimer');
+                    }
                     _sessionTimeoutTimer = null;
                     _beforeTimeout = null;
                     _keepAliveTimer = null;
-                    _ready = null;          
+                    _ready = undefined;  
+                         
                     logEvent("$.fn.sessionTimeout status: destroy");
                     $(document).trigger("destroy.sessionTimeout");          
                     // unbind all sessionTimeout events
@@ -390,8 +393,10 @@
                 } else {
                     $.error("Could not destroy, initialize the plugin before calling destroy.");    
                 }
-            },
 
+                
+            },
+            
             /**
              * Returns log of plugin events
              * @return {array}
