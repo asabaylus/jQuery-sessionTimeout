@@ -3,7 +3,7 @@ $(document).ready(function(){
   	var createEvent = false,
   		args = false,
   		strPing,
-  		strDestroy;
+  		destroyed = false;
   	
 	$(document).bind('create.sessionTimeout', function(event, args){
 		version = args;
@@ -15,11 +15,10 @@ $(document).ready(function(){
 			strPing = "Session Restarted @ " + t.toTimeString(); 
 	});
 
-	$(document).bind('destroy.sessionTimeout', function() {				
-		var t = new Date();
-			strDestroy = "Session Restarted @ " + t.toTimeString(); 
-	});	
+
 	
+
+
 	$.fn.sessionTimeout({img: "../src/spacer.gif"});
 	
 	
@@ -34,19 +33,39 @@ $(document).ready(function(){
 		$.fn.sessionTimeout('ping');
 		ok(strPing, 'ping.sessionTimeout was triggered @' + strPing);
 	});	
+
+	test('Test elapsed method', function(){
+		var elapsed = $.fn.sessionTimeout('elapsed');
+		ok(elapsed, elapsed + ' ms elasped since session countdown started');
+	});	
+
+	test('Test duration method', function(){
+		var duration = $.fn.sessionTimeout('duration');
+		ok(duration, duration + ' ms long duration set for this session');
+	});		
+
+	test('Test remaining method', function(){
+		var remaining = $.fn.sessionTimeout('remaining');
+		ok(remaining, remaining + ' ms remaining to session timeout');
+	});	
 	
 	test('Test destroy event', function(){
-		$.fn.sessionTimeout();
+		var destroyed = false;
+		$(document).bind('destroy.sessionTimeout', function() {				
+			destroyed = true;
+		});	
 		$.fn.sessionTimeout('destroy');
-		ok(strDestroy, 'destroy.sessionTimeout event was triggered @' + strDestroy);
+		ok(destroyed, 'destroy.sessionTimeout event was triggered');
 	});
 
 	test('Test destroy event raises error if plugin not initialized', function(){
-		$.fn.sessionTimeout('destroy');
 		raises(function(){
-			$.fn.sessionTimeout('destroy');
-		}, 'Could not destroy, initialize the plugin before calling destroy.'
+			$.fn.sessionTimeout('destroy'); // should be gone
+			$.fn.sessionTimeout('destroy'); // should throw error
+		}, 'Should throw error: Could not destroy, initialize the plugin before calling destroy.'
 		);
 	});
+
+
 	
 });
