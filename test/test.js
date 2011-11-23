@@ -16,23 +16,11 @@ $(document).ready(function(){
 	});
 
 
-	
-
-
 	$.fn.sessionTimeout({img: "../src/spacer.gif"});
 	
 	
-	module('jQuery.fn.sessionTimeout Events');
 
-	test('Test create event',function(){
-		ok(createEvent, "create.sessionTimeout was triggered");
-		ok(version, 'session Timeout version = ' + version);
-	});
-	
-	test('Test ping event', function(){
-		$.fn.sessionTimeout('ping');
-		ok(strPing, 'ping.sessionTimeout was triggered @' + strPing);
-	});	
+	module('jQuery.fn.sessionTimeout Methods');
 
 	test('Test elapsed method', function(){
 		var elapsed = $.fn.sessionTimeout('elapsed');
@@ -49,12 +37,28 @@ $(document).ready(function(){
 		ok(remaining, remaining + ' ms remaining to session timeout');
 	});	
 	
+
+	module('jQuery.fn.sessionTimeout Events');
+
+	test('Test create event',function(){
+		ok($.isFunction($.fn.sessionTimeout), 'plugin namespace created');
+		ok(createEvent, "create.sessionTimeout was triggered");
+		ok(version, 'session Timeout version = ' + version);
+	});
+	
+	test('Test ping event', function(){
+		$.fn.sessionTimeout('ping');
+		ok(strPing, 'ping.sessionTimeout was triggered @' + strPing);
+	});	
+
+
 	test('Test destroy event', function(){
 		var destroyed = false;
 		$(document).bind('destroy.sessionTimeout', function() {				
 			destroyed = true;
 		});	
 		$.fn.sessionTimeout('destroy');
+		console.log('after',$.isFunction($.fn.sessionTimeout));
 		ok(destroyed, 'destroy.sessionTimeout event was triggered');
 	});
 
@@ -65,7 +69,5 @@ $(document).ready(function(){
 		}, 'Should throw error: Could not destroy, initialize the plugin before calling destroy.'
 		);
 	});
-
-
 	
 });
