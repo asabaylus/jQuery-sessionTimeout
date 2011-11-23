@@ -90,7 +90,10 @@
 		
 		
 		$('#btnPing').click(function(){
-			$.fn.sessionTimeout('ping');
+			// It's possible to ping without setting initializing session managment
+			// If this is the case you'll probably need to set the resource to
+			// when pinging the server.
+			$.fn.sessionTimeout('ping', {resource:'../src/test.gif'});
 		});
 		
 		
