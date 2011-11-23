@@ -45,7 +45,7 @@
         _keepAliveTimer,
         _idleTimerExists = false;
         
-    $.fn.sessionTimeout = function (options, method) {
+    $.fn.sessionTimeout = function (method, options) {
 
 
         // set plugin defaults
