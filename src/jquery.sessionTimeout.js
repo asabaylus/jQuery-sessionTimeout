@@ -48,7 +48,7 @@
     
     // set plugin defaults
     defaults = {
-        autoping : true,
+        autoping : false,
         enableidletimer : true, // allows session control via idletimer plugin if present
         timeout : 300000, // set the servers session timeout
         resource : "spacer.gif", // set the asset to load from the server
@@ -90,7 +90,7 @@
                         }
                     }
                     
-                    methods._startCountdown.apply(this [options]);
+                    methods._startCountdown.apply();
                                                     
                     // get the load time for plugin ready
                     _ready = new Date();          
@@ -107,6 +107,7 @@
                 */
                 _startCountdown: function () {
 
+                    console.log('starting coutndown with options', options);
                         
                         _countdownDate = new Date();
                         _countdownTime = _countdownDate.getTime();
@@ -163,6 +164,7 @@
                             $(document).bind('expired.sessionTimeout', function(){
                                  $idleTimerEl.unbind('active.idleTimer');
                                  $idleTimerEl.unbind('idle.idleTimer');
+                                    
                             }); 
 
 
@@ -172,9 +174,10 @@
                             }
                         }             
                         else {
-                            console.log("no idletimer, no autoping");
+                            
                             clearTimeout(_keepAliveTimer);
                             _keepAliveTimer = window.setTimeout(function(){
+                                console.log("dobeofretimeout!!!");
                                     methods._beforeTimeout.apply();
                             }, options.timeout - options.promptfor);
                         }
@@ -205,11 +208,11 @@
                  * @private
                  */
                 _beforeTimeout: function () {
-                                                        
+                    console.log('bang!');                                 
                     // if beforeTimeout is a function then start countdown to user prompt
                     if ($.isFunction(options.beforetimeout)) {          
                             var d = new Date();
-                            methods._logEvent("$.fn.sessionTimeout status: beforeTimeout triggered @" + d.toTimeString()).apply();
+                            methods._logEvent("$.fn.sessionTimeout status: beforeTimeout triggered @" + d.toTimeString());
                             options.beforetimeout.call(this);
                             $(document).trigger("prompt.sessionTimeout");   
                     }
@@ -219,6 +222,7 @@
                     
                     // start counting down to session timeout
                     _sessionTimeoutTimer = window.setTimeout(function () {                  
+                       
                         // handle the ontimeout callback
                         // first check that a function was passed in
                         if ($.isFunction(options.ontimeout)) {
@@ -237,7 +241,6 @@
                                                 
                         var d = new Date();
                         //"$.fn.sessionTimeout status: session expired @" + d.toTimeString()
-                        console.log(methods._logEvent().toString());
 
                         $(document).trigger('expired.sessionTimeout');
                     }, options.promptfor);
@@ -421,19 +424,21 @@
                 }
             };
 
-        // if the user specified an option which is also
-        // a method then copy the options into the methods
-        // this allow directly invoking a method like so 
-        // $.fn.sessionTimeout("destroy");
-        if (methods[options]) {
-            method = options;
+        console.log(method, options);
+        
+        // if method is not set and options are specified
+        // copy the method into the options
+        // this allow directly invoking options like so 
+        // $.fn.sessionTimeout({ opt1 : val1, opt2: val2, ... });
+        if (!methods[options]) {
+            options = $.extend(options, method);
         }
         
         // set the options
-        //options = $.extend(defaults, options);
+        options = $.extend(defaults, options);
         // thanks @ssoper   
-        $.extend($global, options);
-        options = $.extend(defaults, $global);
+        //$.extend($global, options);
+        //options = $.extend(defaults, $global);
 
         // Method calling logic
         if (methods[method]) {
