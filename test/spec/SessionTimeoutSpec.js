@@ -4,7 +4,7 @@
 //   });
 // });
 
-describe('jQuery.sessionTimeout',function(){ 
+describe('jQuery.fn.sessionTimeout',function(){ 
 
 	var createEvent = false,
 		args = false,
@@ -31,11 +31,22 @@ describe('jQuery.sessionTimeout',function(){
 	
 
 
-	describe('jQuery.fn.sessionTimeout Methods',function(){ 
-		it('Should return the time elapsed since session was started', function(){
-			var elapsed = $.fn.sessionTimeout('elapsed');
-			expect(elapsed).toBeTruthy();
-		});	
+	describe('Methods',function(){ 
+		describe('$.fn.sessionTimeout("elapsed")', function(){
+			
+			var elapsed;
+
+			beforeEach(function(){
+				elapsed = $.fn.sessionTimeout('elapsed');
+			});
+
+			it('Should return the time elapsed since session was started', function(){
+
+					expect(elapsed).toBeGreaterThan(0);
+
+			});	
+		});
+
 
 		it('Should return the duration until session times out', function(){
 			var duration = $.fn.sessionTimeout('duration');
@@ -48,7 +59,7 @@ describe('jQuery.sessionTimeout',function(){
 		});
 	});
 
-	describe('jQuery.fn.sessionTimeout Events',function(){ 
+	describe('Events',function(){ 
 		it('Should instantiate the plugin',function(){
 			expect($.isFunction($.fn.sessionTimeout)).toBeTruthy();
 			expect(createEvent).toBeTruthy();
