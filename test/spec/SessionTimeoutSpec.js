@@ -33,16 +33,9 @@ describe('jQuery.fn.sessionTimeout',function(){
 
 	describe('Methods',function(){ 
 		describe('$.fn.sessionTimeout("elapsed")', function(){
-			
-			var elapsed;
-
-			beforeEach(function(){
-				elapsed = $.fn.sessionTimeout('elapsed');
-			});
-
 			it('Should return the time elapsed since session was started', function(){
-
-					expect(elapsed).toBeGreaterThan(0);
+				var elapsed = $.fn.sessionTimeout('elapsed');
+				expect(elapsed).toBeGreaterThan(0);
 
 			});	
 		});
