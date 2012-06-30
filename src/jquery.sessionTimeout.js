@@ -4,28 +4,10 @@
  * @author Asa Baylus
  * @version 0.0.2
  *
- *
- * Copyright (c) 2011 Asa Baylus
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in
- * all copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
- * THE SOFTWARE.
+ * Copyright (c) 2012 Asa Baylus
+ * Licensed under the MIT, GPL licenses.
  */
-(function ($) {
+ (function ($) {
 
     var defaults,
         methods,
@@ -45,15 +27,15 @@
         _beforeTimeout,
         _keepAliveTimer,
         _idleTimerExists = false,
-    
-    // set plugin defaults
-    defaults = {
+
+        // set plugin defaults
+        defaults = {
         autoping : false,
         enableidletimer : true, // allows session control via idletimer plugin if present
-        timeout : 300000, // set the servers session timeout
-        resource : "spacer.gif", // set the asset to load from the server
-        promptfor : 10000, // triggers beforetimeout x seconds before session timeout
-        beforetimeout : $.noop, // callback which occurs prior to session timeout
+            timeout : 300000, // set the servers session timeout
+            resource: "spacer.gif", // set the asset to load from the server
+            promptfor: 10000, // triggers beforetimeout x seconds before session timeout
+            beforetimeout: $.noop, // callback which occurs prior to session timeout
         ontimeout : $.noop, // callback which occurs upon session timeout
         pollactivity : 1000 // number seconds between checking for user activity (only needed if using idletimer)
     }
@@ -66,19 +48,19 @@
         methods = {
 
 
-                /**
-                 * Initializes the plugin
-                 * @return {void}
-                 * @private
-                 */
-                _init: function ( ) {
+            /**
+             * Initializes the plugin
+             * @return {void}
+             * @private
+             */
+            _init: function () {
 
 
                     // test for Paul Irishes idleTimer plugin
                     _idleTimerExists = $.isFunction($.idleTimer);
-                    
+
                     if (_idleTimerExists){
-                        
+
                         $idleTimerEl = $(document);
 
                         // set idleTimer() equal to the session durration 
@@ -87,9 +69,9 @@
                         if (options.pollactivity > options.timeout - options.promptfor){
                             $.error("The configuration pollactivity is too long: polling must happen prior to the beforetimeout callback.");
                             return false;
-                        }
                     }
-                    
+                    }               
+
                     methods._startCountdown.apply();
                                                     
                     // get the load time for plugin ready
@@ -121,10 +103,10 @@
                         if ( options.autoping === true) {
                             _keepAliveTimer = window.setTimeout(function(){
                                 methods.ping.apply();
-                            }, options.timeout);
+                }, options.timeout); 
                         }   
                         else if (_idleTimerExists && options.enableidletimer){
-                                            
+                
                             clearTimeout(_keepAliveTimer);
                             clearTimeout(_activityPoller);
                             _keepAliveTimer = window.setTimeout(function(){
@@ -171,7 +153,7 @@
                             // When page first loads begin the countdown immediately
                             if(typeof $.data(document, 'idleTimer') === "undefined"){
                                 $idleTimerEl.trigger('idle.idleTimer');
-                            }
+                        }
                         }             
                         else {
                             
@@ -179,13 +161,13 @@
                             _keepAliveTimer = window.setTimeout(function(){
                                 console.log("dobeofretimeout!!!");
                                     methods._beforeTimeout.apply();
-                            }, options.timeout - options.promptfor);
-                        }
-                        
+                    }, options.timeout - options.promptfor);
+                }
+                
                         $(document).trigger('startCountdown.sessionTimeout');   
                 },
 
-                
+
                 /**
                  * Stops countdown to session exiration
                  * @return {void}
@@ -196,17 +178,17 @@
                         window.clearTimeout(_sessionTimeoutTimer);
                         window.clearTimeout(_keepAliveTimer);
                         window.clearTimeout(_activityPoller);
-                },             
+            },
+            
 
-
-                /**
+            /**
                  * Callback function occurs when promt begins
                  * Once the beforeTimeout event has trigger, the session can no longer be renewed
                  * through autoping or idleTimer user activity. It is assumed the session timeOut
                  * must be cancled by "pinging" the server. ex: $.fn.sessionTimeout("ping");
-                 * @return {void}
+             * @return {void}
                  * @private
-                 */
+             */
                 _beforeTimeout: function () {
                     console.log('bang!');                                 
                     // if beforeTimeout is a function then start countdown to user prompt
@@ -219,10 +201,10 @@
                     else {
                         $.error("The jQuery.sessionTimeout beforetimeout parameter is expecting a function");
                     }
-                    
+
                     // start counting down to session timeout
                     _sessionTimeoutTimer = window.setTimeout(function () {                  
-                       
+
                         // handle the ontimeout callback
                         // first check that a function was passed in
                         if ($.isFunction(options.ontimeout)) {
@@ -232,77 +214,77 @@
                             $.error('The jQuery.sessionTimeout ontimeout parameter is expecting a function');
                             return false;
                         }
-                    
+
                     // TODO: if idletimer is enable && user is active 
                     // restart the session timeout countdown.
                     console.log("method apply: _beforeTimeout", _idleTimerExists, options.enableidletimer);
-                        
+
                         methods._stopCountdown.apply();
-                                                
+
                         var d = new Date();
                         //"$.fn.sessionTimeout status: session expired @" + d.toTimeString()
-
+                
                         $(document).trigger('expired.sessionTimeout');
                     }, options.promptfor);
-                },
-                           
-                
-                /**
-                 * Loads resource, PHP, ASPX, CFM, JSP or Image file etc
-                 * @return {void}
-                 * @private
-                 */
-                _fetch: function () {
+            },
+            
+            
+            /**
+             * Loads resource, PHP, ASPX, CFM, JSP or Image file etc
+             * @return {void}
+             * @private
+             */
+            _fetch: function () {
 
-                    var d = new Date(),
-                        tstamp = d.getTime(),
-                        reFileName = /^(.+)\.([^\.]*)?$/,
-                        reImageExt = /^jpg|jpeg|png|gif|bmp$/,
-                        file = options.resource.match(reFileName),
-                        extension = file[2],
-                        isImage = reImageExt.test(extension);
+                var d = new Date(),
+                    tstamp = d.getTime(),
+                    reFileName = /^(.+)\.([^\.]*)?$/,
+                    reImageExt = /^jpg|jpeg|png|gif|bmp$/,
+                    file = options.resource.match(reFileName),
+                    extension = file[2],
+                    isImage = reImageExt.test(extension);
 
-                    // loads the resource used to ping target server
-                    // if the resource dosnt exist
+                // loads the resource used to ping target server
+                // if the resource dosnt exist
                     if (typeof $el === 'undefined') {
 
-                        // handle loading the resource the first time
-                        if (isImage) {
-                            // get an image with a unique id
-                            // fetching the image will keep the server from timeing out
-                            // it's important that the file has a defined
-                            // filesize ex no includes or scripts
-                            $("body").append("<img id='" + _resourceId + "' src='" + options.resource + "?tstamp=" + tstamp  + "' style='position: \"absolute\", height: \"1px\", width: \"1px\"' alt='web page session management helper'>");
-                        } else {
-                            $("body").append("<iframe id='" + _resourceId + "' src='" + options.resource + "?tstamp=" + tstamp  + "' style='position: \"absolute\", height: \"1px\", width: \"1px\", display: \"none\"' alt='web page session management helper'></iframe>");
-                        }
+                    // handle loading the resource the first time
+                    if (isImage) {
+                        // get an image with a unique id
+                        // fetching the image will keep the server from timeing out
+                        // it's important that the file has a defined
+                        // filesize ex no includes or scripts
+                        $("body").append("<img id='" + _resourceId + "' src='" + options.resource + "?tstamp=" + tstamp  + "' style='position: \"absolute\", height: \"1px\", width: \"1px\"' alt='web page session management helper'>");
+                    } else {
+                        $("body").append("<iframe id='" + _resourceId + "' src='" + options.resource + "?tstamp=" + tstamp  + "' style='position: \"absolute\", height: \"1px\", width: \"1px\", display: \"none\"' alt='web page session management helper'></iframe>");
+                    }
 
-                    } 
-                    else {
+                } 
+                else {
 
                         $el.attr("src", options.resource + "?timestamp=" + tstamp);
-                    }
-                    
+                }
+            
                     $el = $("#" + _resourceId);
-                },
-                                          
-                /**
+            },
+            
+            /**
                  * Requests a file from target server
-                 * @return {void}
+             * @return {void}
                  * @public
-                 */
+             */
                 ping: function () {
                     var t = new Date(),
                         tstamp = t.getTime();
-                    
+
                     // dont ping nothin of the user is idle
                     if ( _idleTimerExists && $.data(document,'idleTimer') === 'idle' ){
                         return false;
                     }   
-                     
+                
                     // stop session timeout countdown
                     methods._stopCountdown.apply();
-                                   
+
                     // renew the session
                     methods._fetch.apply();             
                     
@@ -313,47 +295,47 @@
                     // restart session timeout countdown
                     if ( _idleTimerExists ){
                         methods._startCountdown.apply();
-                    }           
-                },
-                      
-              
-                /**
-                 * Returns session duration (ms)
-                 * @return {number}
-                 * @public
-                 */
+                }
+            },
+
+
+            /**
+             * Returns session duration (ms)
+             * @return {number}
+             * @public
+             */
                 duration : function (surpresslog) {
                     if (!surpresslog){
                         methods._logEvent("$.fn.sessionTimeout status: duration " + options.timeout);
                     }
                     return Number(options.timeout);
-                },
+            },
 
 
-                /**
-                 * Returns time elapsed since session began
-                 * @return {date}
-                 * @public
-                 */
-                elapsed : function () {
-                    var d = new Date() - _ready;                
+            /**
+             * Returns time elapsed since session began
+             * @return {date}
+             * @public
+             */
+            elapsed : function () {
+                var d = new Date() - _ready;                
                     methods._logEvent("$.fn.sessionTimeout status: elapsed " + d + " ms");
-                    return d;
-                },
-                
-
-                /**
-                 * Returns time remaining before session expires
+                return d;
+            },
+            
+            
+            /**
+             * Returns time remaining before session expires
                  * @return {number}
-                 * @public
-                 */         
+             * @public
+             */         
                 remaining : function (surpresslog) {
                     var currentDate = new Date(),
                         currentTime = currentDate.getTime(),
                         expiresTime = _countdownTime,
                         durration = Number(options.timeout),
-                        // time until session expires in ms
-                        // use 0 if no time session has already expired
+                    // time until session expires in ms
+                    // use 0 if no time session has already expired
                         remainingTime =  durration + (expiresTime - currentTime) > 0 ?  durration + (expiresTime - currentTime) : 0;
                         
                         //console.log(expiresTime, currentTime, durration + (expiresTime - currentTime));
@@ -362,21 +344,21 @@
                     if (!surpresslog){
                         methods._logEvent("$.fn.sessionTimeout status: remaining " + remainingTime + " ms");
                     }
-                    return remainingTime;
-                },
+                return remainingTime;
+            },
 
 
-                /**
-                 * Resets plugin to default state
-                 * @return {void}
-                 * @public
-                 */
-                destroy : function () {
+            /**
+             * Resets plugin to default state
+             * @return {void}
+             * @public
+             */
+            destroy : function () {
 
-                    // before running cleanup check for plugin init
-                    if (typeof _ready !== "undefined") {
+                // before running cleanup check for plugin init
+                if (typeof _ready !== "undefined") {
 
-                        // remove ping image from DOM
+                    // remove ping image from DOM
                         if (typeof $el != 'undefined'){
                             $el.remove();
                         }
@@ -387,45 +369,45 @@
                         _sessionTimeoutTimer = null;
                         _beforeTimeout = null;
                         _keepAliveTimer = null;
-                        _ready = undefined;  
+                    _ready = undefined;         
                              
                         methods._logEvent("$.fn.sessionTimeout status: destroy");
-                        $(document).trigger("destroy.sessionTimeout");          
-                        // unbind all sessionTimeout events
+                    $(document).trigger("destroy.sessionTimeout");          
+                    // unbind all sessionTimeout events
                         $(document).unbind(".sessionTimeout");
                         if (_idleTimerExists) {
                             // destroy idletimer
                              $idleTimerEl.idleTimer('destroy');
                         }
-                        // delete the log
-                        _log.length = 0;
-                    } else {
-                        $.error("Could not destroy, initialize the plugin before calling destroy."); 
-                    }
-                },
-   
-   
+                    // delete the log
+                    _log.length = 0;
+                } else {
+                    $.error("Could not destroy, initialize the plugin before calling destroy.");    
+                }
+            },
+            
+            
                 // log event records events into an array
                 // *note log event must occur before triggering the bindings
                 _logEvent : function ( str ){
                     _log.push(str);
                     $(document).trigger("eventLogged.sessionTimeout");
                 },
+
    
-   
-                /**
-                 * Returns log of plugin events
-                 * @return {array}
-                 * @public
-                 */         
-                printLog : function () {
-                    // returns an array of all logged events
-                    return _log;
-                }
-            };
+            /**
+             * Returns log of plugin events
+             * @return {array}
+             * @public
+             */         
+            printLog : function () {
+                // returns an array of all logged events
+                return _log;
+            }
+        };
 
         console.log(method, options);
-        
+
         // if method is not set and options are specified
         // copy the method into the options
         // this allow directly invoking options like so 
@@ -452,4 +434,4 @@
     };
 
 
-})(jQuery);
+}(jQuery));
