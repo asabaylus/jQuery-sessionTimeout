@@ -9,8 +9,7 @@
  */
  (function ($) {
 
-    var defaults,
-        methods,
+    var methods = {},
         _logEvent,
         options,
         $global = {},
@@ -27,18 +26,20 @@
         _beforeTimeout,
         _keepAliveTimer,
         _idleTimerExists = false,
+        _countdownDate,
+        _countdownTime,
 
         // set plugin defaults
         defaults = {
-        autoping : false,
-        enableidletimer : true, // allows session control via idletimer plugin if present
+            autoping : false,
+            enableidletimer : true, // allows session control via idletimer plugin if present
             timeout : 300000, // set the servers session timeout
             resource: "spacer.gif", // set the asset to load from the server
             promptfor: 10000, // triggers beforetimeout x seconds before session timeout
             beforetimeout: $.noop, // callback which occurs prior to session timeout
-        ontimeout : $.noop, // callback which occurs upon session timeout
-        pollactivity : 1000 // number seconds between checking for user activity (only needed if using idletimer)
-    }
+            ontimeout : $.noop, // callback which occurs upon session timeout
+            pollactivity : 1000 // number seconds between checking for user activity (only needed if using idletimer)
+        };
 
             
     $.fn.sessionTimeout = function (method, options) {
@@ -89,7 +90,7 @@
                 */
                 _startCountdown: function () {
 
-                    console.log('starting coutndown with options', options);
+                    // console.log('starting coutndown with options', options);
                         
                         _countdownDate = new Date();
                         _countdownTime = _countdownDate.getTime();
@@ -132,7 +133,7 @@
                                 // if so prevent the session  from timing out
                                 _activityPoller = setTimeout(function(){
                                         methods.ping.apply();
-                                }, options.timeout)
+                                }, options.timeout);
 
                             });
 
@@ -159,7 +160,7 @@
                             
                             clearTimeout(_keepAliveTimer);
                             _keepAliveTimer = window.setTimeout(function(){
-                                console.log("dobeofretimeout!!!");
+                                // console.log("dobeofretimeout!!!");
                                     methods._beforeTimeout.apply();
                     }, options.timeout - options.promptfor);
                 }
@@ -190,7 +191,7 @@
                  * @private
              */
                 _beforeTimeout: function () {
-                    console.log('bang!');                                 
+                    // console.log('bang!');                                 
                     // if beforeTimeout is a function then start countdown to user prompt
                     if ($.isFunction(options.beforetimeout)) {          
                             var d = new Date();
@@ -217,7 +218,7 @@
 
                     // TODO: if idletimer is enable && user is active 
                     // restart the session timeout countdown.
-                    console.log("method apply: _beforeTimeout", _idleTimerExists, options.enableidletimer);
+                    // console.log("method apply: _beforeTimeout", _idleTimerExists, options.enableidletimer);
 
                         methods._stopCountdown.apply();
 
@@ -359,7 +360,7 @@
                 if (typeof _ready !== "undefined") {
 
                     // remove ping image from DOM
-                        if (typeof $el != 'undefined'){
+                        if (typeof $el !== 'undefined'){
                             $el.remove();
                         }
                         methods._stopCountdown.apply();
@@ -406,7 +407,7 @@
             }
         };
 
-        console.log(method, options);
+        // console.log(method, options);
 
         // if method is not set and options are specified
         // copy the method into the options
@@ -429,7 +430,7 @@
             return methods._init.apply(this, arguments);
         } else {
             $.error('Method ' +  method + ' does not exist on jQuery.sessionTimeout');
-        };
+        }
 
     };
 

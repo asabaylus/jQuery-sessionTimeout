@@ -24,7 +24,10 @@ module.exports = function(grunt) {
       }
     },
     qunit: {
-      files: ['test/**/*.html']
+      files: ['test/jquery.sessiontimeout.js.html']
+    },
+    jasmine: {
+      all: ['test/jasmine.html']
     },
     lint: {
       files: ['grunt.js', 'src/**/*.js', 'test/**/*.js']
@@ -45,16 +48,19 @@ module.exports = function(grunt) {
         undef: true,
         boss: true,
         eqnull: true,
-        browser: true
+        browser: true,
+        devel:true,
+        jquery: true
       },
-      globals: {
-        jQuery: true
-      }
+      globals: { }
     },
     uglify: {}
   });
 
   // Default task.
-  grunt.registerTask('default', 'lint qunit concat min');
+  // run Jasmin in versbose mode (-v) to help with debugging
+  grunt.registerTask('default', 'lint jasmine concat min');
 
+  // Jamsmine BDD task
+  grunt.loadNpmTasks('grunt-jasmine-task');
 };
