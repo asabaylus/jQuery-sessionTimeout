@@ -1,3 +1,5 @@
+/*global describe: true, it: true, should: true, beforeEach: true, runs: true, expect: true, waits: true */
+
 // describe('panda',function(){
 //   it('is happy',function(){
 //     expect(panda).toBe('happy');
@@ -6,12 +8,13 @@
 
 describe('jQuery.fn.sessionTimeout',function(){ 
 
-	var createEvent = false,
-		args = false,
-		strPing,
-		destroyed = false,
-		timeoutCalled = false,
-		beforetimeoutCalled = false;; 
+ var createEvent = false,
+        args = false,
+        version,
+        strPing,
+        destroyed = false,
+        timeoutCalled = false,
+        beforetimeoutCalled = false;
  
  	beforeEach(function(){
  		
