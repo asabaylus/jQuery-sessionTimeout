@@ -1,0 +1,11 @@
+tmpfile: test-results
+jamsmineHelper: /Users/Asa/Documents/github/jQuery-sessionTimeout/node_modules/grunt-jasmine-task/tasks/jasmine/jasmine-junit-helper.js
+myurl: file:///Users/Asa/Documents/github/jQuery-sessionTimeout/test/jasmine.html
+
+
+xml_results: [object Object]
+
+
+output: undefined
+
+

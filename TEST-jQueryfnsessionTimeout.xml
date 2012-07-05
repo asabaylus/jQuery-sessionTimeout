@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<testsuites>
+<testsuite name="jQuery.fn.sessionTimeout" errors="0" tests="0" failures="0" time="0" timestamp="2012-07-05T07:18:32">
+</testsuite>
+<testsuite name="jQuery.fn.sessionTimeout.Options" errors="0" tests="0" failures="0" time="0" timestamp="2012-07-05T07:18:32">
+</testsuite>
+<testsuite name="jQuery.fn.sessionTimeout.Options.Setting an ontimeout callback function" errors="0" tests="3" failures="0" time="0.092" timestamp="2012-07-05T07:18:31">
+  <testcase classname="jQuery.fn.sessionTimeout.Options.Setting an ontimeout callback function" name="Should invoke a callback when the time session time remaing is 0" time="0.014"></testcase>
+  <testcase classname="jQuery.fn.sessionTimeout.Options.Setting an ontimeout callback function" name="Should invoke a callback function when session times out" time="0.001"></testcase>
+  <testcase classname="jQuery.fn.sessionTimeout.Options.Setting an ontimeout callback function" name="Should raise an error if the callback is not a function" time="0.077"></testcase>
+</testsuite>
+<testsuite name="jQuery.fn.sessionTimeout.Methods" errors="0" tests="0" failures="0" time="0" timestamp="2012-07-05T07:18:32">
+</testsuite>
+<testsuite name="jQuery.fn.sessionTimeout.Methods.$.fn.sessionTimeout(&quot;elapsed&quot;)" errors="0" tests="1" failures="0" time="0.012" timestamp="2012-07-05T07:18:32">
+  <testcase classname="jQuery.fn.sessionTimeout.Methods.$.fn.sessionTimeout(&quot;elapsed&quot;)" name="Should return the time elapsed since session was started" time="0.011"></testcase>
+</testsuite>
+<testsuite name="jQuery.fn.sessionTimeout.Methods.$.fn.sessionTimeout(&quot;duration&quot;)" errors="0" tests="1" failures="0" time="0" timestamp="2012-07-05T07:18:32">
+  <testcase classname="jQuery.fn.sessionTimeout.Methods.$.fn.sessionTimeout(&quot;duration&quot;)" name="Should return the duration until session times out in ms" time="0"></testcase>
+</testsuite>
+<testsuite name="jQuery.fn.sessionTimeout.Methods.$.fn.sessionTimeout(&quot;remaining&quot;)" errors="0" tests="1" failures="0" time="0.001" timestamp="2012-07-05T07:18:32">
+  <testcase classname="jQuery.fn.sessionTimeout.Methods.$.fn.sessionTimeout(&quot;remaining&quot;)" name="Should return the time remaining until session expires in ms" time="0.001"></testcase>
+</testsuite>
+<testsuite name="jQuery.fn.sessionTimeout.Methods.$.fn.sessionTimeout(&quot;ping&quot;)" errors="0" tests="3" failures="0" time="0.006" timestamp="2012-07-05T07:18:32">
+  <testcase classname="jQuery.fn.sessionTimeout.Methods.$.fn.sessionTimeout(&quot;ping&quot;)" name="Should load an uncached image from the server" time="0.004"></testcase>
+  <testcase classname="jQuery.fn.sessionTimeout.Methods.$.fn.sessionTimeout(&quot;ping&quot;)" name="Should load an uncached file from the server" time="0.001"></testcase>
+  <testcase classname="jQuery.fn.sessionTimeout.Methods.$.fn.sessionTimeout(&quot;ping&quot;)" name="Should trigger a ping.sessionTimeout jQuery event" time="0.001"></testcase>
+</testsuite>
+<testsuite name="jQuery.fn.sessionTimeout.Methods.$.fn.sessionTimeout(&quot;printLog&quot;)" errors="0" tests="1" failures="0" time="0" timestamp="2012-07-05T07:18:32">
+  <testcase classname="jQuery.fn.sessionTimeout.Methods.$.fn.sessionTimeout(&quot;printLog&quot;)" name="Should return an array of logged plugin events" time="0"></testcase>
+</testsuite>
+<testsuite name="jQuery.fn.sessionTimeout.Methods.$.fn.sessionTimeout(&quot;destroy&quot;)" errors="0" tests="2" failures="0" time="0.001" timestamp="2012-07-05T07:18:32">
+  <testcase classname="jQuery.fn.sessionTimeout.Methods.$.fn.sessionTimeout(&quot;destroy&quot;)" name="Should remove the plugin from the page and cleans up references" time="0.001"></testcase>
+  <testcase classname="jQuery.fn.sessionTimeout.Methods.$.fn.sessionTimeout(&quot;destroy&quot;)" name="Should throw an error if &quot;destroy&quot; is called before plugin is initialized" time="0"></testcase>
+</testsuite>
+<testsuite name="jQuery.fn.sessionTimeout.Events" errors="0" tests="3" failures="0" time="0.002" timestamp="2012-07-05T07:18:32">
+  <testcase classname="jQuery.fn.sessionTimeout.Events" name="Should instantiate the plugin" time="0.001"></testcase>
+  <testcase classname="jQuery.fn.sessionTimeout.Events" name="Should ping the target server" time="0"></testcase>
+  <testcase classname="jQuery.fn.sessionTimeout.Events" name="Destroying the plugin should trigger the destroy event" time="0.001"></testcase>
+</testsuite>
+</testsuites>

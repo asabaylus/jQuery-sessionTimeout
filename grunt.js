@@ -27,7 +27,10 @@ module.exports = function(grunt) {
       files: ['test/jquery.sessiontimeout.js.html']
     },
     jasmine: {
-      all: ['test/jasmine.html']
+      all: ['test/jasmine.html'],
+      junit: {
+        savePath: 'test-results'
+      }
     },
     lint: {
       files: ['grunt.js', 'src/**/*.js', 'test/**/*.js']
