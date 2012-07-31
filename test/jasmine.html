@@ -9,8 +9,10 @@
   <link rel="stylesheet" type="text/css" href="../libs/jasmine/jasmine.css">
   <script type="text/javascript" src="../libs/jasmine/jasmine.js"></script>
   <script type="text/javascript" src="../libs/jasmine/jasmine-html.js"></script>
-  <script type="text/javascript" src="../libs/jasmine/jasmine.junit_reporter.js"></script>
-  <!--script type="text/javascript" src="../libs/jasmine/phantomjs-testrunner.js"></script-->
+  
+  <!-- For JUnit output of test results include the following link
+       to Lary Myer's JUnit reporter -->
+  <script type="text/javascript" src="../node_modules/grunt-jasmine-task/tasks/jasmine/jasmine-junit-reporter.js"></script>
 
   <!-- include spec files here... -->
   <script type="text/javascript" src="spec/SessionTimeoutSpec.js"></script>
@@ -23,9 +25,34 @@
 
 <body>
   <script type="text/javascript">
-    jasmine.getEnv().addReporter(new jasmine.TrivialReporter());
-    jasmine.getEnv().addReporter(new jasmine.JUnitXmlReporter());
-    jasmine.getEnv().execute();
+   (function() {
+      var jasmineEnv = jasmine.getEnv();
+      jasmineEnv.updateInterval = 1000;
+
+      var htmlReporter = new jasmine.HtmlReporter();
+      jasmineEnv.addReporter(htmlReporter);
+
+      // Specify target test results folder as below, for now
+      var junitReporter = new jasmine.JUnitXmlReporter('test-results/');
+      jasmineEnv.addReporter(junitReporter);
+
+      jasmineEnv.specFilter = function(spec) {
+        return htmlReporter.specFilter(spec);
+      };
+
+      var currentWindowOnload = window.onload;
+
+      window.onload = function() {
+        if (currentWindowOnload) {
+          currentWindowOnload();
+        }
+        execJasmine();
+      };
+
+      function execJasmine() {
+        jasmineEnv.execute();
+      }
+    })();
   </script>
 </body>
 </html>

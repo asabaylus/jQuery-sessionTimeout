@@ -23,13 +23,10 @@ module.exports = function(grunt) {
         dest: 'dist/<%= pkg.name %>.min.js'
       }
     },
-    qunit: {
-      files: ['test/jquery.sessiontimeout.js.html']
-    },
     jasmine: {
       all: ['test/jasmine.html'],
       junit: {
-        savePath: 'test-results'
+        dest: 'test-results'
       }
     },
     lint: {
