@@ -12,7 +12,7 @@
   
   <!-- For JUnit output of test results include the following link
        to Lary Myer's JUnit reporter -->
-  <script type="text/javascript" src="../node_modules/grunt-jasmine-task/tasks/jasmine/jasmine-junit-reporter.js"></script>
+  <!-- <script type="text/javascript" src="../node_modules/grunt-jasmine-task/tasks/jasmine/jasmine-junit-reporter.js"></script> -->
 
   <!-- include spec files here... -->
   <script type="text/javascript" src="spec/SessionTimeoutSpec.js"></script>
@@ -33,8 +33,8 @@
       jasmineEnv.addReporter(htmlReporter);
 
       // Specify target test results folder as below, for now
-      var junitReporter = new jasmine.JUnitXmlReporter('test-results/');
-      jasmineEnv.addReporter(junitReporter);
+      //var junitReporter = new jasmine.JUnitXmlReporter('test-results/');
+      //jasmineEnv.addReporter(junitReporter);
 
       jasmineEnv.specFilter = function(spec) {
         return htmlReporter.specFilter(spec);

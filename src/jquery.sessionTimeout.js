@@ -44,8 +44,6 @@
             
     $.fn.sessionTimeout = function (method, options) {
 
-        
-
         methods = {
 
 
@@ -78,7 +76,7 @@
                     // get the load time for plugin ready
                     _ready = new Date();          
                     
-                    //methods._logEvent().apply(this, "$.fn.sessionTimeout status: initialized @ " + _ready.toTimeString());
+                    //methods._logEvent().apply(this, "initialized @ " + _ready.toTimeString());
                     $(document).trigger("create.sessionTimeout", [_version, _start, (_ready - _start)]);
                 },
 
@@ -195,7 +193,7 @@
                     // if beforeTimeout is a function then start countdown to user prompt
                     if ($.isFunction(options.beforetimeout)) {          
                             var d = new Date();
-                            methods._logEvent("$.fn.sessionTimeout status: beforeTimeout triggered @" + d.toTimeString());
+                            methods._logEvent("beforeTimeout triggered @" + d.toTimeString());
                             options.beforetimeout.call(this);
                             $(document).trigger("prompt.sessionTimeout");   
                     }
@@ -212,7 +210,8 @@
                             options.ontimeout.call(this);
                         }
                         else {
-                            $.error('The jQuery.sessionTimeout ontimeout parameter is expecting a function');
+                            throw new Error('The jQuery.sessionTimeout ontimeout parameter is expecting a function');
+                            //$.error('The jQuery.sessionTimeout ontimeout parameter is expecting a function');
                             return false;
                         }
 
@@ -223,8 +222,7 @@
                         methods._stopCountdown.apply();
 
                         var d = new Date();
-                        //"$.fn.sessionTimeout status: session expired @" + d.toTimeString()
-                
+                        methods._logEvent("session expired @ " + d.toTimeString());
                         $(document).trigger('expired.sessionTimeout');
                     }, options.promptfor);
             },
@@ -274,11 +272,11 @@
              * @return {void}
                  * @public
              */
-                ping: function () {
+            ping: function () {
                     var t = new Date(),
                         tstamp = t.getTime();
 
-                    // dont ping nothin of the user is idle
+                    // dont ping nothin if the user is idle
                     if ( _idleTimerExists && $.data(document,'idleTimer') === 'idle' ){
                         return false;
                     }   
@@ -289,7 +287,7 @@
                     // renew the session
                     methods._fetch.apply();             
                     
-                    methods._logEvent("$.fn.sessionTimeout status: session restarted @ " + t.toTimeString());
+                    methods._logEvent("session restarted @ " + t.toTimeString());
                     $(document).trigger("ping.sessionTimeout");
                     
                     // if idleTimer is present than the next countdown is bound to the activity of the user otherwise
@@ -305,9 +303,9 @@
              * @return {number}
              * @public
              */
-                duration : function (surpresslog) {
+            duration : function (surpresslog) {
                     if (!surpresslog){
-                        methods._logEvent("$.fn.sessionTimeout status: duration " + options.timeout);
+                        methods._logEvent("duration " + options.timeout);
                     }
                     return Number(options.timeout);
             },
@@ -320,7 +318,7 @@
              */
             elapsed : function () {
                 var d = new Date() - _ready;                
-                    methods._logEvent("$.fn.sessionTimeout status: elapsed " + d + " ms");
+                    methods._logEvent("elapsed " + d + " ms");
                 return d;
             },
             
@@ -330,7 +328,7 @@
                  * @return {number}
              * @public
              */         
-                remaining : function (surpresslog) {
+            remaining : function (surpresslog) {
                     var currentDate = new Date(),
                         currentTime = currentDate.getTime(),
                         expiresTime = _countdownTime,
@@ -343,7 +341,7 @@
                        
 
                     if (!surpresslog){
-                        methods._logEvent("$.fn.sessionTimeout status: remaining " + remainingTime + " ms");
+                        methods._logEvent("remaining " + remainingTime + " ms");
                     }
                 return remainingTime;
             },
@@ -372,16 +370,18 @@
                         _keepAliveTimer = null;
                     _ready = undefined;         
                              
-                        methods._logEvent("$.fn.sessionTimeout status: destroy");
+                        methods._logEvent("destroy");
                     $(document).trigger("destroy.sessionTimeout");          
                     // unbind all sessionTimeout events
-                        $(document).unbind(".sessionTimeout");
+                    $(document).unbind(".sessionTimeout");
                         if (_idleTimerExists) {
                             // destroy idletimer
                              $idleTimerEl.idleTimer('destroy');
                         }
                     // delete the log
                     _log.length = 0;
+
+                    
                 } else {
                     $.error("Could not destroy, initialize the plugin before calling destroy.");    
                 }

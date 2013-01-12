@@ -46,19 +46,22 @@
 		    promptduration = 3000,
 		    pollduration = 2000,
 		    countDown,
-		    $status = $('#status');
+		    $status = $('#status'),
+		    $idletime = $('#idletime'),
+		    $counter = $('#counter'),
+		    $optidletimer = $('#opt-idletimer');
 		
-		
-			setInterval(function(){
-					// use the wonderful timeago plugin to display when the page was originaly opened.
-					var timepassed = $.timeago(loadTime);
-					$('#idletime').text(timepassed);
+		$('#btnDestroy').attr('disabled', true);
 
-			}, 1000);
-
+		// show how long ago the page was loaded
+		setInterval(function(){
+				// use the wonderful timeago plugin to display when the page was originaly opened.
+				var timepassed = $.timeago(loadTime);
+				$idletime.text(timepassed);
+		}, 1000);
+			
 		// Log Events 
 		$(document).bind('eventLogged.sessionTimeout', function() {
-			
 
 			// print the log
 			// the plugin event log is returned as an array
@@ -68,24 +71,44 @@
 				console.log($.fn.sessionTimeout("printLog")[m]);
 			}
 	
-			// write the log into the status text area				
-			$status.val($.fn.sessionTimeout("printLog").reverse().join("\n"));
+			// write the log into the status text area
+			$status.val($.fn.sessionTimeout("printLog").join("\n"));
 
-		
 		});		
 		
-		// Methods
+
 		$('#btnInit').click(function(){
 			
-			$(this).attr('disabled', 'disabled');
-			
-			// re-enable the destroy button
-			$('#btnDestroy').attr('enabled', 'enabled');
-        
-			$(document).idleTimer(pollduration); 
-			
-			init();       
-			
+			// reset log
+			$("#status").val('');
+
+			sessionduration = ($('#opt-timeout').val() || sessionduration);
+		    promptduration = ($('#opt-prompt').val() || promptduration);
+		    pollduration = ($('#opt-activity').val() || pollduration);		   	
+		   	optautoping = $('#opt-autoping').is(':checked');
+		   	optenableidletimer = $('#opt-idletimer').is(':checked');
+
+
+			// initialize sessionTimeout plugin
+			$.fn.sessionTimeout({
+				// automaticaly keep the connection alive
+				autoping : optautoping,
+				// session will expire in xxxx miliseconds  
+				timeout : sessionduration,
+				// how long to display session timeout mesage
+				promptfor :  promptduration,
+				// how frequently to check for user activity
+				pollactivity : pollduration,
+				// allows idletimer to control sessions if present
+				enableidletimer : optenableidletimer,
+				// set the resource to load
+				resource : '../src/spacer.gif'
+			});
+
+			// show user activity, this is just to provide visual feedback
+			if ($optidletimer.is(':checked')) {
+				$(document).idleTimer(pollduration);	
+			}
 		});
 		
 		
@@ -119,17 +142,14 @@
 		
 
 		$(document).bind('startCountdown.sessionTimeout', function(event){
-			
-			// log the ping event
-			var t = new Date();
-			
+
 			// reset the countdown
 	        clearInterval(countDown);
 			
 			// get the current time remaining for this session
 			// surpress logging of remaining time
 			timeRemaining = $.fn.sessionTimeout('duration', true);
-			$counter = $('#counter');
+			
 			// Countdown to session timeout 
 			countDown = window.setInterval(function(){
                 timeRemaining -= 1000;
@@ -139,20 +159,16 @@
 				} 
 			}, 1000);		
 			
-			// update values when countdown begins
-			$("#opt-timeout").val(sessionduration);
-			$("#opt-prompt").val(promptduration);	
-		
+			// when using idletimer dont allow changes to settings
+			$("#options > input").attr('disabled', true);	
 		});
+
 	
 		$(document).bind('create.sessionTimeout', function(event, args) {
 
 			// show user activity status
 			initIdleTimer();
 
-		
-			// the plugin cannot be destroyed until it has first
-			// been initialized
 			$('#btnInit').attr('disabled', true);
 			$('#btnDestroy').removeAttr('disabled');
 
@@ -179,31 +195,17 @@
 				
 				} 
 				
-			}, 1000);
-
-
-					
+			}, 1000);	
 		});
-		
 		
 		
 		$(document).bind('expired.sessionTimeout', function() {
-			
-			// allow user to change plugin options
+			// reset the UI for the demo
 			$('#options > input').removeAttr('disabled');
-					
-			// the plugin cannot be created if its already initialized
 			$('#btnDestroy').attr('disabled', true);
 			$('#btnInit').removeAttr('disabled');
-            
             $('#activity').removeAttr('class').text('--');
-
-            // stop showing user activity
-			destroyIdleTimer(); 
-			
 		});
-		
-		
 		
 
 		$(document).bind('destroy.sessionTimeout', function() {
@@ -231,70 +233,26 @@
 			delete countDown;
 			
 			// stop showing user activity
-			destroyIdleTimer();
-
+			$(document).idleTimer('destroy'); 
 		});	
-		
-		
-		function init(){
-			sessionduration = ($('#opt-timeout').val() || sessionduration);
-		    promptduration = ($('#opt-prompt').val() || promptduration);
-		    pollduration = ($('#opt-activity').val() || pollduration);		   	
-		   	optautoping = $('#opt-autoping').is(':checked');
-		   	optenableidletimer = $('#opt-idletimer').is(':checked');
-			
-		
-			// initialize sessionTimeout plugin
-			$.fn.sessionTimeout({
-			
-				// automaticaly keep the connection alive
-				autoping : optautoping,
-				
-				// this session will expire in xxxx miliseconds  
-				timeout : sessionduration,
-				
-				// how long to display session timeout mesage
-				promptfor :  promptduration,
 
-				// how frequently to check for user activity
-				pollactivity : pollduration,
-				
-				// allows idletimer to control sessions if present
-				enableidletimer : optenableidletimer,
-				
-				// set the resource to load
-				resource : '../src/spacer.gif'
-				
-			});
-			
-
-		}
-		
 		function initIdleTimer(){
 			// if using idleTimer then display user activity status
-			if ($('#opt-idletimer').is(':checked')){
-				
+			if ($optidletimer.is(':checked')){
+				// assume user is active on page when plugin is initialized.
+				$('#activity').toggleClass('idle', false).addClass('active').text('active');
+
 				$(document).bind("idle.idleTimer", function(){
 					//console.log('idleTimer event: active');
 					$('#activity').toggleClass('active', false).addClass('idle').text('idle');
 				});
 				 
-				 
 				$(document).bind("active.idleTimer", function(){
 					//console.log('idleTimer event: inactive');
 					$('#activity').toggleClass('idle', false).addClass('active').text('active'); 
 				});
-
 			}
-
-			// assume user is active on page when plugin is initialized.
-			$('#activity').toggleClass('idle', false).addClass('active').text('active'); 
 		}
-
-		function destroyIdleTimer(){
-			$(document).idleTimer('destroy');  
-		}
-		
 	});
 	</script>
 </head>

@@ -1,4 +1,4 @@
-/*! jQuery Session Timeout - v0.1.0 - 2012-07-05
+/*! jQuery Session Timeout - v0.1.0 - 2012-12-04
 * https://github.com/asabaylus/jQuery-sessionTimeout
 * Copyright (c) 2012 Asa Baylus; Licensed MIT, GPL */
 
