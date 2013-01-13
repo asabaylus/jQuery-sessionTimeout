@@ -20,7 +20,7 @@
         $idleTimerEl,
         _activityPoller,
         enableidletimer,
-        _version = "0.0.1",
+        _version = "0.0.2",
         _ready, // when the plugin first initialized
         _sessionTimeoutTimer,
         _beforeTimeout,
@@ -92,7 +92,7 @@
                         
                         _countdownDate = new Date();
                         _countdownTime = _countdownDate.getTime();
-
+                       
                         // if idleTimer plugin exists
                         // 1. when user goes idle restart the countdown
                         //    less the polling time used for idleTimer
@@ -290,11 +290,9 @@
                     methods._logEvent("session restarted @ " + t.toTimeString());
                     $(document).trigger("ping.sessionTimeout");
                     
-                    // if idleTimer is present than the next countdown is bound to the activity of the user otherwise
                     // restart session timeout countdown
-                    if ( _idleTimerExists ){
-                        methods._startCountdown.apply();
-                }
+                    methods._startCountdown.apply();
+                
             },
 
 
@@ -404,6 +402,11 @@
             printLog : function () {
                 // returns an array of all logged events
                 return _log;
+            },
+
+
+            getStartTime : function () {
+                return _countdownTime;
             }
         };
 

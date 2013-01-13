@@ -6,7 +6,7 @@
 //   });
 // });
 
-describe('jQuery.fn.sessionTimeout',function(){ 
+describe('The jQuery sessionTimeout plugin',function(){ 
 
  var createEvent = 0,
      destroyEvent = 0,
@@ -15,13 +15,16 @@ describe('jQuery.fn.sessionTimeout',function(){
      strPing,
      destroyed = false,
      timeoutCalled = false,
-     beforetimeoutCalled = false;
+     beforetimeoutCalled = false,
+     pageLoadTime = + new Date(),
+     countDownStartTime = 0;
  
 
     beforeEach(function(){
         
         $(document).bind('create.sessionTimeout', function(event, args){
             version = args;
+            countDownStartTime = + new Date();
             createEvent ++;
         });
         
@@ -47,11 +50,50 @@ describe('jQuery.fn.sessionTimeout',function(){
         $(document).unbind('.sessionTimeout');
     });
 
-    describe('The sessionTimeout plugin', function(){
-        it('Should exist on the "fn" object as function', function(){
-            expect($.isFunction($.fn.sessionTimeout)).toBe(true);
+    it('Should exist on jQuery\'s "fn" object as function', function(){
+        expect($.isFunction($.fn.sessionTimeout)).toBe(true);
+    });
+    it('Should return the plugin\'s version number', function(){
+        expect(version).toBe('0.0.2');
+    });
+
+    describe('When a session countdown starts it', function(){
+        it('Should fire a session create event', function(){
+            expect(createEvent).toBeGreaterThan(0);
+        });
+        it('Should begin the session timeout countdown', function(){
+            var remaining = $.fn.sessionTimeout('remaining');
+            expect(remaining).toBeGreaterThan(0);
+            waits(1);
+            runs(function(){
+                expect( $.fn.sessionTimeout('remaining') ).toBeLessThan(remaining);
+            });
         });
     });
+
+
+    describe('When the ping method is called to renew the session it', function(){
+        it('Should emit a "ping" event', function(){
+            $.fn.sessionTimeout("ping", {resource:'README.md'});
+            expect(strPing).toBeDefined();                
+        });
+        it('Should load a resource from the server', function(){
+            // demo using the 1px transparent gif included in the project
+            $.fn.sessionTimeout("ping", {'resource':'src/spacer.gif'});
+            // demo a file resource using the project readme
+            $.fn.sessionTimeout("ping", {resource:'README.md'});
+        });
+        it('Should reset the session countdown timer', function(){
+            prevCountDownStartTime = $.fn.sessionTimeout('getStartTime');
+            $.fn.sessionTimeout('ping', {resource:'README.md'});
+            expect($.fn.sessionTimeout('getStartTime')).toBeGreaterThan(prevCountDownStartTime);    
+        });
+    });
+
+
+
+
+/*
     
     describe('Options',function(){ 
         // autoping : true, // automaticaly ping the server to keep sessions alive
@@ -262,4 +304,7 @@ describe('jQuery.fn.sessionTimeout',function(){
         // });
 
     });
+
+*/
+
 });

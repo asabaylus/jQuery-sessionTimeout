@@ -1,53 +1,61 @@
-The plugin
+The Session Timeout Plugin
 	Is attached to jQuery's fn object
 	And it has a version number
-	
-The plugin may be configured to
-	automatically renew the session
-	check for user activity when the idletime plugin is present
-	countdown to session timeout over a variable number of milliseconds
-	set a resource to download and renew the users session
-	prompt the user a variable number of millisenconds before the session expires            
-    provide a callback function to trigger when the prompt is fired
-    provide a callback function to trigger when the session expires
-    poll for user activity at regular intervals based on a variable number of milliseconds
 
 
 When a session countdown starts
 	A session countdown start event is fired
-	And a timer is created
+	A timer is created
 	And the countdown begins
 
-	If the idletimer plugin is available
-		When a user has been inactive for at least X seconds add the session countdown reaches 0
-		Then the session will expire
 
-		When a user is active and the session countdown reaches 0
-		If the session is set to automatically renew
-		Then the session countdown will restart
-		If the session is not set to automaticaly renew
-		Then the session will expire
-
+When the ping method is called to renew the session
+	Then a resource will be loaded from the server
 
 When a session is about to expire.
-An event should be fired before the session expires.
+	A session prompt event should be fired.
+	And the prompt callback function will be triggered
 
 
 When a session countdown restarts
-A session countdown restart event is fired
+	A session countdown restart event is fired
 
 
 When a session countdown is stopped
-A session countdown stop event is fired
+	A session countdown stop event is fired
 
 
 When a session has been renewed
-The plugin fires a session "restarted" event
-And the session countdown restarts
+	The plugin fires a session "restarted" event
+	And the session countdown restarts
 
 
 When the plugin requests elasped time
-The plugin returns the amount of time since the page was loaded
+	The time since the session countdown began should be returned
 
-    
-When a session expires an event notification should be fired.
+When the plugin durration is requested
+	The elapsed time since the plugin loaded should be returned
+
+
+When the idletimer plugin is available
+	And a user has been inactive for at least X seconds 
+	And the session countdown reaches 0
+	Then the session will expire
+
+	When a user is active and the session countdown reaches 0
+		And the session is set to automatically renew
+		Then the session countdown will restart
+		And a resource will be loaded from the server
+	When a user is active and the session countdown reaches 0
+		And the session is not set to automaticaly renew
+		Then the session will expire
+
+
+When the idletimer plugin is not available or it is disabled
+	And the session countdown reaches 0
+	Then the session expired event will fire
+	And the callback function will be triggered
+
+When the plugin is destroyed 
+	Then plugin's event namspace should be unbound
+	And the countdown timer should be removed

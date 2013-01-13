@@ -1,0 +1,23 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+	<title>Session Timeout Plugin Basic Example</title>
+	<script type="text/javascript" type="JavaScript" src="../libs/jquery/jquery.js"></script>
+	<script type="text/javascript" src="../libs/jquery.timeago.js"></script>
+	<script type="text/javascript" src="../src/jquery.sessionTimeout.js"></script>
+	<script type="text/javascript">
+	$('document').ready(function(){
+
+		$(document).bind('create.sessionTimeout', function(event, args) {
+			console.log(event, args);
+		});
+
+		$.fn.sessionTimeout();
+
+	});
+	</script>
+</head>
+<body>
+	<h1>Basic Demo</h1>
+</body>
+</html>
