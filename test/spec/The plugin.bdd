@@ -12,29 +12,25 @@ When a session countdown starts
 When the ping method is called to renew the session
 	Then a resource will be loaded from the server
 
+
 When a session is about to expire.
 	A session prompt event should be fired.
 	And the prompt callback function will be triggered
 
 
-When a session countdown restarts
-	A session countdown restart event is fired
-
-
-When a session countdown is stopped
-	A session countdown stop event is fired
-
-
-When a session has been renewed
-	The plugin fires a session "restarted" event
-	And the session countdown restarts
+When the plugin is destroyed 
+	Then plugin's event namspace should be unbound
+	And the countdown timer should be removed
 
 
 When the plugin requests elasped time
 	The time since the session countdown began should be returned
 
-When the plugin durration is requested
-	The elapsed time since the plugin loaded should be returned
+When the plugins time remaining is requested
+	The elapsed time since the session countdown started  should be returned
+
+When the plugins duration is rquested
+	The session duration should be returned
 
 
 When the idletimer plugin is available
@@ -56,6 +52,16 @@ When the idletimer plugin is not available or it is disabled
 	Then the session expired event will fire
 	And the callback function will be triggered
 
-When the plugin is destroyed 
-	Then plugin's event namspace should be unbound
-	And the countdown timer should be removed
+
+
+To delete...
+
+covered by destroy event
+When a session countdown is stopped
+	Then countdown timer is reset
+	Then the session countdown stop event is fired
+
+covered by start event
+When a session has been renewed
+	The plugin fires a session "start" event
+	And the session countdown restarts	
