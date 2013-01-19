@@ -5,6 +5,7 @@
 //     expect(panda).toBe( 'happy' );
 //   });
 // });
+
 describe('If the jQuery sessionTimeout plugin is installed', function() {
 
     var createEvent = 0,
@@ -15,7 +16,7 @@ describe('If the jQuery sessionTimeout plugin is installed', function() {
         timeoutCalled = false,
         beforetimeoutCalled = false,
         pageLoadTime = +new Date,
-        onbeforetimeout, ontimeout, countDownStartTime = 0;
+        onprompt, ontimeout, countDownStartTime = 0;
 
 
     beforeEach(function() {
@@ -43,14 +44,13 @@ describe('If the jQuery sessionTimeout plugin is installed', function() {
             timeout: 20,
             promptfor: 10,
             resource: "../src/spacer.gif",
-            beforetimeout: function() {
-                onbeforetimeout = 'foo';
+            onprompt: function() {
+                onprompt = 'foo';
             },
             ontimeout: function() {
                 ontimeout = 'bar';
             }
         });
-
     });
 
     afterEach(function() {
@@ -63,7 +63,6 @@ describe('If the jQuery sessionTimeout plugin is installed', function() {
     it('it should return the plugin\'s version number', function() {
         expect(version).toBe('0.0.2');
     });
-
 
 
     describe('when a session countdown starts', function() {
@@ -85,7 +84,6 @@ describe('If the jQuery sessionTimeout plugin is installed', function() {
             expect(createEvent).toBe(last + 1);
         });
     });
-
 
     describe('when the ping method is called to renew the session', function() {
         it('it should emit a "ping" event', function() {
@@ -128,7 +126,6 @@ describe('If the jQuery sessionTimeout plugin is installed', function() {
         });
     });
 
-
     describe('when a session is about to expire', function() {
         it('it should fire a session prompt event before the session expires', function() {
             var promptTime, expiredTime;
@@ -149,7 +146,7 @@ describe('If the jQuery sessionTimeout plugin is installed', function() {
         it('it should trigger a callback function', function() {
             waits(30); // for the session to expire
             runs(function() {
-                expect(onbeforetimeout).toBe('foo');
+                expect(onprompt).toBe('foo');
             });
         });
     });
@@ -176,7 +173,6 @@ describe('If the jQuery sessionTimeout plugin is installed', function() {
         });
     });
 
-
     describe('when the plugin requests elasped time', function() {
         it('it should return the time since the session countdown began', function() {
             var before;
@@ -202,7 +198,6 @@ describe('If the jQuery sessionTimeout plugin is installed', function() {
             });
         });
     });
-
 
     describe('when the plugin requests remaining time', function() {
         it('it should return the time remaining until the session expires', function() {
@@ -235,7 +230,6 @@ describe('If the jQuery sessionTimeout plugin is installed', function() {
         });
     });
 
-
     describe('When the plugin is destroyed', function() {
 
         it('it should reset elepase time', function() {
@@ -257,29 +251,72 @@ describe('If the jQuery sessionTimeout plugin is installed', function() {
             $.fn.sessionTimeout('destroy');
             expect($.data(document, 'events')).toBeUndefined();
         });
-        it('it should throw an error if "destroy" is called before plugin is initialized', function() {
+    });
 
-            var lasterr = $.noop;
-            window.onerror = function(err) {
-                lasterr = function() {
-                    return err;
-                };
-            };
-            $.fn.sessionTimeout('destroy');
-            $.fn.sessionTimeout('destroy');
-            waits(10);
-            runs(function() {
+});
+    
+describe('When the plugin has been configured', function(){
+    var createCount = 0;
 
-                expect(function() {
+    beforeEach(function(){
+  
+    });
+    
 
-                    console.log(window.error);
-                    throw new Error(lasterr());
-                }).toThrow(new Error('Could not destroy, initialize the plugin before calling destroy.'));
-            });
+    it('should automatically renew the user\'s session', function(){
+        var callbackCount = 0,
+            eventCount = 0;
+        
+        $(document).on('create.sessionTimeout', function() {
+                createCount++;
+                console.log( 'autoping has run '+ createCount + ' times' );
+        });  
 
+        $.fn.sessionTimeout({
+            timeout: 100,
+            promptfor: 50,
+            resource: "../src/spacer.gif",
+            ontimeout: function() {
+                eventCount ++;
+            },
+            autoping: false
         });
 
+        waits( 300 );
+        runs(function(){
+            // should not fire off a second prompt event
+            expect( eventCount ).toBeGreaterThan( 1 );
+            expect( callbackCount ).toBeGreaterThan( 1 );
+            $.fn.sessionTimeout('destroy');
+        });
     });
+
+    // it('should not automatically renew the user\'s session', function(){
+        
+        
+    //     $.fn.sessionTimeout({
+    //         timeout: 10,
+    //         promptfor: 0,
+    //         resource: "../src/spacer.gif",
+    //         autoping: false
+    //     });
+
+    //     $(document).on('create.sessionTimeout', function() {
+    //         createCount++;
+    //     });
+
+    //     waits( 20 );
+    //     runs(function(){
+    //         // should not fire off a second prompt event
+    //         expect( createCount ).toEqual( 1 );
+    //         $.fn.sessionTimeout('destroy');
+    //     });
+    // });
+});
+
+
+
+
     /*
     
     describe( 'Options' ,function(){ 
@@ -359,5 +396,3 @@ describe('If the jQuery sessionTimeout plugin is installed', function() {
 
   
 */
-
-});
