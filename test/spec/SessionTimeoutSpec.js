@@ -255,42 +255,91 @@ describe('If the jQuery sessionTimeout plugin is installed', function() {
 
 });
     
-describe('When the plugin has been configured', function(){
-    var createCount = 0;
+describe('When the user\'s session is configured to automatically renew', function(){
 
-    beforeEach(function(){
-  
-    });
-    
-
-    it('should automatically renew the user\'s session', function(){
-        var callbackCount = 0,
-            eventCount = 0;
+    it('it should restart the countdown automatically', function(){
+        var startCountdownCount = 0;
         
-        $(document).on('create.sessionTimeout', function() {
-                createCount++;
-                console.log( 'autoping has run '+ createCount + ' times' );
+        $(document).on('startCountdown.sessionTimeout', function() {
+                startCountdownCount++;
         });  
 
         $.fn.sessionTimeout({
-            timeout: 100,
-            promptfor: 50,
+            timeout: 20,
             resource: "../src/spacer.gif",
-            ontimeout: function() {
-                eventCount ++;
-            },
-            autoping: false
+            autoping: true
         });
 
-        waits( 300 );
+        waits( 30 );
         runs(function(){
-            // should not fire off a second prompt event
-            expect( eventCount ).toBeGreaterThan( 1 );
-            expect( callbackCount ).toBeGreaterThan( 1 );
+            expect( startCountdownCount ).toBeGreaterThan( 1 );            
             $.fn.sessionTimeout('destroy');
         });
     });
 
+    it('it should not allow the users session to time-out', function(){
+        var callbackCount = 0;
+
+        $.fn.sessionTimeout({
+            timeout: 20,
+            promptfor: 10,
+            resource: "../src/spacer.gif",
+            ontimeout: function() {
+                callbackCount ++;                
+            },
+            autoping: true
+        });
+
+        waits( 30 );
+        runs(function(){
+            expect( callbackCount ).toEqual( 0 );
+            $.fn.sessionTimeout('destroy');
+        });
+    });
+
+    it('it should ping the server to renew the session', function(){
+        var pingCount = 0;
+
+        $(document).on('ping.sessionTimeout', function() {
+                console.log('ping event x'+pingCount);
+                pingCount++;
+        });  
+        
+        $.fn.sessionTimeout({
+            timeout: 10,
+            resource: "../src/spacer.gif",
+            autoping: true
+        });
+
+        waits( 30 );
+        runs(function(){
+            expect( pingCount ).toBeGreaterThan( 1 );
+            $.fn.sessionTimeout('destroy');
+        });
+    });
+
+    it('it should not promt the user to continue the session', function(){
+        var callbackCount = 0;
+
+        $.fn.sessionTimeout({
+            timeout: 20,
+            promptfor: 10,
+            resource: "../src/spacer.gif",
+            onprompt: function() {
+                callbackCount ++;                
+            },
+            autoping: true
+        });
+
+        waits( 30 );
+        runs(function(){
+            // the onprompt callback should not fire
+            expect( callbackCount ).toEqual( 0 );
+            $.fn.sessionTimeout('destroy');
+        });
+    });
+
+   
     // it('should not automatically renew the user\'s session', function(){
         
         

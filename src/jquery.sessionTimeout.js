@@ -186,6 +186,7 @@
 			 * @private
 			 */
 			_beforeTimeout: function() {
+				console.log('_beforeTimeout');
 				// if beforeTimeout is a function then start countdown to user prompt
 				if($.isFunction(options.onprompt)) {
 					var d = new Date();
@@ -284,7 +285,6 @@
 
 				
 				if( options.autoping === true ) {
-					console.log('restarting countdown');
 					methods._startCountdown.apply();
 				}
 
