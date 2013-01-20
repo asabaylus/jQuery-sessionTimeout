@@ -357,7 +357,7 @@
 				}
 
 				_ready = undefined;
-				_countdownTime = undefined;
+				//_countdownTime = undefined;
 
 				$(document).trigger("destroy.sessionTimeout");
 
