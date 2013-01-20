@@ -10,7 +10,7 @@
  */
 (function($) {
 
-	"use strict";
+	// "use strict";
 
 	var methods = {},
 		options, $global = {},
@@ -20,7 +20,7 @@
 		_resourceId = 'sessionTimeout_' + _start.getTime(),
 		$el, $idleTimerEl, _activityPoller, enableidletimer, _version = "0.0.2",
 		_ready, // when the plugin first initialized
-		_sessionTimeoutTimer, _beforeTimeout, _keepAliveTimer, _idleTimerExists = false,
+		_sessionTimeoutTimer, _beforeTimeout,  _idleTimerExists = false,
 		_countdownDate, _countdownTime, _endTime,
 
 		// set plugin defaults
@@ -40,8 +40,8 @@
 			// callback which occurs upon session timeout
 			pollactivity: 1000 // number seconds between checking for user activity (only needed if using idletimer)
 		};
-
-
+	
+	
 	$.fn.sessionTimeout = function(method, options) {
 
 		methods = {
@@ -69,6 +69,12 @@
 						$.error("The configuration pollactivity is too long: polling must happen prior to the onprompt callback.");
 						return false;
 					}
+				}
+
+				// prompt durration cannot be longer than 
+				// session durration
+				if (options.promptfor > options.timeout){
+					options.promptfor = options.timeout;
 				}
 
 				methods._startCountdown.apply();
@@ -99,16 +105,16 @@
 				// 2. cancel the current countdown when the user is active
 				//    ping the server
 				if(options.autoping === true) {
-
-					_keepAliveTimer = setTimeout(function() {
+					
+					this._keepAliveTimer = window.setTimeout(function() {
 						methods.ping.apply();
 					}, options.timeout);
 
 				} else if(_idleTimerExists && options.enableidletimer) {
 
-					clearTimeout(_keepAliveTimer);
-					clearTimeout(_activityPoller);
-					_keepAliveTimer = window.setTimeout(function() {
+					window.clearTimeout(this._keepAliveTimer);
+					window.clearTimeout(_activityPoller);
+					this._keepAliveTimer = window.setTimeout(function() {
 						methods._beforeTimeout.apply();
 					}, options.timeout - options.promptfor);
 
@@ -127,7 +133,7 @@
 
 						// user may be active for length of the session.
 						// if so prevent the session  from timing out
-						_activityPoller = setTimeout(function() {
+						_activityPoller = window.setTimeout(function() {
 							methods.ping.apply();
 						}, options.timeout);
 
@@ -136,7 +142,7 @@
 					$idleTimerEl.one('idle.idleTimer', function() {
 						// on idle prevent activity poller
 						// from restarting sessions.
-						clearTimeout(_activityPoller);
+						window.clearTimeout(_activityPoller);
 
 					});
 
@@ -153,8 +159,8 @@
 					}
 				} else {
 
-					clearTimeout(_keepAliveTimer);
-					_keepAliveTimer = window.setTimeout(function() {
+					window.clearTimeout(this._keepAliveTimer);
+					this._keepAliveTimer = window.setTimeout(function() {
 						methods._beforeTimeout.apply();
 					}, options.timeout - options.promptfor);
 				}
@@ -172,8 +178,9 @@
 			_stopCountdown: function() {
 				// stop the session timer
 				window.clearTimeout(_sessionTimeoutTimer);
-				window.clearTimeout(_keepAliveTimer);
+				window.clearTimeout(this._keepAliveTimer);
 				window.clearTimeout(_activityPoller);
+				
 			},
 
 
@@ -186,7 +193,7 @@
 			 * @private
 			 */
 			_beforeTimeout: function() {
-				console.log('_beforeTimeout');
+				
 				// if beforeTimeout is a function then start countdown to user prompt
 				if($.isFunction(options.onprompt)) {
 					var d = new Date();
@@ -282,12 +289,6 @@
 				methods._startCountdown.apply();
 
 				$(document).trigger("ping.sessionTimeout");
-
-				
-				if( options.autoping === true ) {
-					methods._startCountdown.apply();
-				}
-
 			},
 
 
@@ -344,25 +345,25 @@
 			 */
 			destroy: function() {
 
-
 				// remove ping image from DOM
 				if(typeof $el !== 'undefined') {
 					$el.remove();
 				}
+
 				methods._stopCountdown.apply();
+				
 				if(_idleTimerExists) {
 					$idleTimerEl.unbind('.idleTimer');
 				}
-				_sessionTimeoutTimer = null;
-				_beforeTimeout = null;
-				_keepAliveTimer = null;
+
 				_ready = undefined;
 				_countdownTime = undefined;
 
-
 				$(document).trigger("destroy.sessionTimeout");
+
 				// unbind all sessionTimeout events
-				$(document).unbind(".sessionTimeout");
+				$(document).off(".sessionTimeout");
+				
 				if(_idleTimerExists) {
 					// destroy idletimer
 					$idleTimerEl.idleTimer('destroy');
