@@ -11,11 +11,14 @@ describe('If the jQuery sessionTimeout plugin is installed', function() {
     var createEvent = 0,
         destroyEvent = 0,
         promptEvent = 0,
+        promptTime = 0,
         args = false,
         version, strPing, destroyed = false,
         timeoutCalled = false,
         beforetimeoutCalled = false,
         pageLoadTime = +new Date,
+        expiredTime = 0,
+        expiredEvent = 0,
         onprompt, ontimeout, countDownStartTime = 0;
 
 
@@ -28,6 +31,7 @@ describe('If the jQuery sessionTimeout plugin is installed', function() {
         });
 
         $(document).bind('prompt.sessionTimeout', function() {
+            promptTime = +new Date;
             promptEvent++;
         });
 
@@ -38,6 +42,11 @@ describe('If the jQuery sessionTimeout plugin is installed', function() {
         $(document).bind('ping.sessionTimeout', function() {
             var t = new Date();
             strPing = "Session Restarted @ " + t.toTimeString();
+        });
+
+        $(document).bind('expired.sessionTimeout', function() {
+            expiredTime = +new Date();
+            expiredEvent++;
         });
 
         $.fn.sessionTimeout({
@@ -128,14 +137,6 @@ describe('If the jQuery sessionTimeout plugin is installed', function() {
 
     describe('when a session is about to expire', function() {
         it('it should fire a session prompt event before the session expires', function() {
-            var promptTime, expiredTime;
-
-            $(document).on('prompt.sessionTimeout', function() {
-                promptTime = +new Date;
-            });
-            $(document).on('expired.sessionTimeout', function() {
-                expiredTime = +new Date;
-            });
             waits(30); // for the session to expire
             runs(function() {
                 expect(promptTime).toBeGreaterThan(0);
@@ -153,15 +154,13 @@ describe('If the jQuery sessionTimeout plugin is installed', function() {
 
     describe('when a session has expired', function() {
         it('it should fire a session expired event', function() {
-            var promptTime, expiredTime;
+            var last = expiredEvent;
 
-            $(document).on('expired.sessionTimeout', function() {
-                expiredTime = +new Date;
-            });
             waits(30); // for the session to expire
             runs(function() {
                 expect(expiredTime).toBeGreaterThan(0);
                 expect(expiredTime).toBeLessThan(+new Date);
+                expect(expiredEvent).toBe(last + 1);
             });
         });
 
@@ -230,7 +229,7 @@ describe('If the jQuery sessionTimeout plugin is installed', function() {
         });
     });
 
-    describe('When the plugin is destroyed', function() {
+    describe('when the plugin is destroyed', function() {
 
         it('it should reset elepase time', function() {
             $.fn.sessionTimeout('destroy');
@@ -253,7 +252,7 @@ describe('If the jQuery sessionTimeout plugin is installed', function() {
         });
     });
 
-    describe('When the user\'s session is not configured to automatically renew', function(){
+    describe('when the user\'s session is not configured to automatically renew', function(){
 
         it('it should not automatically renew the user\'s session', function(){
             var startCountdownCount = 0;
@@ -276,7 +275,7 @@ describe('If the jQuery sessionTimeout plugin is installed', function() {
         });
     });
 
-    describe('When the user\'s session is configured to automatically renew', function(){
+    describe('when the user\'s session is configured to automatically renew', function(){
 
         it('it should restart the countdown automatically', function(){
             var startCountdownCount = 0;
