@@ -8,11 +8,18 @@
 	<script type="text/javascript">
 	$('document').ready(function(){
 
-		$(document).bind('create.sessionTimeout', function(event, args) {
-			console.log(event, args);
+		$(document).on('create.sessionTimeout', function(event, args) {
+			var timer = $.fn.sessionTimeout('getKeepAliveTimer');
+			// console.log("sessionTimeout", timer );
+			// console.log(event, args);
 		});
 
-		$.fn.sessionTimeout();
+		$(document).on('expired.sessionTimeout', function() {
+			var timer = $.fn.sessionTimeout('getKeepAliveTimer');
+			// console.log("sessionTimeout", timer );
+		});
+
+		$.fn.sessionTimeout({timeout: 5000});
 
 	});
 	</script>

@@ -1,57 +1,58 @@
 /*global describe: true, it: true, should: true, beforeEach: true, runs: true, expect: true, waits: true */
 
-// describe( 'panda' ,function(){
-//   it( 'is happy' ,function(){
-//     expect(panda).toBe( 'happy' );
-//   });
-// });
+var createEvent = 0,
+    destroyEvent = 0,
+    promptEvent = 0,
+    promptTime = 0,
+    args = false,
+    version, strPing, destroyed = false,
+    timeoutCalled = false,
+    beforetimeoutCalled = false,
+    pageLoadTime = +new Date(),
+    expiredTime = 0,
+    expiredEvent = 0,
+    onprompt, ontimeout, countDownStartTime = 0;
 
-describe('If the jQuery sessionTimeout plugin is installed', function() {
+   beforeEach(function() {
 
-    var createEvent = 0,
-        destroyEvent = 0,
-        promptEvent = 0,
-        promptTime = 0,
-        args = false,
-        version, strPing, destroyed = false,
-        timeoutCalled = false,
-        beforetimeoutCalled = false,
-        pageLoadTime = +new Date,
-        expiredTime = 0,
-        expiredEvent = 0,
-        onprompt, ontimeout, countDownStartTime = 0;
-
-
-    beforeEach(function() {
-
-        $(document).bind('create.sessionTimeout', function(event, args) {
+        $(document).on('create.sessionTimeout', function(event, args) {
             version = args;
             countDownStartTime = +new Date();
             createEvent++;
         });
 
-        $(document).bind('prompt.sessionTimeout', function() {
-            promptTime = +new Date;
+        $(document).on('prompt.sessionTimeout', function() {
+            promptTime = +new Date();
             promptEvent++;
         });
 
-        $(document).bind('destroy.sessionTimeout', function() {
+        $(document).on('destroy.sessionTimeout', function() {
             destroyEvent++;
         });
 
-        $(document).bind('ping.sessionTimeout', function() {
+        $(document).on('ping.sessionTimeout', function() {
             var t = new Date();
             strPing = "Session Restarted @ " + t.toTimeString();
         });
 
-        $(document).bind('expired.sessionTimeout', function() {
+        $(document).on('expired.sessionTimeout', function() {
             expiredTime = +new Date();
             expiredEvent++;
         });
 
+    });
+
+    afterEach(function() {
+        $.fn.sessionTimeout('destroy');
+    });
+
+describe('If the jQuery sessionTimeout plugin is installed', function() {
+
+    beforeEach(function(){
         $.fn.sessionTimeout({
             timeout: 20,
             promptfor: 10,
+            enableidletimer: false,
             resource: "../src/spacer.gif",
             onprompt: function() {
                 onprompt = 'foo';
@@ -62,9 +63,28 @@ describe('If the jQuery sessionTimeout plugin is installed', function() {
         });
     });
 
-    afterEach(function() {
-        $.fn.sessionTimeout('destroy');
-    });
+    // it('it should not permit the prompt durration to be longer than the session timeout', function(){
+
+        // window.onerror=function(err){
+        //     lasterr = function(){  
+        //         return err;
+        //     }; 
+        // };
+           
+        // $.fn.sessionTimeout('destroy');
+        // $.fn.sessionTimeout({
+        //     timeout: 20,
+        //     promptfor: 30
+        // });  
+        
+        //console.log(lasterr())
+                
+        // expect(function(){
+        //        throw new Error(lasterr());
+        // }).toThrow(new Error( 'The configuration pollactivity is too long: polling must happen prior to the onprompt callback.' ));
+        
+    // });
+ 
 
     it('it should exist on jQuery\'s "fn" object as function', function() {
         expect($.isFunction($.fn.sessionTimeout)).toBe(true);
@@ -158,9 +178,9 @@ describe('If the jQuery sessionTimeout plugin is installed', function() {
 
             waits(30); // for the session to expire
             runs(function() {
-                expect(expiredTime).toBeGreaterThan(0);
-                expect(expiredTime).toBeLessThan(+new Date);
-                expect(expiredEvent).toBe(last + 1);
+                expect(expiredTime).toBeGreaterThan( 0 );
+                expect(expiredTime).toBeLessThan( +new Date() );
+                expect(expiredEvent).toBe( last + 1 );
             });
         });
 
@@ -229,6 +249,14 @@ describe('If the jQuery sessionTimeout plugin is installed', function() {
         });
     });
 
+    describe('get the keepAlive javascript timer object', function(){
+        it('should return the session keepAlive timer', function(){
+            var timerid = $.fn.sessionTimeout('getKeepAliveTimer');
+            expect( timerid ).toBeGreaterThan( 0 ); 
+
+        })
+    });
+
     describe('when the plugin is destroyed', function() {
 
         it('it should reset elepase time', function() {
@@ -246,7 +274,7 @@ describe('If the jQuery sessionTimeout plugin is installed', function() {
             $.fn.sessionTimeout('destroy');
             expect(destroyEvent).toBe(last + 1);
         });
-        it('it should unbind all sessionTimeout events', function() {
+        it('it should unon all sessionTimeout events', function() {
             $.fn.sessionTimeout('destroy');
             expect($.data(document, 'events')).toBeUndefined();
         });
@@ -391,8 +419,60 @@ describe('If the jQuery sessionTimeout plugin is installed', function() {
             });
         });
     });
-
 });
+
+
+
+describe('If the idelTimer plugin is configured to monitor user activity, then', function(){
+
+
+        
+        // describe('if the user is active', function(){
+        //     it('it should renew the session before it times out', function(){});
+        // });
+        describe('if the user is not active the session should expire', function(){        
+
+           
+            beforeEach(function(){            
+
+                $.fn.sessionTimeout({
+                    enableidletimer: true,
+                    autoping: false,
+                    timeout: 10,
+                    promptfor: 0,
+                    resource: "../src/spacer.gif",
+                    onprompt: function() {
+                        onprompt = 'foo';
+                    },
+                    ontimeout: function() {
+                        console.log('test');
+                        ontimeout = 'bar';
+                    }
+                });
+
+            });
+
+            it('and it should tigger a callback function', function() {
+                waits(10); // for the session to expire
+                runs(function() {
+                    expect(ontimeout).toBe('bar');
+                });
+            });
+             
+            it('and it should fire a session expired event', function() {
+                var last = expiredEvent;
+
+                waits(10); // for the session to expire
+                runs(function() {
+                    expect( expiredTime ).toBeGreaterThan( 0 );
+                    expect( expiredTime ).toBeLessThan( +new Date() );
+                    expect( expiredEvent ).toBe( last + 1 );
+                });
+            });
+
+        });
+});
+
 
 
 

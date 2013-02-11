@@ -21,7 +21,7 @@
 		$el, $idleTimerEl, _activityPoller, enableidletimer, _version = "0.0.2",
 		_ready, // when the plugin first initialized
 		_sessionTimeoutTimer, _beforeTimeout,  _idleTimerExists = false,
-		_countdownDate, _countdownTime, _endTime,
+		_countdownDate, _countdownTime, _endTime, _keepAliveTimer,
 
 		// set plugin defaults
 		defaults = {
@@ -57,18 +57,8 @@
 
 				// test for Paul Irishes idleTimer plugin
 				_idleTimerExists = $.isFunction($.idleTimer);
-
-				if(_idleTimerExists) {
-
+				if ( _idleTimerExists ){
 					$idleTimerEl = $(document);
-
-					// set idleTimer() equal to the session durration
-					$.idleTimer(Number(options.pollactivity));
-
-					if(options.pollactivity > options.timeout - options.promptfor) {
-						$.error("The configuration pollactivity is too long: polling must happen prior to the onprompt callback.");
-						return false;
-					}
 				}
 
 				// prompt durration cannot be longer than 
@@ -98,23 +88,37 @@
 				_countdownDate = new Date();
 				_countdownTime = _countdownDate.getTime();
 				_endTime = _countdownTime + options.timeout;
+				
+				console.log( _idleTimerExists, options.enableidletimer);
 
-				// if idleTimer plugin exists
-				// 1. when user goes idle restart the countdown
-				//    less the polling time used for idleTimer
-				// 2. cancel the current countdown when the user is active
-				//    ping the server
 				if(options.autoping === true) {
-					
-					this._keepAliveTimer = window.setTimeout(function() {
+					 _keepAliveTimer = window.setTimeout(function() {
 						methods.ping.apply();
 					}, options.timeout);
+				}	
+				// if idleTimer plugin exists
+				// when user goes idle restart the countdown
+				//    less the polling time used for idleTimer
+				// cancel the current countdown when the user is active
+				//    ping the server
+				else if(_idleTimerExists && options.enableidletimer) {
 
-				} else if(_idleTimerExists && options.enableidletimer) {
 
-					window.clearTimeout(this._keepAliveTimer);
+
+					
+
+					// set idleTimer() equal to the session durration
+					$.idleTimer(Number(options.pollactivity));
+
+					if(options.pollactivity > options.timeout - options.promptfor) {
+						$.error("The configuration pollactivity is too long: polling must happen prior to the onprompt callback.");
+						return false;
+					}
+				
+
+					window.clearTimeout( _keepAliveTimer);
 					window.clearTimeout(_activityPoller);
-					this._keepAliveTimer = window.setTimeout(function() {
+					 _keepAliveTimer = window.setTimeout(function() {
 						methods._beforeTimeout.apply();
 					}, options.timeout - options.promptfor);
 
@@ -159,8 +163,8 @@
 					}
 				} else {
 
-					window.clearTimeout(this._keepAliveTimer);
-					this._keepAliveTimer = window.setTimeout(function() {
+					window.clearTimeout( _keepAliveTimer);
+					 _keepAliveTimer = window.setTimeout(function() {
 						methods._beforeTimeout.apply();
 					}, options.timeout - options.promptfor);
 				}
@@ -178,7 +182,7 @@
 			_stopCountdown: function() {
 				// stop the session timer
 				window.clearTimeout(_sessionTimeoutTimer);
-				window.clearTimeout(this._keepAliveTimer);
+				window.clearTimeout( _keepAliveTimer);
 				window.clearTimeout(_activityPoller);
 				
 			},
@@ -388,6 +392,15 @@
 			getEndTime: function() {
 				return _endTime;
 			},
+
+			/**
+			 * Returns session keepalive timer
+			 * @return timer
+			 * @public
+			 */
+			getKeepAliveTimer: function() {
+				return _keepAliveTimer;
+			},			
 
 			/**
 			 * Returns the element injected into the DOM,
