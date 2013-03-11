@@ -13,6 +13,8 @@ var createEvent = 0,
     expiredEvent = 0,
     onprompt, ontimeout, countDownStartTime = 0;
 
+
+
    beforeEach(function() {
 
         $(document).on('create.sessionTimeout', function(event, args) {
@@ -64,25 +66,6 @@ describe('If the jQuery sessionTimeout plugin is installed', function() {
     });
 
     // it('it should not permit the prompt durration to be longer than the session timeout', function(){
-
-        // window.onerror=function(err){
-        //     lasterr = function(){  
-        //         return err;
-        //     }; 
-        // };
-           
-        // $.fn.sessionTimeout('destroy');
-        // $.fn.sessionTimeout({
-        //     timeout: 20,
-        //     promptfor: 30
-        // });  
-        
-        //console.log(lasterr())
-                
-        // expect(function(){
-        //        throw new Error(lasterr());
-        // }).toThrow(new Error( 'The configuration pollactivity is too long: polling must happen prior to the onprompt callback.' ));
-        
     // });
  
 
@@ -450,6 +433,41 @@ describe('If the idelTimer plugin is configured to monitor user activity, then',
                     }
                 });
 
+            });
+
+            it('it should raise an error when the user\'s activity polling interval is longer than the time it takes between prompt events', function(){
+
+                // window.onerror=function(err){
+                //     console.log('window heard an error');
+                //     lastError = function(){  
+                //         return err;
+                //     }; 
+                // };
+
+                expect(function(){
+                        throw new Error( 'foo' );
+                    }).toThrow(new Error( 'foo' ));
+     
+
+
+                // console.log("error", lastError());
+
+                
+
+                // $.fn.sessionTimeout('destroy');
+                // $.fn.sessionTimeout({
+                //     timeout: 20,
+                //     promptfor: 30
+                // });  
+                // waits(40);
+                // runs(function(){
+                    
+                            
+                //     expect(function(){
+                //            throw new Error(lastError());
+                //     }).toThrow(new Error( 'The configuration pollactivity is too long: polling must happen prior to the onprompt callback.' ));
+                // });
+                
             });
 
             it('and it should tigger a callback function', function() {

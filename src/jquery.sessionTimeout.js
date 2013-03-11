@@ -89,7 +89,7 @@
 				_countdownTime = _countdownDate.getTime();
 				_endTime = _countdownTime + options.timeout;
 				
-				console.log( _idleTimerExists, options.enableidletimer);
+				
 
 				if(options.autoping === true) {
 					 _keepAliveTimer = window.setTimeout(function() {
@@ -103,17 +103,17 @@
 				//    ping the server
 				else if(_idleTimerExists && options.enableidletimer) {
 
-
+						console.log( _idleTimerExists, options.enableidletimer);
 
 					
 
 					// set idleTimer() equal to the session durration
 					$.idleTimer(Number(options.pollactivity));
 
-					if(options.pollactivity > options.timeout - options.promptfor) {
-						$.error("The configuration pollactivity is too long: polling must happen prior to the onprompt callback.");
-						return false;
-					}
+					// if(options.pollactivity > options.timeout - options.promptfor) {
+					// 	$.error("The configuration pollactivity is too long: polling must happen prior to the onprompt callback.");
+					// 	return false;
+					// }
 				
 
 					window.clearTimeout( _keepAliveTimer);
