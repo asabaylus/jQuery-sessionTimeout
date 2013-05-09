@@ -207,6 +207,8 @@ describe('If the jQuery sessionTimeout plugin is installed', function() {
                 waits(5);
                 runs(function() {
                     var elapsed = $.fn.sessionTimeout('elapsed');
+                    var returnedDataType = typeof elapsed;
+                    expect(returnedDataType).toEqual('number');
                     expect(elapsed).toBeGreaterThan(before);
                 });
             });

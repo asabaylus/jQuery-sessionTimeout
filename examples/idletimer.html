@@ -111,12 +111,15 @@
 		
 
 		$(document).bind('startCountdown.sessionTimeout', function(event){
+			
+			var $elapsed = $('#elapsed ').text( 0 + " sec.");
 
 			// reset the countdown
 	        clearInterval(countDown);
 
 			// reset log
 			$("#status").val('');
+
 
 			// get the current time remaining for this session
 			// surpress logging of remaining time
@@ -133,8 +136,7 @@
 				if (timeRemaining >= 0){
 					// update the display with the time remaining
 					$counter.text(timeRemaining/1000 + " sec.");
-					$('#elapsed ').text(elapsed);
-					console.log(elapsed);
+					$elapsed.text(elapsed/1000 + "sec.");
 
 				} 
 			}, 1000);		
