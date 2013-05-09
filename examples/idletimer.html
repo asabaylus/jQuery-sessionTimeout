@@ -60,48 +60,33 @@
 				$idletime.text(timepassed);
 		}, 1000);
 			
-		// Log Events 
-		$(document).bind('eventLogged.sessionTimeout', function() {
-
-			// print the log
-			// the plugin event log is returned as an array
-			// break it out to multiple lines then update the status field
-			if (console && console.log){
-				var m = $.fn.sessionTimeout("printLog").length-1;
-				console.log($.fn.sessionTimeout("printLog")[m]);
-			}
-	
-			// write the log into the status text area
-			$status.val($.fn.sessionTimeout("printLog").join("\n"));
-
-		});		
 		
 
 		$('#btnInit').click(function(){
 			
-			// reset log
-			$("#status").val('');
 
+			// Get settings from GUI
 			sessionduration = ($('#opt-timeout').val() || sessionduration);
 		    promptduration = ($('#opt-prompt').val() || promptduration);
 		    pollduration = ($('#opt-activity').val() || pollduration);		   	
 		   	optautoping = $('#opt-autoping').is(':checked');
 		   	optenableidletimer = $('#opt-idletimer').is(':checked');
+			
 
 
 			// initialize sessionTimeout plugin
+			// automaticaly keep the connection alive
+			// session will expire in xxxx miliseconds  
+			// how long to display session timeout mesage
+			// how frequently to check for user activity
+			// allows idletimer to control sessions if present
+			// set the resource to load
 			$.fn.sessionTimeout({
-				// automaticaly keep the connection alive
 				autoping : optautoping,
-				// session will expire in xxxx miliseconds  
 				timeout : sessionduration,
-				// how long to display session timeout mesage
 				promptfor :  promptduration,
-				// how frequently to check for user activity
 				pollactivity : pollduration,
-				// allows idletimer to control sessions if present
 				enableidletimer : optenableidletimer,
-				// set the resource to load
 				resource : '../src/spacer.gif'
 			});
 
@@ -113,31 +98,15 @@
 		
 		
 		$('#btnPing').click(function(){
-			// It's possible to ping without setting initializing session managment
-			// If this is the case you'll probably need to set the resource to
-			// when pinging the server.
+			// It's possible to ping your target server without initializing session managment
+			// If this is the case you can simply set a resource to fetch when pinging the server.
 			$.fn.sessionTimeout('ping', {resource:'../src/test.gif'});
 		});
 		
 		
 		$('#btnDestroy').click(function(){
 			$.fn.sessionTimeout('destroy');
-		});		
-		
-		
-		$('#btnDuration').click(function(){
-			$.fn.sessionTimeout('duration');
-		});		
-		
-		
-		$('#btnElapsed').click(function(){
-			$.fn.sessionTimeout('elapsed');
-		});		
-		
-		
-		$('#btnRemaining').click(function(){
-			$.fn.sessionTimeout('remaining');
-		});		
+		});	
 		
 		
 
@@ -145,20 +114,32 @@
 
 			// reset the countdown
 	        clearInterval(countDown);
-			
+
+			// reset log
+			$("#status").val('');
+
 			// get the current time remaining for this session
 			// surpress logging of remaining time
 			timeRemaining = $.fn.sessionTimeout('duration', true);
 			
 			// Countdown to session timeout 
 			countDown = window.setInterval(function(){
+				var duration = $.fn.sessionTimeout('duration'),
+					elapsed = $.fn.sessionTimeout('elapsed'),
+					remaining = $.fn.sessionTimeout('remaining');
+
                 timeRemaining -= 1000;
+				
 				if (timeRemaining >= 0){
 					// update the display with the time remaining
 					$counter.text(timeRemaining/1000 + " sec.");
+					$('#elapsed ').text(elapsed);
+					console.log(elapsed);
+
 				} 
 			}, 1000);		
 			
+
 			// when using idletimer dont allow changes to settings
 			$("#options > input").attr('disabled', true);	
 		});
@@ -213,8 +194,7 @@
 			// allow user to change plugin options
 			$('#options > input').removeAttr('disabled');
 			
-			// the plugin must be initialized before
-			// it can be desroyed
+			// You cant destroy the plugin until its been initialized
 			$('#btnDestroy').attr('disabled', true);
 			$('#btnInit').removeAttr('disabled');
 
@@ -266,6 +246,7 @@
 		<li>Session duration: <strong><span id="duration">0</span></strong></li>
 		<li>Session Time Remaining: <strong><span id="counter">0</span></strong></li>
 		<li>User Activity: <strong><span id="activity">--</span></strong></li>
+		<li>Elapsed: <strong><span id="elapsed">--</span></span></li>
 	</ul>
 	</div>
 	
@@ -274,7 +255,7 @@
 		<input type="checkbox" name="opt-autoping" id="opt-autoping" /><label for="opt-autoping">Automatically renew session</label><br />
 		<input type="text" name="opt-timeout" id="opt-timeout" value="5000" disabled="disabled" /><label for="opt-timeout">Session duration (ms)</label><br />
 		<input type="text" name="opt-prompt" id="opt-prompt" value="3000" disabled="disabled" /><label for="opt-prompt">Prompt duration (ms)</label><br />
-		<input type="text" name="opt-prompt" id="opt-activity" value="2000" /><label for="opt-prompt">Poll for user activity, duration (ms)</label><br />
+		<input type="text" name="opt-prompt" id="opt-activity" value="2000" /><label for="opt-prompt">Poll for user activity, duration (ms)</label><br />	
 	</div>
 	
 	<div>
@@ -284,18 +265,12 @@
 	</div>
 	
 	
-	<div>
-		<button id="btnDuration">Duration</button>
-		<button id="btnElapsed">Elapsed</button>
-		<button id="btnRemaining">Remaining</button>
-	</div>
-	
 	<h2>Events</h2>
 	<div id="log">
 		<label for="status">sessionTimeout status:</label><br>
 		<textarea id="status" title="log events" rows="16" cols="80" spellcheck="false" >
 loading...
-</textarea>
+		</textarea>
 	</div>
 </div>	
 

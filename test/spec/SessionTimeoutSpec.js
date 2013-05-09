@@ -94,13 +94,17 @@ describe('If the jQuery sessionTimeout plugin is installed', function() {
         expect(version).toBe('0.0.2');
     });
 
-    describe('when the plugin is initialized', function(){
-        it('should bind its events to the document', function(){
-            expect($.data(document, 'events')).toBeDefined();
-        });
+    it('should bind its events to the document', function(){
+        expect($.data(document, 'events')).toBeDefined();
     });
 
+
     describe('when a session countdown starts', function() {
+        it('it should trigger a startCountdown event', function(){
+            // since reinit the pluing on each it() we should have 4 inits 
+            expect( onCountdownStartEvent.callCount ).toBe( 4 );
+        });
+
         it('it should fire a session created event', function() {
             expect(createEvent).toBeGreaterThan(0);
         });
@@ -275,9 +279,31 @@ describe('If the jQuery sessionTimeout plugin is installed', function() {
             $.fn.sessionTimeout('destroy');
             expect(destroyEvent).toBe(last + 1);
         });
+        
         it('it should unbind all sessionTimeout events', function() {
             $.fn.sessionTimeout('destroy');
             expect($.data(document, 'events')).toBeUndefined();
+        });
+
+        it('it should able to reinitialze after being destroyed', function(){
+            var aIsFor = null;
+
+            $.fn.sessionTimeout('destroy');
+
+            $.fn.sessionTimeout({
+                timeout: 2,
+                promptfor: 1,
+                enableidletimer: false,
+                resource: '../src/spacer.gif',
+                onprompt: function() {
+                    aIsFor = 'apple';
+                }
+            });
+
+            jasmine.Clock.tick(2);
+
+            expect(aIsFor).toBe('apple');
+
         });
     });
 
@@ -315,8 +341,8 @@ describe('If the jQuery sessionTimeout plugin is installed', function() {
             });
 
             jasmine.Clock.tick( 30 );           
-                expect( startCountdownCount ).toBeGreaterThan( 1 );            
-                $.fn.sessionTimeout('destroy');
+            expect( startCountdownCount ).toBeGreaterThan( 1 );            
+            $.fn.sessionTimeout('destroy');
         });
 
         it('it should not allow the user\'s session to time-out', function(){
