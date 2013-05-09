@@ -15,34 +15,25 @@
 
 
 		var loadTime = new Date(),
+			statusEl = $('#status'),
 			sessionDuration = 5000,
-			promptDuration = 2000,
+
 			countDown;
 			
 		
-			setInterval(function(){
-					// use the wonderful timeago plugin to display when the page was originaly opened.
-					var timepassed = $.timeago(loadTime);
-					$('#idletime').text(timepassed);
+		setInterval(function(){
+				// use the wonderful timeago plugin to display when the page was originaly opened.
+				var timepassed = $.timeago(loadTime);
+				$('#idletime').text(timepassed);
 
-			}, 1000);
+		}, 1000);
 
-		
-		// print the log of plugin events
-		$(document).bind("eventLogged.sessionTimeout", function(){
-			// the plugin event log is returned as an array
-			// break it out to multiple lines then update the status field
-			if (console && console.log){
-				var m = $.fn.sessionTimeout("printLog").length-1;
-				console.log($.fn.sessionTimeout("printLog")[m]);
-			}
-			// write the log into the status text area				
-			$("#status").val($.fn.sessionTimeout("printLog").join("\n"));	
-		});
 
 
 		
-		$(document).bind('ping.sessionTimeout', function() {			
+		$(document).bind('ping.sessionTimeout', function() {	
+
+	  		console.log('ping.sessionTimeout');
 			
 			// log the ping event
 			var t = new Date();
@@ -52,7 +43,7 @@
 			
 			// Countdown to session timeout 
 			countDown = window.setInterval(function(){
-				(timeRemaining -= 1000);
+				timeRemaining -= 1000;
 				if (timeRemaining >= 0){
 				
 					// update the display with the time remaining
@@ -61,11 +52,14 @@
 				} 
 				
 			}, 1000);
+
+			statusEl.val(statusEl.val + '\n ping');
 		});
 		
 		
 		$(document).bind('create.sessionTimeout', function ( ) {
 	  		
+	  		console.log('create.sessionTimeout');
 	  		
 	  		// when autoping is true
 	  		// the session will never expire, so the modal window
@@ -98,11 +92,12 @@
 		});
 
 		$(document).bind('destroy.sessionTimeout', function() {
+
 			
+			console.log('destroy.sessionTimeout');
+
 			// delete the coundown timer when we destroy the plugin
 			clearTimeout(countDown);
-
-
 		});	
 
 
@@ -112,11 +107,12 @@
 		// setup the sessionTimeout plugin
 		$.fn.sessionTimeout({
 			autoping: false,
-			timeout: sessionDuration,
+			timeout: 5000,
+		    promptfor: 2500, 
 		    resource: "../src/spacer.gif", 
-		    promptfor: promptDuration, 
 			beforetimeout: function() {
 
+				console.log('beforetimeout!');
 					 
 			 	// when session times out
 				// open a dialog box 
@@ -138,7 +134,7 @@
 								
 			},
 			ontimeout: function(){
-			
+				console.log('ontimeout');
 				$( "#dialog-session" ).dialog('close');
 			
 			}	

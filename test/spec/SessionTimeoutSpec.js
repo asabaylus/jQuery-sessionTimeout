@@ -1,66 +1,84 @@
-/*global describe: true, it: true, should: true, beforeEach: true, runs: true, expect: true, waits: true */
+/*global jasmine: true, afterEach: true, describe: true, it: true, should: true, beforeEach: true, runs: true, expect: true, waits: true */
+
 
 var createEvent = 0,
-    destroyEvent = 0,
-    promptEvent = 0,
-    promptTime = 0,
-    args = false,
-    version, strPing, destroyed = false,
-    timeoutCalled = false,
-    beforetimeoutCalled = false,
-    pageLoadTime = +new Date(),
-    expiredTime = 0,
-    expiredEvent = 0,
-    onprompt, ontimeout, countDownStartTime = 0;
+destroyEvent = 0,
+promptEvent = 0,
+promptTime = 0,
+args = false,
+version, strPing, destroyed = false,
+timeoutCalled = false,
+beforetimeoutCalled = false,
+pageLoadTime = +new Date(),
+expiredTime = 0,
+expiredEvent = 0,
+onprompt, 
+ontimeout, 
+countDownStartTime = 0,
+onpromptCallback, 
+ontimeoutCallback,
+onCountdownStartEvent = jasmine.createSpy('oncountdownstartEvent'),
+onpromptEvent = jasmine.createSpy('onpromptEvent'),
+ontimeoutEvent = jasmine.createSpy('ontimeoutEvent');
 
+beforeEach(function(){
 
-
-   beforeEach(function() {
-
-        $(document).on('create.sessionTimeout', function(event, args) {
-            version = args;
-            countDownStartTime = +new Date();
-            createEvent++;
-        });
-
-        $(document).on('prompt.sessionTimeout', function() {
-            promptTime = +new Date();
-            promptEvent++;
-        });
-
-        $(document).on('destroy.sessionTimeout', function() {
-            destroyEvent++;
-        });
-
-        $(document).on('ping.sessionTimeout', function() {
-            var t = new Date();
-            strPing = "Session Restarted @ " + t.toTimeString();
-        });
-
-        $(document).on('expired.sessionTimeout', function() {
-            expiredTime = +new Date();
-            expiredEvent++;
-        });
-
+    $(document).on('create.sessionTimeout', function(event, args) {
+        version = args;
+        countDownStartTime = +new Date();
+        createEvent++;
     });
 
-    afterEach(function() {
-        $.fn.sessionTimeout('destroy');
+    
+    $(document).on('startCountdown.sessionTimeout', function() {
+        onCountdownStartEvent();                
+    });  
+
+    $(document).on('prompt.sessionTimeout', function() {
+        promptTime = +new Date();
+        promptEvent++;
+        onpromptEvent();
     });
+
+    $(document).on('destroy.sessionTimeout', function() {
+        destroyEvent++;
+    });
+
+    $(document).on('ping.sessionTimeout', function() {
+        var t = new Date();
+        strPing = "Session Restarted @ " + t.toTimeString();
+    });
+
+    $(document).on('expired.sessionTimeout', function() {
+        expiredTime = +new Date();
+        expiredEvent++;
+        ontimeoutEvent();
+    });
+});
+
+afterEach(function() {
+    $.fn.sessionTimeout('destroy');
+});
 
 describe('If the jQuery sessionTimeout plugin is installed', function() {
 
     beforeEach(function(){
+      
+        onpromptCallback = jasmine.createSpy('onpromptCallback');
+        ontimeoutCallback = jasmine.createSpy('ontimeoutCallback');
+
+        jasmine.Clock.useMock();
+
         $.fn.sessionTimeout({
             timeout: 20,
             promptfor: 10,
             enableidletimer: false,
             resource: "../src/spacer.gif",
             onprompt: function() {
-                onprompt = 'foo';
+                onpromptCallback();
             },
             ontimeout: function() {
-                ontimeout = 'bar';
+                ontimeoutCallback();
             }
         });
     });
@@ -76,6 +94,11 @@ describe('If the jQuery sessionTimeout plugin is installed', function() {
         expect(version).toBe('0.0.2');
     });
 
+    describe('when the plugin is initialized', function(){
+        it('should bind its events to the document', function(){
+            expect($.data(document, 'events')).toBeDefined();
+        });
+    });
 
     describe('when a session countdown starts', function() {
         it('it should fire a session created event', function() {
@@ -120,7 +143,6 @@ describe('If the jQuery sessionTimeout plugin is installed', function() {
                 timeRemaining = $.fn.sessionTimeout('remaining');
                 expect(timeRemaining).toBeGreaterThan(prevTimeRemaining);
             });
-
         });
         it('it should load a non image resource from the server by default', function() {
             // demo a file resource using the project readme
@@ -140,38 +162,34 @@ describe('If the jQuery sessionTimeout plugin is installed', function() {
 
     describe('when a session is about to expire', function() {
         it('it should fire a session prompt event before the session expires', function() {
-            waits(30); // for the session to expire
-            runs(function() {
-                expect(promptTime).toBeGreaterThan(0);
-                expect(promptTime).toBeLessThan(expiredTime);
-            });
+            jasmine.Clock.tick( 10 );
+            expect( onpromptEvent ).toHaveBeenCalled( );
+            expect( ontimeoutEvent ).not.toHaveBeenCalled( );
         });
 
         it('it should trigger a callback function', function() {
-            waits(30); // for the session to expire
-            runs(function() {
-                expect(onprompt).toBe('foo');
-            });
+            jasmine.Clock.tick( 10 );
+            expect( onpromptCallback ).toHaveBeenCalled( );
+            expect( ontimeoutCallback ).not.toHaveBeenCalled( );
         });
     });
 
     describe('when a session has expired', function() {
         it('it should fire a session expired event', function() {
-            var last = expiredEvent;
+            var lastCount = ontimeoutEvent.callCount; 
+            
+            jasmine.Clock.tick( 30 );
 
-            waits(30); // for the session to expire
-            runs(function() {
-                expect(expiredTime).toBeGreaterThan( 0 );
-                expect(expiredTime).toBeLessThan( +new Date() );
-                expect(expiredEvent).toBe( last + 1 );
-            });
+            expect( expiredTime ).toBeGreaterThan( 0 );
+            expect( ontimeoutEvent.callCount ).toBeGreaterThan( lastCount );
+            expect( ontimeoutEvent ).toHaveBeenCalled( );
         });
 
         it('it should tigger a callback function', function() {
-            waits(20); // for the session to expire
-            runs(function() {
-                expect(ontimeout).toBe('bar');
-            });
+            
+            jasmine.Clock.tick( 30 );
+
+            expect( ontimeoutCallback ).toHaveBeenCalled( );
         });
     });
 
@@ -237,7 +255,7 @@ describe('If the jQuery sessionTimeout plugin is installed', function() {
             var timerid = $.fn.sessionTimeout('getKeepAliveTimer');
             expect( timerid ).toBeGreaterThan( 0 ); 
 
-        })
+        });
     });
 
     describe('when the plugin is destroyed', function() {
@@ -257,7 +275,7 @@ describe('If the jQuery sessionTimeout plugin is installed', function() {
             $.fn.sessionTimeout('destroy');
             expect(destroyEvent).toBe(last + 1);
         });
-        it('it should unon all sessionTimeout events', function() {
+        it('it should unbind all sessionTimeout events', function() {
             $.fn.sessionTimeout('destroy');
             expect($.data(document, 'events')).toBeUndefined();
         });
@@ -266,12 +284,7 @@ describe('If the jQuery sessionTimeout plugin is installed', function() {
     describe('when the user\'s session is not configured to automatically renew', function(){
 
         it('it should not automatically renew the user\'s session', function(){
-            var startCountdownCount = 0;
             
-            $(document).on('startCountdown.sessionTimeout', function() {
-                startCountdownCount++;
-            });  
-
             $.fn.sessionTimeout({
                 timeout: 10,
                 resource: "../src/spacer.gif",
@@ -280,7 +293,7 @@ describe('If the jQuery sessionTimeout plugin is installed', function() {
 
             waits( 20 );
             runs(function(){
-                expect( startCountdownCount ).toEqual( 1 );            
+                expect( onCountdownStartEvent ).toHaveBeenCalled( );            
                 $.fn.sessionTimeout('destroy');
             });
         });
@@ -301,11 +314,9 @@ describe('If the jQuery sessionTimeout plugin is installed', function() {
                 autoping: true
             });
 
-            waits( 30 );
-            runs(function(){
+            jasmine.Clock.tick( 30 );           
                 expect( startCountdownCount ).toBeGreaterThan( 1 );            
                 $.fn.sessionTimeout('destroy');
-            });
         });
 
         it('it should not allow the user\'s session to time-out', function(){
@@ -341,11 +352,10 @@ describe('If the jQuery sessionTimeout plugin is installed', function() {
                 autoping: true
             });
 
-            waits( 30 );
-            runs(function(){
-                expect( pingCount ).toBeGreaterThan( 1 );
-                $.fn.sessionTimeout('destroy');
-            });
+            jasmine.Clock.tick( 30 );
+
+            expect( pingCount ).toBeGreaterThan( 1 );
+            $.fn.sessionTimeout('destroy');
         });
 
         it('it should not prompt the user to continue the session', function(){
@@ -377,11 +387,8 @@ describe('If the jQuery sessionTimeout plugin is installed', function() {
 
         describe('and the plugin is destroyed', function(){
             it('it should not automatically renew the user\'s session', function(){
-                var startCountdownCount = 0;
-                
-                $(document).on('startCountdown.sessionTimeout', function() {
-                    startCountdownCount++;                
-                });  
+
+                var lastCount = 0;
 
                 $.fn.sessionTimeout({
                     timeout: 1,
@@ -390,15 +397,18 @@ describe('If the jQuery sessionTimeout plugin is installed', function() {
                     autoping: true
                 });
 
-                waits( 2 );
-                runs(function(){      
-                    $.fn.sessionTimeout('destroy');            
-                });
 
-                waits( 3 );
-                runs(function(){
-                    expect( startCountdownCount ).toEqual( 2 );             
-                });
+                jasmine.Clock.tick( 1 );
+
+
+                lastCount = onCountdownStartEvent.callCount;
+                $.fn.sessionTimeout('destroy');            
+                
+                jasmine.Clock.tick( 1 );
+
+                // the countstart event should stop firing
+                expect( onCountdownStartEvent.callCount ).toEqual( lastCount );
+
             });
         });
     });
@@ -408,37 +418,44 @@ describe('If the jQuery sessionTimeout plugin is installed', function() {
 
 describe('If the idelTimer plugin is configured to monitor user activity, then', function(){
 
-
-        
         // describe('if the user is active', function(){
         //     it('it should renew the session before it times out', function(){});
         // });
         describe('if the user is not active the session should expire', function(){        
 
-           
-            beforeEach(function(){            
 
+            beforeEach(function(){
+                onpromptCallback = jasmine.createSpy('onpromptCallback');
+                ontimeoutCallback = jasmine.createSpy('ontimeoutCallback');
+                jasmine.Clock.useMock();
+                
+                $(document).on('expired.sessionTimeout', function() {
+                    expiredTime = +new Date();
+                });
+                
                 $.fn.sessionTimeout({
                     enableidletimer: true,
                     autoping: false,
-                    timeout: 10,
-                    promptfor: 0,
+                    timeout: 1000,
+                    promptfor: 500,
                     resource: "../src/spacer.gif",
                     onprompt: function() {
-                        onprompt = 'foo';
+                        onpromptCallback();
                     },
                     ontimeout: function() {
-                        console.log('test');
-                        ontimeout = 'bar';
+                        ontimeoutCallback();
                     }
                 });
 
             });
 
+            afterEach(function() {
+                $.fn.sessionTimeout('destroy');
+            });
+
             it('it should raise an error when the user\'s activity polling interval is longer than the time it takes between prompt events', function(){
 
                 // window.onerror=function(err){
-                //     console.log('window heard an error');
                 //     lastError = function(){  
                 //         return err;
                 //     }; 
@@ -450,7 +467,6 @@ describe('If the idelTimer plugin is configured to monitor user activity, then',
      
 
 
-                // console.log("error", lastError());
 
                 
 
@@ -471,21 +487,22 @@ describe('If the idelTimer plugin is configured to monitor user activity, then',
             });
 
             it('and it should tigger a callback function', function() {
-                waits(10); // for the session to expire
-                runs(function() {
-                    expect(ontimeout).toBe('bar');
-                });
+                jasmine.Clock.tick( 500 );
+                expect(onpromptCallback).toHaveBeenCalled();
             });
              
             it('and it should fire a session expired event', function() {
-                var last = expiredEvent;
-
-                waits(10); // for the session to expire
-                runs(function() {
+                
+                jasmine.Clock.tick( 1000 );
+                expect(ontimeoutCallback).toHaveBeenCalled();
+                
+                // let the real clock advance a bit
+                waits(10);
+                runs(function(){
                     expect( expiredTime ).toBeGreaterThan( 0 );
                     expect( expiredTime ).toBeLessThan( +new Date() );
-                    expect( expiredEvent ).toBe( last + 1 );
                 });
+                
             });
 
         });
