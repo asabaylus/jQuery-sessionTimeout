@@ -8,23 +8,22 @@
 	<script type="text/javascript">
 	$('document').ready(function(){
 
-		$(document).on('create.sessionTimeout', function(event, args) {
-			var timer = $.fn.sessionTimeout('getKeepAliveTimer');
-			// console.log("sessionTimeout", timer );
+		$(document).on('startCountdown.sessionTimeout', function(event, args) {
+			console.log('your session has started');
 			// console.log(event, args);
 		});
 
 		$(document).on('expired.sessionTimeout', function() {
-			var timer = $.fn.sessionTimeout('getKeepAliveTimer');
-			// console.log("sessionTimeout", timer );
+			console.log('your session has expired' );
 		});
 
-		$.fn.sessionTimeout({timeout: 5000});
+		$.fn.sessionTimeout({ timeout: 5000, autoping: true });
 
 	});
 	</script>
 </head>
 <body>
 	<h1>Basic Demo</h1>
+	<div>Please note the server is pinged to renew the session at the start of the countdown.</div>
 </body>
 </html>

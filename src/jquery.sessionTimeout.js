@@ -255,9 +255,9 @@
                         // fetching the image will keep the server from timeing out
                         // it's important that the file has a defined
                         // filesize ex no includes or scripts
-                        $("body").append("<img id='" + _resourceId + "' src='" + options.resource + "?tstamp=" + tstamp + "' style='position: \"absolute\", height: \"1px\", width: \"1px\"' alt='web page session management helper'>");
+                        $("body").append("<img id='" + _resourceId + "' src='" + options.resource + "?tstamp=" + tstamp + "' style='display: none !important' alt='web page session management helper'>");
                     } else {
-                        $("body").append("<iframe id='" + _resourceId + "' src='" + options.resource + "?tstamp=" + tstamp + "' style='position: \"absolute\", height: \"1px\", width: \"1px\", display: \"none\"' alt='web page session management helper'></iframe>");
+                        $("body").append("<iframe id='" + _resourceId + "' src='" + options.resource + "?tstamp=" + tstamp + "' style='display: none !important' alt='web page session management helper'></iframe>");
                     }
 
                 } else {
