@@ -96,7 +96,7 @@ describe('If the jQuery sessionTimeout plugin is installed', function() {
     });
 
     describe('when the prompt duration is longer than the session timeout', function(){
-        it('should raise an error', function(){    
+        it('it should raise an error', function(){    
             expect(function(){
             
                     $.fn.sessionTimeout({
@@ -260,13 +260,13 @@ describe('If the jQuery sessionTimeout plugin is installed', function() {
     });
 
     describe('when the plugin requests the sessions duration', function() {
-        it('should return the overall time for the session', function() {
+        it('it should return the overall time for the session', function() {
             expect($.fn.sessionTimeout('duration')).toEqual(20);
         });
     });
 
     describe('get the keepAlive javascript timer object', function(){
-        it('should return the session keepAlive timer', function(){
+        it('it should return the session keepAlive timer', function(){
             var timerid = $.fn.sessionTimeout('getKeepAliveTimer');
             expect( timerid ).toBeGreaterThan( 0 ); 
 
