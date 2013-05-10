@@ -514,12 +514,12 @@ describe('If the idelTimer plugin is configured to monitor user activity', funct
                 
             });
 
-            it('and it should tigger a callback function', function() {
+            it('it should trigger a callback function', function() {
                 jasmine.Clock.tick( 500 );
                 expect(onpromptCallback).toHaveBeenCalled();
             });
              
-            it('and it should fire a session expired event', function() {
+            it('it should fire a session expired event', function() {
                 
                 jasmine.Clock.tick( 1000 );
                 expect(ontimeoutCallback).toHaveBeenCalled();
