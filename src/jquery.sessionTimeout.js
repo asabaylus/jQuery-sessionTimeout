@@ -32,7 +32,7 @@
             // set the servers session timeout
             resource: "spacer.gif",
             // set the asset to load from the server
-            promptfor: 10000,
+            promptfor: 0,
             // triggers onprompt x seconds before session timeout
             onprompt: $.noop,
             // callback which occurs prior to session timeout
