@@ -64,6 +64,7 @@
                 // prompt durration cannot be longer than 
                 // session durration
                 if (options.promptfor > options.timeout){
+                    $.error('jquery.sessionTimeout: configuration error, promptfor must to be less than timeout');
                     options.promptfor = options.timeout;
                 }
 
@@ -102,15 +103,12 @@
                 //    ping the server
                 else if(_idleTimerExists && options.enableidletimer) {
 
-                    
+                    if( options.pollactivity > options.timeout ) {
+                        $.error('jquery.sessionTimeout: configuration error, pollactivity must to be less than promptfor if set');
+                    }
 
                     // set idleTimer() equal to the session durration
                     $.idleTimer(Number(options.pollactivity));
-
-                    // if(options.pollactivity > options.timeout - options.promptfor) {
-                    //  $.error("The configuration pollactivity is too long: polling must happen prior to the onprompt callback.");
-                    //  return false;
-                    // }
                 
 
                     window.clearTimeout( _keepAliveTimer);

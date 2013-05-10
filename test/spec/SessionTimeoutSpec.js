@@ -82,9 +82,6 @@ describe('If the jQuery sessionTimeout plugin is installed', function() {
             }
         });
     });
-
-    // it('it should not permit the prompt durration to be longer than the session timeout', function(){
-    // });
  
 
     it('it should exist on jQuery\'s "fn" object as function', function() {
@@ -442,179 +439,177 @@ describe('If the jQuery sessionTimeout plugin is installed', function() {
     });
 });
 
-
-
 describe('If the idelTimer plugin is configured to monitor user activity', function(){
 
-        // describe('if the user is active', function(){
-        //     it('it should renew the session before it times out', function(){});
-        // });
-        describe('if the user is not active the session should expire', function(){        
-
-
-            beforeEach(function(){
-                onpromptCallback = jasmine.createSpy('onpromptCallback');
-                ontimeoutCallback = jasmine.createSpy('ontimeoutCallback');
-                jasmine.Clock.useMock();
-                
-                $(document).on('expired.sessionTimeout', function() {
-                    expiredTime = +new Date();
-                });
-                
-                $.fn.sessionTimeout({
-                    enableidletimer: true,
-                    autoping: false,
-                    timeout: 1000,
-                    promptfor: 500,
-                    resource: "../src/spacer.gif",
-                    onprompt: function() {
-                        onpromptCallback();
-                    },
-                    ontimeout: function() {
-                        ontimeoutCallback();
-                    }
-                });
-
-            });
-
-            afterEach(function() {
-                $.fn.sessionTimeout('destroy');
-            });
-
-            it('it should raise an error when the user\'s activity polling interval is longer than the time between prompt events', function(){
-
-                // window.onerror=function(err){
-                //     lastError = function(){  
-                //         return err;
-                //     }; 
-                // };
-
-                expect(function(){
-                        throw new Error( 'foo' );
-                    }).toThrow(new Error( 'foo' ));
-     
-
-
-
-                
-
-                // $.fn.sessionTimeout('destroy');
-                // $.fn.sessionTimeout({
-                //     timeout: 20,
-                //     promptfor: 30
-                // });  
-                // waits(40);
-                // runs(function(){
-                    
-                            
-                //     expect(function(){
-                //            throw new Error(lastError());
-                //     }).toThrow(new Error( 'The configuration pollactivity is too long: polling must happen prior to the onprompt callback.' ));
-                // });
-                
-            });
-
-            it('it should trigger a callback function', function() {
-                jasmine.Clock.tick( 500 );
-                expect(onpromptCallback).toHaveBeenCalled();
-            });
-             
-            it('it should fire a session expired event', function() {
-                
-                jasmine.Clock.tick( 1000 );
-                expect(ontimeoutCallback).toHaveBeenCalled();
-                
-                // let the real clock advance a bit
-                waits(10);
-                runs(function(){
-                    expect( expiredTime ).toBeGreaterThan( 0 );
-                    expect( expiredTime ).toBeLessThan( +new Date() );
-                });
-                
-            });
-
+    beforeEach(function(){
+        onpromptCallback = jasmine.createSpy('onpromptCallback');
+        ontimeoutCallback = jasmine.createSpy('ontimeoutCallback');
+        jasmine.Clock.useMock();
+        
+        $(document).on('expired.sessionTimeout', function() {
+            expiredTime = +new Date();
         });
+        
+        $.fn.sessionTimeout({
+            enableidletimer: true,
+            autoping: false,
+            timeout: 1000,
+            promptfor: 500,
+            resource: "../src/spacer.gif",
+            onprompt: function() {
+                onpromptCallback();
+            },
+            ontimeout: function() {
+                ontimeoutCallback();
+            }
+        });
+
+    });
+
+    afterEach(function() {
+        $.fn.sessionTimeout('destroy');
+    });
+
+
+    // describe('if the user is active', function(){
+    //     it('it should renew the session before it times out', function(){});
+    // });
+
+    describe('if the user is not active the session should expire', function(){        
+
+        it('it should trigger a callback function', function() {
+            jasmine.Clock.tick( 500 );
+            expect(onpromptCallback).toHaveBeenCalled();
+        });
+         
+        it('it should fire a session expired event', function() {
+            
+            jasmine.Clock.tick( 1000 );
+            expect(ontimeoutCallback).toHaveBeenCalled();
+            
+            // let the real clock advance a bit
+            waits(10);
+            runs(function(){
+                expect( expiredTime ).toBeGreaterThan( 0 );
+                expect( expiredTime ).toBeLessThan( +new Date() );
+            });
+            
+        });
+
+    });
 });
 
+/*
 
+describe( 'Options' ,function(){ 
+    // autoping : true, // automaticaly ping the server to keep sessions alive
+    // enableidletimer : true, // allows session control via idletimer plugin if present
+    // timeout : 300000, // set the servers session timeout
+    // resource : "spacer.gif", // set the asset to load from the server
+    // promptfor : 10000, // triggers beforetimeout x seconds before session timeout
+    // beforetimeout : $.noop, // callback which occurs prior to session timeout
+    // pollactivity : 1000 // number seconds between checking for user activity (only needed if using idletimer)
 
-
-    /*
-    
-    describe( 'Options' ,function(){ 
-        // autoping : true, // automaticaly ping the server to keep sessions alive
-        // enableidletimer : true, // allows session control via idletimer plugin if present
-        // timeout : 300000, // set the servers session timeout
-        // resource : "spacer.gif", // set the asset to load from the server
-        // promptfor : 10000, // triggers beforetimeout x seconds before session timeout
-        // beforetimeout : $.noop, // callback which occurs prior to session timeout
-        // pollactivity : 1000 // number seconds between checking for user activity (only needed if using idletimer)
-    
-        describe( 'Setting an ontimeout callback function' , function(){
-            it( 'it should invoke a callback when the time session time remaing is 0' , function(){
-                var remaining = 1;
-                $.fn.sessionTimeout( 'destroy' );
-                $.fn.sessionTimeout(
-                    {   
-                        timeout: 50,
-                        promptfor: 0,
-                        resource: "../src/spacer.gif",
-                        ontimeout: function(){
-                            remaining = $.fn.sessionTimeout( 'remaining' );
-                            expect(remaining).toEqual(0);
-                        }
-                    }); 
-            });
-            it( 'it should invoke a callback function when session times out' , function(){
-                $.fn.sessionTimeout( 'destroy' );
-                $.fn.sessionTimeout(
-                    {   
-                        timeout: 50,
-                        promptfor: 25,
-                        resource: "../src/spacer.gif",
-                        ontimeout: function(){
-                            timeoutCalled = true;
-                            expect(timeoutCalled).toBeTruthy();
-                        }
-                    }); 
-            });
-            it( 'it should raise an error if the callback is not a function' , function(){
-
-                // the plugin callback requires a function be passed in
-                // to trigger an error this test passes in an invalid string
-                // because jasmine .toThrow() has trouble handleing the error
-                // thrown in th jquery plugin, we'll listen for the the window.error
-                // event and pass it along to jamsine by rethrowing the error
-                // we need to wait at least 170 ms or the test fails so we
-                // should wait just a bit longer as a buffer.
-                // there must be a better way to do this :( 
-
-                $.fn.sessionTimeout( 'destroy' );
-                $.fn.sessionTimeout({   
-                        timeout: 50,
-                        promptfor: 25,
-                        resource: "../src/spacer.gif",
-                        ontimeout: "I'm not a function"
-                    });
-                
-                var lasterr = $.noop;
-                window.onerror=function(err){
-                    lasterr = function(){  
-                        return err;
-                    }; 
-                };
-                
-                waits( 200 );
-                runs(function(){
-                    expect(function(){
-                           throw new Error(lasterr());
-                    }).toThrow(new Error( 'Uncaught Error: The jQuery.sessionTimeout ontimeout parameter is expecting a function' ));
-                });
-
-            });
+    describe( 'Setting an ontimeout callback function' , function(){
+        it( 'it should invoke a callback when the time session time remaing is 0' , function(){
+            var remaining = 1;
+            $.fn.sessionTimeout( 'destroy' );
+            $.fn.sessionTimeout(
+                {   
+                    timeout: 50,
+                    promptfor: 0,
+                    resource: "../src/spacer.gif",
+                    ontimeout: function(){
+                        remaining = $.fn.sessionTimeout( 'remaining' );
+                        expect(remaining).toEqual(0);
+                    }
+                }); 
         });
-    }); 
+        it( 'it should invoke a callback function when session times out' , function(){
+            $.fn.sessionTimeout( 'destroy' );
+            $.fn.sessionTimeout(
+                {   
+                    timeout: 50,
+                    promptfor: 25,
+                    resource: "../src/spacer.gif",
+                    ontimeout: function(){
+                        timeoutCalled = true;
+                        expect(timeoutCalled).toBeTruthy();
+                    }
+                }); 
+        });
+        it( 'it should raise an error if the callback is not a function' , function(){
 
+            // the plugin callback requires a function be passed in
+            // to trigger an error this test passes in an invalid string
+            // because jasmine .toThrow() has trouble handleing the error
+            // thrown in th jquery plugin, we'll listen for the the window.error
+            // event and pass it along to jamsine by rethrowing the error
+            // we need to wait at least 170 ms or the test fails so we
+            // should wait just a bit longer as a buffer.
+            // there must be a better way to do this :( 
 
-  
+            $.fn.sessionTimeout( 'destroy' );
+            $.fn.sessionTimeout({   
+                    timeout: 50,
+                    promptfor: 25,
+                    resource: "../src/spacer.gif",
+                    ontimeout: "I'm not a function"
+                });
+            
+            var lasterr = $.noop;
+            window.onerror=function(err){
+                lasterr = function(){  
+                    return err;
+                }; 
+            };
+            
+            waits( 200 );
+            runs(function(){
+                expect(function(){
+                       throw new Error(lasterr());
+                }).toThrow(new Error( 'Uncaught Error: The jQuery.sessionTimeout ontimeout parameter is expecting a function' ));
+            });
+
+        });
+    });
+}); 
+
 */
+
+describe('Options', function(){
+
+    afterEach(function(){
+        $.fn.sessionTimeout('destroy');
+    });
+
+    it('should raise an error if the prompt durration is longer than the session timeout', function(){
+                    
+        expect(function(){
+        
+                $.fn.sessionTimeout({
+                    timeout: 20,
+                    promptfor: 30
+                });  
+        
+        }).toThrow('jquery.sessionTimeout: configuration error, promptfor must to be less than timeout');
+
+    });
+
+    it('should raise an error if the activity polling durration is greater than the prompt duration', function(){
+        // because then the session could never renew hence the pluing would be pointless         
+        expect(function(){
+        
+                $.fn.sessionTimeout({
+                    timeout: 40,
+                    promptfor: 30,
+                    pollactivity: 40
+                });  
+        
+        }).toThrow('jquery.sessionTimeout: configuration error, pollactivity must to be less than promptfor if set');
+
+    });
+
+
+
+});
