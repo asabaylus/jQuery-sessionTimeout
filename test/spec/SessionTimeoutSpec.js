@@ -95,11 +95,23 @@ describe('If the jQuery sessionTimeout plugin is installed', function() {
         expect($.data(document, 'events')).toBeDefined();
     });
 
+    describe('when the prompt duration is longer than the session timeout', function(){
+        it('should raise an error', function(){    
+            expect(function(){
+            
+                    $.fn.sessionTimeout({
+                        timeout: 20,
+                        promptfor: 30
+                    });  
+            
+            }).toThrow('jquery.sessionTimeout: configuration error, promptfor must to be less than timeout');
+        });
+    });
 
     describe('when a session countdown starts', function() {
         it('it should trigger a startCountdown event', function(){
             // since reinit the pluing on each it() we should have 4 inits 
-            expect( onCountdownStartEvent.callCount ).toBe( 4 );
+            expect( onCountdownStartEvent.callCount ).toBe( 5 );
         });
 
         it('it should fire a session created event', function() {
@@ -475,6 +487,21 @@ describe('If the idelTimer plugin is configured to monitor user activity', funct
     //     it('it should renew the session before it times out', function(){});
     // });
 
+    describe('when the activity polling duration is greater than the prompt duration', function(){
+        it('it should raise an error', function(){
+            // because then the session could never renew hence the pluing would be pointless         
+            expect(function(){
+            
+                    $.fn.sessionTimeout({
+                        timeout: 2,
+                        promptfor: 1,
+                        pollactivity: 3
+                    });  
+            
+            }).toThrow('jquery.sessionTimeout: configuration error, pollactivity must to be less than promptfor if set');
+        });
+    });
+
     describe('if the user is not active the session should expire', function(){        
 
         it('it should trigger a callback function', function() {
@@ -576,40 +603,3 @@ describe( 'Options' ,function(){
 }); 
 
 */
-
-describe('Options', function(){
-
-    afterEach(function(){
-        $.fn.sessionTimeout('destroy');
-    });
-
-    it('should raise an error if the prompt durration is longer than the session timeout', function(){
-                    
-        expect(function(){
-        
-                $.fn.sessionTimeout({
-                    timeout: 20,
-                    promptfor: 30
-                });  
-        
-        }).toThrow('jquery.sessionTimeout: configuration error, promptfor must to be less than timeout');
-
-    });
-
-    it('should raise an error if the activity polling durration is greater than the prompt duration', function(){
-        // because then the session could never renew hence the pluing would be pointless         
-        expect(function(){
-        
-                $.fn.sessionTimeout({
-                    timeout: 40,
-                    promptfor: 30,
-                    pollactivity: 40
-                });  
-        
-        }).toThrow('jquery.sessionTimeout: configuration error, pollactivity must to be less than promptfor if set');
-
-    });
-
-
-
-});
