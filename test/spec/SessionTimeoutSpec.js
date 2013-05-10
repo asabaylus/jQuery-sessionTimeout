@@ -91,7 +91,7 @@ describe('If the jQuery sessionTimeout plugin is installed', function() {
         expect(version).toBe('0.0.2');
     });
 
-    it('should bind its events to the document', function(){
+    it('it should bind its events to the document', function(){
         expect($.data(document, 'events')).toBeDefined();
     });
 
