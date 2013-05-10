@@ -444,7 +444,7 @@ describe('If the jQuery sessionTimeout plugin is installed', function() {
 
 
 
-describe('If the idelTimer plugin is configured to monitor user activity, then', function(){
+describe('If the idelTimer plugin is configured to monitor user activity', function(){
 
         // describe('if the user is active', function(){
         //     it('it should renew the session before it times out', function(){});
