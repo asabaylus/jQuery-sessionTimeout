@@ -481,7 +481,7 @@ describe('If the idelTimer plugin is configured to monitor user activity, then',
                 $.fn.sessionTimeout('destroy');
             });
 
-            it('it should raise an error when the user\'s activity polling interval is longer than the time it takes between prompt events', function(){
+            it('it should raise an error when the user\'s activity polling interval is longer than the time between prompt events', function(){
 
                 // window.onerror=function(err){
                 //     lastError = function(){  
