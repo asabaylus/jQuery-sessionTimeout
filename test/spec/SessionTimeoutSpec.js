@@ -290,6 +290,25 @@ describe('If the jQuery sessionTimeout plugin is installed', function() {
             $.fn.sessionTimeout('destroy');
             expect(destroyEvent).toBe(last + 1);
         });
+
+        it('it should not continue to run', function(){
+            var last = createEvent;
+            $.fn.sessionTimeout('destroy');
+
+            $.fn.sessionTimeout({
+                timeout: 3,
+                promptfor: 1,
+                autoping: true,
+                enableidletimer: false,
+                resource: '../src/spacer.gif',
+                onprompt: function() {
+                    aIsFor = 'apple';
+                }
+            });
+            
+            jasmine.Clock.tick(20);
+            expect(createEvent).toBe(last);
+        });
         
         it('it should unbind all sessionTimeout events', function() {
             $.fn.sessionTimeout('destroy');
