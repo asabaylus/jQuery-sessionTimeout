@@ -39,7 +39,6 @@
             pollactivity: 1000 // number seconds between checking for user activity (only needed if using idletimer)
         };
 
-    var hasRunCount = 0;
 
     $.fn.sessionTimeout = function(method, options) {
 
@@ -53,9 +52,6 @@
              */
             _init: function() {
 
-
-                console.log('init', hasRunCount ++ );
-
                 // test for Paul Irishes idleTimer plugin
                 _idleTimerExists = $.isFunction($.idleTimer);
                 if ( _idleTimerExists ){
@@ -65,8 +61,15 @@
                 // prompt durration cannot be longer than
                 // session durration
                 if (options.promptfor > options.timeout){
-                    $.error('jquery.sessionTimeout: configuration error, promptfor must to be less than timeout');
+                    $.error('jquery.sessionTimeout: configuration error, promptfor must be less than timeout');
                     options.promptfor = options.timeout;
+                }
+
+                if(_idleTimerExists && options.enableidletimer) {
+                    if (options.pollactivity > options.promptfor){
+                        $.error('jquery.sessionTimeout: configuration error, pollactivity must be less than promptfor if set');
+                        options.pollactivity = options.promptfor;
+                    }
                 }
 
                 methods._startCountdown.apply();
@@ -78,6 +81,14 @@
                 $(document).trigger("create.sessionTimeout", [_version, _start, (_ready - _start)]);
             },
 
+/**
+             * Starts countdown to session exiration
+             * @return {void}
+             * @private
+             */
+            version: function() {
+                return _version;
+            },
 
             /**
              * Starts countdown to session exiration
@@ -89,6 +100,7 @@
                 _countdownDate = new Date();
                 _countdownTime = _countdownDate.getTime();
                 _endTime = _countdownTime + options.timeout;
+
 
 
 
@@ -104,9 +116,6 @@
                 //    ping the server
                 else if(_idleTimerExists && options.enableidletimer) {
 
-                    if( options.pollactivity > options.timeout ) {
-                        $.error('jquery.sessionTimeout: configuration error, pollactivity must to be less than promptfor if set');
-                    }
 
                     // set idleTimer() equal to the session durration
                     $.idleTimer(Number(options.pollactivity));
