@@ -13,14 +13,12 @@
     // "use strict";
 
     var methods = {},
-        options, $global = {},
-        _log = [],
         // contains plugin history
         _start = new Date(),
         _resourceId = 'sessionTimeout_' + _start.getTime(),
-        $el, $idleTimerEl, _activityPoller, enableidletimer, _version = "0.0.2",
+        $el, $idleTimerEl, _activityPoller, _version = "0.0.2",
         _ready, // when the plugin first initialized
-        _sessionTimeoutTimer, _beforeTimeout,  _idleTimerExists = false,
+        _sessionTimeoutTimer,  _idleTimerExists = false,
         _countdownDate, _countdownTime, _endTime, _keepAliveTimer,
 
         // set plugin defaults
@@ -40,8 +38,9 @@
             // callback which occurs upon session timeout
             pollactivity: 1000 // number seconds between checking for user activity (only needed if using idletimer)
         };
-    
-    
+
+    var hasRunCount = 0;
+
     $.fn.sessionTimeout = function(method, options) {
 
         methods = {
@@ -55,13 +54,15 @@
             _init: function() {
 
 
+                console.log('init', hasRunCount ++ );
+
                 // test for Paul Irishes idleTimer plugin
                 _idleTimerExists = $.isFunction($.idleTimer);
                 if ( _idleTimerExists ){
                     $idleTimerEl = $(document);
                 }
 
-                // prompt durration cannot be longer than 
+                // prompt durration cannot be longer than
                 // session durration
                 if (options.promptfor > options.timeout){
                     $.error('jquery.sessionTimeout: configuration error, promptfor must to be less than timeout');
@@ -88,14 +89,14 @@
                 _countdownDate = new Date();
                 _countdownTime = _countdownDate.getTime();
                 _endTime = _countdownTime + options.timeout;
-                
-                
+
+
 
                 if(options.autoping === true) {
                      _keepAliveTimer = window.setTimeout(function() {
                         methods.ping.apply();
                     }, options.timeout);
-                }   
+                }
                 // if idleTimer plugin exists
                 // when user goes idle restart the countdown
                 //    less the polling time used for idleTimer
@@ -109,7 +110,7 @@
 
                     // set idleTimer() equal to the session durration
                     $.idleTimer(Number(options.pollactivity));
-                
+
 
                     window.clearTimeout( _keepAliveTimer);
                     window.clearTimeout(_activityPoller);
@@ -192,11 +193,11 @@
              */
             _beforeTimeout: function() {
 
-                
+
 
                 // start counting down to session timeout
                 _sessionTimeoutTimer = setTimeout(function() {
-                    
+
                     // handle the ontimeout callback
                     // first check that a function was passed in
                     if($.isFunction(options.ontimeout)) {
@@ -209,21 +210,19 @@
                     // TODO: if idletimer is enable && user is active
                     // restart the session timeout countdown.                    methods._stopCountdown.apply();
 
-                    var d = new Date();
                     $(document).trigger('expired.sessionTimeout');
-                
-                }, options.promptfor);  
+
+                }, options.promptfor);
 
 
                 // if beforeTimeout is a function then start countdown to user prompt
                 if($.isFunction(options.onprompt)) {
-                    var d = new Date();
                     options.onprompt.call(this);
                     $(document).trigger("prompt.sessionTimeout");
                 } else {
                     $.error("The jQuery.sessionTimeout onprompt parameter is expecting a function");
                 }
-                            
+
 
             },
 
@@ -272,9 +271,6 @@
              * @public
              */
             ping: function() {
-                var t = new Date(),
-                    tstamp = t.getTime();
-
                 // dont ping nothin if the user is idle
                 // if ( _idleTimerExists && $.data(document,'idleTimer') === 'idle' ){
                 //     return false;
@@ -297,9 +293,7 @@
              * @return {number}
              * @public
              */
-            duration: function(surpresslog) {
-                // if (!surpresslog){
-                // }
+            duration: function() {
                 return Number(options.timeout);
             },
 
@@ -320,7 +314,7 @@
              * @return {number}
              * @public
              */
-            remaining: function(surpresslog) {
+            remaining: function( ) {
                 var currentDate = new Date(),
                     currentTime = currentDate.getTime(),
                     expiresTime = _countdownTime,
@@ -348,20 +342,20 @@
                 }
 
                 methods._stopCountdown.apply();
-                
+
                 if(_idleTimerExists) {
                     $idleTimerEl.unbind('.idleTimer');
                 }
 
                 _ready = undefined;
-                
+
                 //_countdownTime = undefined;
 
                 $(document).trigger("destroy.sessionTimeout");
 
                 // unbind all sessionTimeout events
                 $(document).off(".sessionTimeout");
-                
+
                 if(_idleTimerExists) {
                     // destroy idletimer
                     $idleTimerEl.idleTimer('destroy');
@@ -394,7 +388,7 @@
              */
             getKeepAliveTimer: function() {
                 return _keepAliveTimer;
-            },          
+            },
 
             /**
              * Returns the element injected into the DOM,
