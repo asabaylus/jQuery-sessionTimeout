@@ -279,23 +279,18 @@ describe('If the jQuery sessionTimeout plugin is installed', function() {
         });
 
         it('it should not continue to run', function(){
-            var last = createEvent,
-                aIsFor = null;
+
+            ontimeoutCallback.reset();
+
+            // First time throught the timeout should fire
+            jasmine.Clock.tick(20);
+            expect(ontimeoutCallback).toHaveBeenCalled();
+
             $.fn.sessionTimeout('destroy');
 
-            $.fn.sessionTimeout({
-                timeout: 3,
-                promptfor: 1,
-                autoping: true,
-                enableidletimer: false,
-                resource: '../src/spacer.gif',
-                onprompt: function() {
-                    aIsFor = 'apple';
-                }
-            });
-
+            // After the pluing is detroyed it should not fire again
             jasmine.Clock.tick(20);
-            expect(createEvent).toBe(last);
+            expect( ontimeoutCallback.callCount ).toBe( 1 );
         });
 
         it('it should unbind all sessionTimeout events', function() {
@@ -305,6 +300,8 @@ describe('If the jQuery sessionTimeout plugin is installed', function() {
 
         it('it should able to reinitialze after being destroyed', function(){
 
+            ontimeoutCallback.reset();
+
             // 1st timeout
             jasmine.Clock.tick(20);
             expect(ontimeoutCallback).toHaveBeenCalled();
@@ -312,7 +309,7 @@ describe('If the jQuery sessionTimeout plugin is installed', function() {
 
             $.fn.sessionTimeout('destroy');
 
-            // re init the plugin
+            // re-init the plugin
             $.fn.sessionTimeout({
                 timeout: 20,
                 promptfor: 10,
@@ -326,7 +323,6 @@ describe('If the jQuery sessionTimeout plugin is installed', function() {
             // 2nd call verifies plugin was initialized again
             jasmine.Clock.tick(20);
             expect( ontimeoutCallback.callCount ).toBe( 2 );
-
         });
     });
 
@@ -508,11 +504,7 @@ describe('If the jQuery sessionTimeout plugin is installed', function() {
             }).toThrow('jquery.sessionTimeout: the ontimeout parameter is expecting a function');
 
         });
-
     });
-
-
-
 
 });
 
