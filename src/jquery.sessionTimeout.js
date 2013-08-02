@@ -72,6 +72,15 @@
                     }
                 }
 
+                if(! $.isFunction(options.onprompt)) {
+                    $.error('jquery.sessionTimeout: the onprompt parameter is expecting a function');
+                }
+
+                if(! $.isFunction(options.ontimeout)) {
+                    $.error('jquery.sessionTimeout: the ontimeout parameter is expecting a function');
+                }
+
+
                 methods._startCountdown.apply();
 
                 // get the load time for plugin ready
@@ -202,8 +211,6 @@
              */
             _beforeTimeout: function() {
 
-
-
                 // start counting down to session timeout
                 _sessionTimeoutTimer = setTimeout(function() {
 
@@ -211,13 +218,11 @@
                     // first check that a function was passed in
                     if($.isFunction(options.ontimeout)) {
                         options.ontimeout.call(this);
-                    } else {
-                        //throw new Error('The jQuery.sessionTimeout ontimeout parameter is expecting a function');
-                        $.error('The jQuery.sessionTimeout ontimeout parameter is expecting a function');
                     }
 
                     // TODO: if idletimer is enable && user is active
-                    // restart the session timeout countdown.                    methods._stopCountdown.apply();
+                    // restart the session timeout countdown.
+                    // methods._stopCountdown.apply();
 
                     $(document).trigger('expired.sessionTimeout');
 
@@ -228,11 +233,7 @@
                 if($.isFunction(options.onprompt)) {
                     options.onprompt.call(this);
                     $(document).trigger("prompt.sessionTimeout");
-                } else {
-                    $.error("The jQuery.sessionTimeout onprompt parameter is expecting a function");
                 }
-
-
             },
 
 
@@ -261,14 +262,14 @@
                         // fetching the image will keep the server from timeing out
                         // it's important that the file has a defined
                         // filesize ex no includes or scripts
-                        $("body").append("<img id='" + _resourceId + "' src='" + options.resource + "?tstamp=" + tstamp + "' style='display: none !important' alt='web page session management helper'>");
+                        $("body").append("<img id='" + _resourceId + "' src='" + options.resource + "&timestamp=" + tstamp  + "' style='position: absolute; height: 1px; width: 1px' alt='web page session management helper'>");
                     } else {
-                        $("body").append("<iframe id='" + _resourceId + "' src='" + options.resource + "?tstamp=" + tstamp + "' style='display: none !important' alt='web page session management helper'></iframe>");
+                        $("body").append("<iframe id='" + _resourceId + "' src='" + options.resource + "&tstamp=" + tstamp + "' style='display: none !important' alt='web page session management helper'></iframe>");
                     }
 
                 } else {
 
-                    $el.attr("src", options.resource + "?timestamp=" + tstamp);
+                        $el.attr("src", options.resource + "&timestamp=" + tstamp);
                 }
 
                 $el = $("#" + _resourceId);

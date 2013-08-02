@@ -99,10 +99,8 @@ describe('If the jQuery sessionTimeout plugin is installed', function() {
 
     describe('when a session countdown starts', function() {
         it('it should trigger a startCountdown event', function(){
-            // since reinit the pluing on each it() we should have 4 inits
-            expect( onCountdownStartEvent.callCount ).toBe( 5 );
+            expect( onCountdownStartEvent.callCount ).toBeGreaterThan(0);
         });
-
         it('it should fire a session created event', function() {
             expect(createEvent).toBeGreaterThan(0);
         });
@@ -307,32 +305,27 @@ describe('If the jQuery sessionTimeout plugin is installed', function() {
 
         it('it should able to reinitialze after being destroyed', function(){
 
-            // it should be called twice
-            // 1st call from initial sessiontimeout
-            jasmine.Clock.tick(100);
+            // 1st timeout
+            jasmine.Clock.tick(20);
+            expect(ontimeoutCallback).toHaveBeenCalled();
 
 
+            $.fn.sessionTimeout('destroy');
 
-            // then plugin is destroyed
-           // $.fn.sessionTimeout('destroy');
+            // re init the plugin
+            $.fn.sessionTimeout({
+                timeout: 20,
+                promptfor: 10,
+                enableidletimer: false,
+                resource: '../src/spacer.gif',
+                ontimeout: function() {
+                    ontimeoutCallback();
+                }
+            });
 
-            // $.fn.sessionTimeout({
-            //     timeout: 20,
-            //     promptfor: 10,
-            //     enableidletimer: false,
-            //     resource: '../src/spacer.gif',
-            //     onprompt: function() {
-            //         onpromptCallback();
-            //     }
-            // });
-
-            jasmine.Clock.tick(100);
-
-            expect(onpromptCallback).toHaveBeenCalled();
-
-            //console.log(onpromptCallback.callCount);
             // 2nd call verifies plugin was initialized again
-            //expect( onpromptCallback.callCount ).toBe( 1 );
+            jasmine.Clock.tick(20);
+            expect( ontimeoutCallback.callCount ).toBe( 2 );
 
         });
     });
@@ -468,6 +461,59 @@ describe('If the jQuery sessionTimeout plugin is installed', function() {
             });
         });
     });
+
+    describe( 'when the users session expires' , function(){
+        it( 'it should invoke a callback when the time session time remaing is 0' , function(){
+            var remaining = 1;
+            $.fn.sessionTimeout( 'destroy' );
+            $.fn.sessionTimeout(
+                {
+                    timeout: 50,
+                    promptfor: 0,
+                    resource: "../src/spacer.gif",
+                    ontimeout: function(){
+                        remaining = $.fn.sessionTimeout( 'remaining' );
+                        expect(remaining).toEqual(0);
+                    }
+                });
+        });
+        it( 'it should invoke a callback function when the user is prompted' , function(){
+            // option.onprompt
+            jasmine.Clock.tick(20);
+            expect( onpromptCallback ).toHaveBeenCalled();
+
+        });
+        it( 'it should invoke a callback function when session times out' , function(){
+            // option.ontimeout
+            jasmine.Clock.tick(20);
+            expect( ontimeoutCallback ).toHaveBeenCalled();
+
+        });
+        it( 'it should raise an error if the callback is not a function' , function(){
+
+            $.fn.sessionTimeout( 'destroy' );
+
+            expect(function(){
+
+                $.fn.sessionTimeout({
+                    timeout: 20,
+                    promptfor: 10,
+                    enableidletimer: false,
+                    resource: "../src/spacer.gif",
+                    ontimeout: "I'm not a function"
+                });
+
+                jasmine.Clock.tick(20);
+
+            }).toThrow('jquery.sessionTimeout: the ontimeout parameter is expecting a function');
+
+        });
+
+    });
+
+
+
+
 });
 
 describe('If the idelTimer plugin is configured to monitor user activity', function(){
@@ -518,15 +564,19 @@ describe('If the idelTimer plugin is configured to monitor user activity', funct
             expect(ontimeoutCallback).toHaveBeenCalled();
 
             // let the real clock advance a bit
-            waits(10);
-            runs(function(){
+            // waits(10);
+            // runs(function(){
                 expect( expiredTime ).toBeGreaterThan( 0 );
                 expect( expiredTime ).toBeLessThan( +new Date() );
-            });
+            //});
 
         });
 
     });
+
+
+
+
 });
 
 /*
@@ -540,69 +590,31 @@ describe( 'Options' ,function(){
     // beforetimeout : $.noop, // callback which occurs prior to session timeout
     // pollactivity : 1000 // number seconds between checking for user activity (only needed if using idletimer)
 
-    describe( 'Setting an ontimeout callback function' , function(){
-        it( 'it should invoke a callback when the time session time remaing is 0' , function(){
-            var remaining = 1;
-            $.fn.sessionTimeout( 'destroy' );
-            $.fn.sessionTimeout(
-                {
-                    timeout: 50,
-                    promptfor: 0,
-                    resource: "../src/spacer.gif",
-                    ontimeout: function(){
-                        remaining = $.fn.sessionTimeout( 'remaining' );
-                        expect(remaining).toEqual(0);
-                    }
-                });
-        });
-        it( 'it should invoke a callback function when session times out' , function(){
-            $.fn.sessionTimeout( 'destroy' );
-            $.fn.sessionTimeout(
-                {
-                    timeout: 50,
-                    promptfor: 25,
-                    resource: "../src/spacer.gif",
-                    ontimeout: function(){
-                        timeoutCalled = true;
-                        expect(timeoutCalled).toBeTruthy();
-                    }
-                });
-        });
-        it( 'it should raise an error if the callback is not a function' , function(){
 
-            // the plugin callback requires a function be passed in
-            // to trigger an error this test passes in an invalid string
-            // because jasmine .toThrow() has trouble handleing the error
-            // thrown in th jquery plugin, we'll listen for the the window.error
-            // event and pass it along to jamsine by rethrowing the error
-            // we need to wait at least 170 ms or the test fails so we
-            // should wait just a bit longer as a buffer.
-            // there must be a better way to do this :(
-
-            $.fn.sessionTimeout( 'destroy' );
-            $.fn.sessionTimeout({
-                    timeout: 50,
-                    promptfor: 25,
-                    resource: "../src/spacer.gif",
-                    ontimeout: "I'm not a function"
-                });
-
-            var lasterr = $.noop;
-            window.onerror=function(err){
-                lasterr = function(){
-                    return err;
-                };
-            };
-
-            waits( 200 );
-            runs(function(){
-                expect(function(){
-                       throw new Error(lasterr());
-                }).toThrow(new Error( 'Uncaught Error: The jQuery.sessionTimeout ontimeout parameter is expecting a function' ));
-            });
-
-        });
-    });
 });
 
 */
+
+// Taken from idle timer tests, this should be reworked for jasmine
+// $.each( ["mousemove", "keydown", "DOMMouseScroll", "mousewheel", "mousedown", "touchstart", "touchmove"], function( i, event ) {
+//         asyncTest( "Should clear timeout on " + event, function() {
+//             expect( 3 );
+
+//             var triggerEvent = function() {
+//                 $( "#qunit-fixture" ).trigger( event );
+//                 equal( $( "#qunit-fixture" ).data( "idleTimer" ), "active", "State should be active" );
+//             };
+
+//             // trigger event every now and then to prevent going inactive
+//             setTimeout( triggerEvent, 100 );
+//             setTimeout( triggerEvent, 200 );
+//             setTimeout( triggerEvent, 300 );
+
+//             setTimeout( function() {
+//                 $.idleTimer( "destroy" );
+//                 start();
+//             }, 350);
+
+//             $( "#qunit-fixture" ).idleTimer( 200 );
+//         });
+//     });
