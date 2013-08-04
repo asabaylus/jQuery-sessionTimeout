@@ -4,7 +4,6 @@ var createEvent = 0,
     destroyEvent = 0,
     promptEvent = 0,
     promptTime = 0,
-    strPing,
     expiredTime = 0,
     expiredEvent = 0,
     countDownStartTime = 0,
@@ -12,7 +11,8 @@ var createEvent = 0,
     ontimeoutCallback  = jasmine.createSpy('ontimeoutCallback'),
     onCountdownStartEvent = jasmine.createSpy('oncountdownstartEvent'),
     onpromptEvent = jasmine.createSpy('onpromptEvent'),
-    ontimeoutEvent = jasmine.createSpy('ontimeoutEvent');
+    ontimeoutEvent = jasmine.createSpy('ontimeoutEvent'),
+    onpingEvent = jasmine.createSpy('onpingEvent');
 
 
 beforeEach(function(){
@@ -39,8 +39,7 @@ beforeEach(function(){
     });
 
     $(document).on('ping.sessionTimeout', function() {
-        var t = new Date();
-        strPing = "Session Restarted @ " + t.toTimeString();
+        onpingEvent();
     });
 
     $(document).on('expired.sessionTimeout', function() {
@@ -121,13 +120,49 @@ describe('If the jQuery sessionTimeout plugin is installed', function() {
     });
 
     describe('when the ping method is called to renew the session', function() {
+
+
         it('it should emit a "ping" event', function() {
             $.fn.sessionTimeout("ping", {
                 resource: 'README.md'
             });
-            expect(strPing).toBeDefined();
+            expect(onpingEvent).toHaveBeenCalled();
         });
+
+        describe('and the resource is not an image', function(){
+            it('it should load the resource in an iframe tag', function(){
+                var targetEl;
+
+                $.fn.sessionTimeout("ping", {
+                    resource: 'README.md'
+                });
+
+                targetEl = $.fn.sessionTimeout("getResourceLoaded");
+
+                expect( targetEl.prop("tagName") ).toBe( "IFRAME" );
+
+            });
+        });
+
+
+        describe('and the resource is an image', function(){
+            it('it should load the resource in an img tag', function(){
+                var targetEl;
+
+                $.fn.sessionTimeout('destroy');
+
+                $.fn.sessionTimeout("ping", {
+                    resource: '../src/spacer.gif'
+                });
+
+                targetEl = $.fn.sessionTimeout("getResourceLoaded");
+
+                expect( targetEl.prop("tagName") ).toBe( "IMG" );
+            });
+        });
+
         it('it should reset the session countdown timer', function() {
+
             var timeRemaining, prevTimeRemaining;
 
             // let the clock tick down a little bit  first
@@ -143,6 +178,7 @@ describe('If the jQuery sessionTimeout plugin is installed', function() {
                 timeRemaining = $.fn.sessionTimeout('remaining');
                 expect(timeRemaining).toBeGreaterThan(prevTimeRemaining);
             });
+
         });
         it('it should load a non image resource from the server by default', function() {
             // demo a file resource using the project readme
@@ -154,10 +190,11 @@ describe('If the jQuery sessionTimeout plugin is installed', function() {
         it('it may optionaly load an image resource', function() {
             // demo using the 1px transparent gif included in the project
             $.fn.sessionTimeout('ping', {
-                'resource': 'src/spacer.gif'
+                'resource': '../src/spacer.gif'
             });
             expect($.fn.sessionTimeout('getResourceLoaded')).toBeDefined();
         });
+
     });
 
     describe('when a session is about to expire', function() {
@@ -262,6 +299,12 @@ describe('If the jQuery sessionTimeout plugin is installed', function() {
 
     describe('when the plugin is destroyed', function() {
 
+        it('it should emit a "destroy" event', function() {
+            var last = destroyEvent;
+            $.fn.sessionTimeout('destroy');
+            expect(destroyEvent).toBe(last + 1);
+        });
+
         it('it should reset elepase time', function() {
             $.fn.sessionTimeout('destroy');
             expect($.fn.sessionTimeout('elapsed')).toBeUndefined();
@@ -272,10 +315,26 @@ describe('If the jQuery sessionTimeout plugin is installed', function() {
             expect($.fn.sessionTimeout('remaining')).toBeUndefined();
         });
 
-        it('it should emit a "destroy" event', function() {
-            var last = destroyEvent;
+        it('it should cleanup the dom', function(){
+
+            var targetEl, targetElAgain;
+
+            $.fn.sessionTimeout("ping", {
+                resource: '../src/spacer.gif'
+            });
+
+            targetEl = $.fn.sessionTimeout("getResourceLoaded");
+
+            // confirm that an image resource loaded
+            expect( targetEl.length ).toBeTruthy( );
+
             $.fn.sessionTimeout('destroy');
-            expect(destroyEvent).toBe(last + 1);
+
+            targetElAgain = $.fn.sessionTimeout("getResourceLoaded");
+
+            // confirm that an image resource was unloaded
+            expect( targetElAgain ).toBeUndefined( );
+
         });
 
         it('it should not continue to run', function(){
@@ -546,21 +605,16 @@ describe('If the idelTimer plugin is configured to monitor user activity', funct
     describe('if the user is not active the session should expire', function(){
 
         it('it should trigger a callback function', function() {
-            jasmine.Clock.tick( 500 );
+            jasmine.Clock.tick( 20 );
             expect(onpromptCallback).toHaveBeenCalled();
         });
 
         it('it should fire a session expired event', function() {
 
-            jasmine.Clock.tick( 1000 );
-            expect(ontimeoutCallback).toHaveBeenCalled();
-
-            // let the real clock advance a bit
-            // waits(10);
-            // runs(function(){
-                expect( expiredTime ).toBeGreaterThan( 0 );
-                expect( expiredTime ).toBeLessThan( +new Date() );
-            //});
+            jasmine.Clock.tick( 20 );
+            expect( ontimeoutCallback ).toHaveBeenCalled();
+            expect( expiredTime ).toBeGreaterThan( 0 );
+            expect( expiredTime ).toBeLessThan( +new Date() );
 
         });
 

@@ -90,7 +90,7 @@
                 $(document).trigger("create.sessionTimeout", [_version, _start, (_ready - _start)]);
             },
 
-/**
+            /**
              * Starts countdown to session exiration
              * @return {void}
              * @private
@@ -184,7 +184,6 @@
                 }
 
                 $(document).trigger('startCountdown.sessionTimeout');
-
             },
 
 
@@ -345,10 +344,11 @@
              * @public
              */
             destroy: function() {
+                $(document).trigger("destroy.sessionTimeout");
 
-                // remove ping image from DOM
-                if(typeof $el !== 'undefined') {
-                    $el.remove();
+                if( $el !== undefined ) {
+                    $el.remove(); // remove ping image from DOM
+                    $el = undefined; // remove from memory
                 }
 
                 methods._stopCountdown.apply();
@@ -358,10 +358,6 @@
                 }
 
                 _ready = undefined;
-
-                //_countdownTime = undefined;
-
-                $(document).trigger("destroy.sessionTimeout");
 
                 // unbind all sessionTimeout events
                 $(document).off(".sessionTimeout");
