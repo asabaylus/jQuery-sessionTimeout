@@ -566,26 +566,7 @@ describe('If the idelTimer plugin is configured to monitor user activity', funct
 
     });
 
-
-
-
 });
-
-/*
-
-describe( 'Options' ,function(){
-    // autoping : true, // automaticaly ping the server to keep sessions alive
-    // enableidletimer : true, // allows session control via idletimer plugin if present
-    // timeout : 300000, // set the servers session timeout
-    // resource : "spacer.gif", // set the asset to load from the server
-    // promptfor : 10000, // triggers beforetimeout x seconds before session timeout
-    // beforetimeout : $.noop, // callback which occurs prior to session timeout
-    // pollactivity : 1000 // number seconds between checking for user activity (only needed if using idletimer)
-
-
-});
-
-*/
 
 // Taken from idle timer tests, this should be reworked for jasmine
 // $.each( ["mousemove", "keydown", "DOMMouseScroll", "mousewheel", "mousedown", "touchstart", "touchmove"], function( i, event ) {
