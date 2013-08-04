@@ -8,7 +8,15 @@
  * Copyright (c) 2012 Asa Baylus
  * Licensed under the MIT, GPL licenses.
  */
-(function($) {
+(function (factory) {
+    if (typeof define === 'function' && define.amd) {
+        // AMD. Register as an anonymous module.
+        define(['jquery'], factory);
+    } else {
+        // Browser globals
+        factory(jQuery);
+    }
+}(function($) {
 
     // "use strict";
 
@@ -429,4 +437,4 @@
 
     };
 
-}(jQuery));
+}));
