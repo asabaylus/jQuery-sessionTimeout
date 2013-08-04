@@ -129,6 +129,43 @@ describe('If the jQuery sessionTimeout plugin is installed', function() {
             expect(onpingEvent).toHaveBeenCalled();
         });
 
+
+        it('it should reset the session countdown timer', function() {
+
+            var timeRemaining, prevTimeRemaining;
+
+            // let the clock tick down a little bit  first
+            waits(5);
+            runs(function() {
+                // capture the ticked down time
+                prevTimeRemaining = $.fn.sessionTimeout('remaining'); // 1 min
+                // reset the countdown
+                $.fn.sessionTimeout('ping', {
+                    resource: 'README.md'
+                });
+                // dont wait just capture the time
+                timeRemaining = $.fn.sessionTimeout('remaining');
+                expect(timeRemaining).toBeGreaterThan(prevTimeRemaining);
+            });
+
+        });
+
+        it('it should load a non image resource from the server by default', function() {
+            // demo a file resource using the project readme
+            $.fn.sessionTimeout("ping", {
+                resource: 'README.md'
+            });
+            expect($.fn.sessionTimeout('getResourceLoaded')).toBeDefined();
+        });
+
+        it('it may optionaly load an image resource', function() {
+            // demo using the 1px transparent gif included in the project
+            $.fn.sessionTimeout('ping', {
+                'resource': '../src/spacer.gif'
+            });
+            expect($.fn.sessionTimeout('getResourceLoaded')).toBeDefined();
+        });
+
         describe('and the resource is not an image', function(){
             it('it should load the resource in an iframe tag', function(){
                 var targetEl;
@@ -159,40 +196,6 @@ describe('If the jQuery sessionTimeout plugin is installed', function() {
 
                 expect( targetEl.prop("tagName") ).toBe( "IMG" );
             });
-        });
-
-        it('it should reset the session countdown timer', function() {
-
-            var timeRemaining, prevTimeRemaining;
-
-            // let the clock tick down a little bit  first
-            waits(5);
-            runs(function() {
-                // capture the ticked down time
-                prevTimeRemaining = $.fn.sessionTimeout('remaining'); // 1 min
-                // reset the countdown
-                $.fn.sessionTimeout('ping', {
-                    resource: 'README.md'
-                });
-                // dont wait just capture the time
-                timeRemaining = $.fn.sessionTimeout('remaining');
-                expect(timeRemaining).toBeGreaterThan(prevTimeRemaining);
-            });
-
-        });
-        it('it should load a non image resource from the server by default', function() {
-            // demo a file resource using the project readme
-            $.fn.sessionTimeout("ping", {
-                resource: 'README.md'
-            });
-            expect($.fn.sessionTimeout('getResourceLoaded')).toBeDefined();
-        });
-        it('it may optionaly load an image resource', function() {
-            // demo using the 1px transparent gif included in the project
-            $.fn.sessionTimeout('ping', {
-                'resource': '../src/spacer.gif'
-            });
-            expect($.fn.sessionTimeout('getResourceLoaded')).toBeDefined();
         });
 
     });
