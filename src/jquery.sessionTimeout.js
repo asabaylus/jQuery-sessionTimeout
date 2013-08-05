@@ -2,10 +2,9 @@
 /**
  * jQuery Session Timeout Plugin
  * Prevents sessions from timeing-out
- * @author Asa Baylus
- * @version 0.0.2
+ * https://github.com/asabaylus/jQuery-sessionTimeout
  *
- * Copyright (c) 2012 Asa Baylus
+ * Copyright (c) 2013 Asa Baylus
  * Licensed under the MIT, GPL licenses.
  */
 (function (factory) {

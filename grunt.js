@@ -3,7 +3,7 @@ module.exports = function(grunt) {
 
   // Project configuration.
   grunt.initConfig({
-    pkg: '<json:jquery.sessiontimeout.js.jquery.json>',
+    pkg: '<json:jquery.sessionTimeout.jquery.json>',
     meta: {
       banner: '/*! <%= pkg.title || pkg.name %> - v<%= pkg.version %> - ' +
         '<%= grunt.template.today("yyyy-mm-dd") %>\n' +
@@ -23,11 +23,8 @@ module.exports = function(grunt) {
         dest: 'dist/<%= pkg.name %>.min.js'
       }
     },
-    jasmine: {
-      all: ['test/jasmine.html'],
-      junit: {
-        dest: 'test-results'
-      }
+    qunit: {
+      files: ['test/**/*.html']
     },
     lint: {
       files: ['grunt.js', 'src/**/*.js', 'test/**/*.js']
@@ -38,16 +35,26 @@ module.exports = function(grunt) {
     },
     jshint: {
       options: {
+        curly: true,
+        eqeqeq: true,
+        immed: true,
+        latedef: true,
+        newcap: true,
+        noarg: true,
+        sub: true,
+        undef: true,
+        boss: true,
+        eqnull: true,
+        browser: true
       },
-      globals: { }
+      globals: {
+        jQuery: true
+      }
     },
     uglify: {}
   });
 
   // Default task.
-  // run Jasmin in versbose mode (-v) to help with debugging
-  grunt.registerTask('default', 'lint jasmine concat min');
+  grunt.registerTask('default', 'lint qunit concat min');
 
-  // Jamsmine BDD task
-  grunt.loadNpmTasks('grunt-jasmine-task');
 };

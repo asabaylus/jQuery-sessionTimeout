@@ -1,107 +1,36 @@
-# jQuery Session Timeout
+# jQuery Sessiontimeout
 
-Prevents lost data due to session timeouts, by provivideing a user interface which alows users to refresh thier session before it expires
+Prompt users to continue their session
 
 ## Getting Started
 Download the [production version][min] or the [development version][max].
 
-[min]: https://raw.github.com/asabaylus/jquery.sessiontimeout.js/master/dist/jquery.sessiontimeout.min.js
-[max]: https://raw.github.com/asabaylus/jquery.sessiontimeout.js/master/dist/jquery.sessiontimeout.js
+[min]: https://raw.github.com/asabaylus/jquery.sessionTimeout/master/dist/jquery.sessionTimeout.min.js
+[max]: https://raw.github.com/asabaylus/jquery.sessionTimeout/master/dist/jquery.sessionTimeout.js
 
 In your web page:
 
 ```html
 <script src="jquery.js"></script>
-<script src="dist/jquery.sessiontimeout.min.js"></script>
+<script src="dist/jquery.sessionTimeout.min.js"></script>
 <script>
-jQuery(document).ready(function(){
-    $.fn.sessionTimeout(); 
+jQuery(function($) {
+  $.awesome(); // "awesome"
 });
 </script>
 ```
 
-## Usage
-
-The sessionTimeout plugin is called as a jQuery utility function
-
-```js
-// automatically renew the users session every 30 minuets by default
-$.fn.sessionTimeout();
-```
-
-Pass options into the plugin as an object. The following sample will display a JavaScript 
-alert message 10 seconds before the user session expires. This sample also configures the 
-session duration to last 30 seconds (30,000 ms). 
-
-```js
-jQuery(document).ready(function(){
-    $.fn.sessionTimeout({
-        timeout : 30000,
-        promptfor : 10000,
-        beforetimeout : function(){ 
-            alert("do something!");
-        } 
-    }); 
-});
-```
-
-Automatically renew the user session every 30 seconds
-
-```js
-jQuery(document).ready(function(){
-    $.fn.sessionTimeout({
-        autoping: true,
-        timeout : 30000
-    }); 
-});
-```
-
-## Options
-
-* autoping: true (boolean) : automatically continues the users session
-* timeout:  when the session will timeout
-* resource: "spacer.jpg" : url to an image or webpage (aspx, php, cfm, jsp, etc.) URL
-* beforetimeout: function callback when the prompt begins. Once beforeTimeout has triggered the session expiration will occur unless the countdown is restarted by calling the ping method ex: $.fn.sessionTimeout('ping') 
-* beforetimeout: function callback when the prompt begins 
-* ontimeout: function callback when the session expires
-
-
-## Methods
-
-$.fn.sessionTimeout("ping"); // loads the uncachable image specified in the Options img from the server 
-$.fn.sessionTimeout("printLog"); // returns an array of logged plugin events
-$.fn.sessionTimeout("ping"); // loads the uncahcable image specified in the Options img from the server 
-$.fn.sessionTimeout("destroy"); // removes the plugin from the page and cleans up references
-$.fn.sessionTimeout("elapsed"); // returns time session has been open in ms 
-$.fn.sessionTimeout("remaining"); // returns time left until session expires in ms
-$.fn.sessionTimeout("destroy"); // removes the plugin from the page and cleans up referneces
-```
-
-
-## Events
-
-
-```js
-$(document).bind("create.sessionTimeout", function(event, version));
-$(document).bind("ping.sessionTimeout");
-$(document).bind("prompt.sessionTimeout");
-$(document).bind("destroy.sessionTimeout");
-$(document).bind("expired.sessionTimeout");
-$(document).bind("logEvent.sessionTimeout");
-```
-
-For example usage view examples/demo.html
-For unit tests view test/index.html
+## Documentation
+_(Coming soon)_
 
 ## Examples
-<a href="examples/demo.html">Basic Demo</a>
-<a href="examples/jqueryui.html">Jquery UI Demo</a>
+_(Coming soon)_
 
 ## Release History
 _(Nothing yet)_
 
 ## License
-Copyright (c) 2012 Asa Baylus  
+Copyright (c) 2013 Asa Baylus  
 Licensed under the MIT, GPL licenses.
 
 ## Contributing
@@ -133,9 +62,3 @@ Note that the `phantomjs` executable needs to be in the system `PATH` for grunt 
 * [How to set the path and environment variables in Windows](http://www.computerhope.com/issues/ch000549.htm)
 * [Where does $PATH get set in OS X 10.6 Snow Leopard?](http://superuser.com/questions/69130/where-does-path-get-set-in-os-x-10-6-snow-leopard)
 * [How do I change the PATH variable in Linux](https://www.google.com/search?q=How+do+I+change+the+PATH+variable+in+Linux)
-
-## A few last notes
-* Grunt runs on node.js, on OSX you will need a compiler to install node.
-Use xcode is you have that or GCC (which is much smaller)
-https://github.com/kennethreitz/osx-gcc-installer
-* Once node and grunt are installed run '''npm install''' to install the dependencies and then '''grunt''' to run a build.
