@@ -2,28 +2,28 @@
 <html>
 <head>
 	<title>Session Timeout Plugin Basic Example</title>
-	<script type="text/javascript" type="JavaScript" src="../libs/jquery/jquery.js"></script>
+	<script type="text/javascript" type="JavaScript" src="../bower_components/jquery/jquery.js"></script>
 	<script type="text/javascript" src="../libs/jquery.timeago.js"></script>
 	<script type="text/javascript" src="../src/jquery.sessionTimeout.js"></script>
 	<script type="text/javascript">
 	$('document').ready(function(){
 
 		$(document).on('startCountdown.sessionTimeout', function(event, args) {
-			console.log('your session has started');
+			$('#log').append('Session started at: ' + new Date() + '\n' );
 			// console.log(event, args);
 		});
 
-		$(document).on('expired.sessionTimeout', function() {
-			console.log('your session has expired' );
+		$.fn.sessionTimeout({
+			timeout: 5000,
+			autoping: true
 		});
-
-		$.fn.sessionTimeout({ timeout: 5000, autoping: true });
 
 	});
 	</script>
 </head>
 <body>
 	<h1>Basic Demo</h1>
-	<div>Please note the server is pinged to renew the session at the start of the countdown.</div>
+	<div>5 seconds to session timeout.</div>
+	<textarea name="log" id="log" cols="80" rows="10"></textarea>
 </body>
 </html>
