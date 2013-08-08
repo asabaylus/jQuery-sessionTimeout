@@ -30,16 +30,16 @@
 		}
 		input {
 		    margin: .33em;
-		}		
+		}
 	</style>
-	<script type="text/javascript" src="../libs/jquery/jquery.js"></script>
+	<script type="text/javascript" src="../bower_components/jquery/jquery.js"></script>
 	<script type="text/javascript" src="../libs/jquery.timeago.js"></script>
-	<script type="text/javascript" src="../libs/jquery.idle-timer.js"></script>
+	<script type="text/javascript" src="../bower_components/jquery-idletimer/src/idle-timer.js"></script>
 	<script type="text/javascript" src="../src/jquery.sessionTimeout.js"></script>
 	<script type="text/javascript">
 	$(document).ready(function(){
 
-		
+
 		// use timeago to display how long ago the page was loaded
 		var loadTime = new Date(),
 		    sessionduration = 5000,
@@ -47,10 +47,13 @@
 		    pollduration = 2000,
 		    countDown,
 		    $status = $('#status'),
+		    $activity = $('#activity'),
 		    $idletime = $('#idletime'),
 		    $counter = $('#counter'),
+		    $elapsed = $('#elapsed'),
+		    $duration = $('#duration'),
 		    $optidletimer = $('#opt-idletimer');
-		
+
 		$('#btnDestroy').attr('disabled', true);
 
 		// show how long ago the page was loaded
@@ -59,24 +62,24 @@
 				var timepassed = $.timeago(loadTime);
 				$idletime.text(timepassed);
 		}, 1000);
-			
-		
+
+
 
 		$('#btnInit').click(function(){
-			
+
 
 			// Get settings from GUI
 			sessionduration = ($('#opt-timeout').val() || sessionduration);
 		    promptduration = ($('#opt-prompt').val() || promptduration);
-		    pollduration = ($('#opt-activity').val() || pollduration);		   	
+		    pollduration = ($('#opt-activity').val() || pollduration);
 		   	optautoping = $('#opt-autoping').is(':checked');
 		   	optenableidletimer = $('#opt-idletimer').is(':checked');
-			
+
 
 
 			// initialize sessionTimeout plugin
 			// automaticaly keep the connection alive
-			// session will expire in xxxx miliseconds  
+			// session will expire in xxxx miliseconds
 			// how long to display session timeout mesage
 			// how frequently to check for user activity
 			// allows idletimer to control sessions if present
@@ -92,26 +95,25 @@
 
 			// show user activity, this is just to provide visual feedback
 			if ($optidletimer.is(':checked')) {
-				$(document).idleTimer(pollduration);	
+				$(document).idleTimer(pollduration);
 			}
 		});
-		
-		
+
+
 		$('#btnPing').click(function(){
 			// It's possible to ping your target server without initializing session managment
 			// If this is the case you can simply set a resource to fetch when pinging the server.
 			$.fn.sessionTimeout('ping', {resource:'../src/test.gif'});
 		});
-		
-		
+
+
 		$('#btnDestroy').click(function(){
 			$.fn.sessionTimeout('destroy');
-		});	
-		
-		
+		});
+
 
 		$(document).bind('startCountdown.sessionTimeout', function(event){
-			
+
 			// reset the countdown
 	        clearInterval(countDown);
 
@@ -122,126 +124,131 @@
 			// get the current time remaining for this session
 			// surpress logging of remaining time
 			timeRemaining = $.fn.sessionTimeout('duration', true);
-			
-			// Countdown to session timeout 
+
+			// Countdown to session timeout
 			countDown = window.setInterval(function(){
 				var duration = $.fn.sessionTimeout('duration'),
 					remaining = $.fn.sessionTimeout('remaining');
 
                 timeRemaining -= 1000;
-				
+
 				if (timeRemaining >= 0){
 					// update the display with the time remaining
 					$counter.text(timeRemaining/1000 + " sec.");
-				} 
-			}, 1000);		
-			
+				}
+			}, 1000);
+
 
 			// when using idletimer dont allow changes to settings
-			$("#options > input").attr('disabled', true);	
+			$("#options > input").attr('disabled', true);
 		});
 
-	
-		$(document).bind('create.sessionTimeout', function(event, args) {
-			var $elapsed = $('#elapsed ').text( 0 + " sec.");
 
-			// show user activity status
-			initIdleTimer();
+		$(document).bind('create.sessionTimeout', function(event, args) {
+			$elapsed.text( 0 + " sec.");
+	  		$duration.text( sessionduration/1000 + ' sec.' );
+
+			if ($optidletimer.is(':checked')){
+				// show user activity status
+				enableIdleTimer();
+			}
 
 			$('#btnInit').attr('disabled', true);
 			$('#btnDestroy').removeAttr('disabled');
 
-
-	  		$('#duration').text( sessionduration/1000 + ' sec.' );
-	  		
-			
 			// reset the countdown
 			clearTimeout(countDown);
-			
+
 			// get the current session duration
 			// you could also use $.fn.sessionTimeout('duration');
-			// but you'd get an extra console.log entry in the demo 
+			// but you'd get an extra console.log entry in the demo
 			timeRemaining = sessionduration;
-					
-			
-			// Countdown to session timeout 
+
+
+			// Countdown to session timeout
 			countDown = window.setInterval(function(){
 				(timeRemaining -= 1000);
 				if (timeRemaining >= 0){
-				
+
 					// update the display with the time remaining
 					$('#counter , #remaining').text(timeRemaining/1000 + " sec.");
 					elapsed = $.fn.sessionTimeout('elapsed'),
 					$elapsed.text(Math.round(elapsed/1000) + " sec.");
 
-				
-				} 
-				
-			}, 1000);	
+
+				}
+
+			}, 1000);
 		});
-		
-		
+
+
 		$(document).bind('expired.sessionTimeout', function() {
 			// reset the UI for the demo
 			$('#options > input').removeAttr('disabled');
 			$('#btnDestroy').attr('disabled', true);
 			$('#btnInit').removeAttr('disabled');
-            $('#activity').removeAttr('class').text('--');
+            $activity.removeAttr('class').text('--');
 		});
-		
+
 
 		$(document).bind('destroy.sessionTimeout', function() {
 
-			var $elapsed = $('#elapsed ').text( 0 + " sec.");
-			
 			// allow user to change plugin options
 			$('#options > input').removeAttr('disabled');
-			
+
 			// You cant destroy the plugin until its been initialized
 			$('#btnDestroy').attr('disabled', true);
 			$('#btnInit').removeAttr('disabled');
 
 			// empty event log
 			$status.val('');
-			
-			// clear values from info block
+
+			// clear values from page
+			$elapsed.text( 0 + " sec.");
 			$('#duration').text('--');
 			$('#counter').text('--');
 
-			// stop diplaying user activity
-			$('#activity').removeClass('active idle').text('--');
+			disableIdleTimer();
 
-			// stop displaying seconds countdown		
+			// stop displaying seconds countdown
 			window.clearTimeout(countDown);
 			delete countDown;
-			
-			// stop showing user activity
-			$(document).idleTimer('destroy'); 
-		});	
 
-		function initIdleTimer(){
-			// if using idleTimer then display user activity status
-			if ($optidletimer.is(':checked')){
+
+		});
+
+		function enableIdleTimer () {
+
 				// assume user is active on page when plugin is initialized.
-				$('#activity').toggleClass('idle', false).addClass('active').text('active');
+				$activity.toggleClass('idle', false).addClass('active').text('active');
 
-				$(document).bind("idle.idleTimer", function(){
+				$(document).on("idle.idleTimer", function(){
 					//console.log('idleTimer event: active');
-					$('#activity').toggleClass('active', false).addClass('idle').text('idle');
+					$activity.toggleClass('active', false).addClass('idle').text('idle');
 				});
-				 
-				$(document).bind("active.idleTimer", function(){
+
+				$(document).on("active.idleTimer", function(){
 					//console.log('idleTimer event: inactive');
-					$('#activity').toggleClass('idle', false).addClass('active').text('active'); 
+					$activity.toggleClass('idle', false).addClass('active').text('active');
 				});
-			}
 		}
+
+		function disableIdleTimer () {
+			// assume user is active on page when plugin is initialized.
+			$activity.removeClass('active idle').text('--');
+			$(document).off("idle.idleTimer");
+			$(document).off("active.idleTimer");
+
+			// stop showing user activity
+			$(document).idleTimer('destroy');
+		}
+
 	});
 	</script>
 </head>
 <body>
 
-<div class="wrapper">	
+<div class="wrapper">
 	<div>
 	<h1>Session Timeout Plugin</h1>
 	<ul>
@@ -252,22 +259,22 @@
 		<li>Elapsed: <strong><span id="elapsed">0</span></span></li>
 	</ul>
 	</div>
-	
+
 	<div id="options">
-    	<input type="checkbox" name="opt-idletimer" id="opt-idletimer" checked /><label for="opt-autoping">Use idleTimer</label><br />    
+    	<input type="checkbox" name="opt-idletimer" id="opt-idletimer" checked /><label for="opt-autoping">Use idleTimer</label><br />
 		<input type="checkbox" name="opt-autoping" id="opt-autoping" /><label for="opt-autoping">Automatically renew session</label><br />
 		<input type="text" name="opt-timeout" id="opt-timeout" value="5000" disabled="disabled" /><label for="opt-timeout">Session duration (ms)</label><br />
 		<input type="text" name="opt-prompt" id="opt-prompt" value="3000" disabled="disabled" /><label for="opt-prompt">Prompt duration (ms)</label><br />
-		<input type="text" name="opt-prompt" id="opt-activity" value="2000" /><label for="opt-prompt">Poll for user activity, duration (ms)</label><br />	
+		<input type="text" name="opt-prompt" id="opt-activity" value="2000" /><label for="opt-prompt">Poll for user activity, duration (ms)</label><br />
 	</div>
-	
+
 	<div>
 		<button id="btnInit">Init</button>
-		<button id="btnPing">Ping</button>				
+		<button id="btnPing">Ping</button>
 		<button id="btnDestroy">Destroy</button><br><br>
 	</div>
-	
-	
+
+
 	<h2>Events</h2>
 	<div id="log">
 		<label for="status">sessionTimeout status:</label><br>
@@ -275,7 +282,7 @@
 loading...
 		</textarea>
 	</div>
-</div>	
+</div>
 
 </body>
 </html>

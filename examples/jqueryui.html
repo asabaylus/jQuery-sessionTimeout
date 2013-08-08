@@ -6,7 +6,7 @@
 	<style type="text/css">
 		#dialog-session { display:  none; }
 	</style>
-	<script type="text/javascript" src="../libs/jquery/jquery.js"></script>
+	<script type="text/javascript" src="../bower_components/jquery/jquery.js"></script>
 	<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.9/jquery-ui.js"></script>
 	<script type="text/javascript" src="../libs/jquery.timeago.js"></script>
 	<script type="text/javascript" src="../src/jquery.sessionTimeout.js"></script>
@@ -19,8 +19,8 @@
 			sessionDuration = 5000,
 
 			countDown;
-			
-		
+
+
 		setInterval(function(){
 				// use the wonderful timeago plugin to display when the page was originaly opened.
 				var timepassed = $.timeago(loadTime);
@@ -30,155 +30,155 @@
 
 
 
-		
-		$(document).bind('ping.sessionTimeout', function() {	
+
+		$(document).bind('ping.sessionTimeout', function() {
 
 	  		console.log('ping.sessionTimeout');
-			
+
 			// log the ping event
 			var t = new Date();
-			
+
 			// reset the countdown
 			clearTimeout(countDown);
-			
-			// Countdown to session timeout 
+
+			// Countdown to session timeout
 			countDown = window.setInterval(function(){
 				timeRemaining -= 1000;
 				if (timeRemaining >= 0){
-				
+
 					// update the display with the time remaining
 					$('#counter , #remaining').text(timeRemaining/1000 + " sec.");
-				
-				} 
-				
+
+				}
+
 			}, 1000);
 
 			statusEl.val(statusEl.val + '\n ping');
 		});
-		
-		
+
+
 		$(document).bind('create.sessionTimeout', function ( ) {
-	  		
+
 	  		console.log('create.sessionTimeout');
-	  		
+
 	  		// when autoping is true
 	  		// the session will never expire, so the modal window
 	  		// will never close. So we can close here instead
 	  		$( "#dialog-session" ).dialog('close');
-	  		
+
 			// display the session duration
 	  		$('#duration').text( sessionDuration/1000 + ' sec.' );
-	  		
-			
+
+
 			// reset the countdown
 			clearTimeout(countDown);
-			
+
 			// get the current session duration
 			// you could also use $.fn.sessionTimeout('duration');
-			// but you'd get an extra console.log entry in the demo 
-			timeRemaining = sessionDuration;			
-			
-			// Countdown to session timeout 
+			// but you'd get an extra console.log entry in the demo
+			timeRemaining = sessionDuration;
+
+			// Countdown to session timeout
 			countDown = window.setInterval(function(){
 				(timeRemaining -= 1000);
 				if (timeRemaining >= 0){
-				
+
 					// update the display with the time remaining
 					$('#counter , #remaining').text(timeRemaining/1000 + " sec.");
-				
-				} 
-				
-			}, 1000);			
+
+				}
+
+			}, 1000);
 		});
 
 		$(document).bind('destroy.sessionTimeout', function() {
 
-			
+
 			console.log('destroy.sessionTimeout');
 
 			// delete the coundown timer when we destroy the plugin
 			clearTimeout(countDown);
-		});	
+		});
 
 
 
-		
+
 
 		// setup the sessionTimeout plugin
 		$.fn.sessionTimeout({
 			autoping: false,
 			timeout: 5000,
-		    promptfor: 2500, 
-		    resource: "../src/spacer.gif", 
+		    promptfor: 2500,
+		    resource: "../src/spacer.gif",
 			beforetimeout: function() {
 
 				console.log('beforetimeout!');
-					 
+
 			 	// when session times out
-				// open a dialog box 
+				// open a dialog box
 				$( "#dialog-session" ).dialog({
 					resizable: false,
 					modal: true,
 					buttons: {
 						"Extend my session": function() {
-							
+
 							// if user clicks continue
 							// ping the server with sessionTimeout
 							// and restart the countdown
 							$.fn.sessionTimeout();
-							
+
 							$( this ).dialog( "close" );
 						}
 					}
 				});
-								
+
 			},
 			ontimeout: function(){
 				console.log('ontimeout');
 				$( "#dialog-session" ).dialog('close');
-			
-			}	
+
+			}
 		});
-					
+
 		$('#btnInit').click(function(){
 			$.fn.sessionTimeout('init');
-		});			
+		});
 		$('#btnPing').click(function(){
 			$.fn.sessionTimeout('ping');
 		});
 		$('#btnDestroy').click(function(){
 			$.fn.sessionTimeout('destroy');
-		});		
-		
+		});
 
 
-				
-	
+
+
+
 
 	});
 	</script>
 </head>
 <body>
-	
+
 	<div>
 	<h1>Session Timeout Plugin</h1>
-	
 
-	
+
+
 	<ul>
 		<li>This page was loaded: <strong><span id="idletime">...</span></strong></li>
 		<li>Session Duration: <strong><span id="duration">...</span></strong></li>
 		<li>Session Time Remaining: <strong><span id="counter">0</span></strong></li>
 	</ul>
 	</div>
-	
+
 	<div>
 		<button id="btnInit">Initialize</button>
 		<button id="btnPing">Ping</button>
 		<button id="btnDestroy">Destroy</button><br><br>
 	</div>
-	
-	
+
+
 	<h2>Events</h2>
 	<div id="log">
 		<label for="status">sessionTimeout status:</label><br>
