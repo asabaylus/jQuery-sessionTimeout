@@ -242,6 +242,7 @@ describe('If the jQuery sessionTimeout plugin is installed', function() {
             expect(duration).toEqual(20);
         });
     });
+
     describe('when the plugin requests elasped time', function() {
         it('it should return the time since the session countdown began', function() {
             var before;
